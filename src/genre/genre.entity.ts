@@ -1,5 +1,5 @@
+import { ContentType } from 'src/common/types/content-type.enum';
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { ContentType } from '../type/enum/contentType';
 
 @Entity()
 export class Genre {
