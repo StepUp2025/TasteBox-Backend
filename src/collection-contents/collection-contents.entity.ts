@@ -5,8 +5,9 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Collection } from '../collection/collection.entity';
-import { ContentType } from '../type/enum/contentType';
+
+import { ContentType } from 'src/common/types/content-type.enum';
+import { Collection } from 'src/collection/collection.entity';
 
 @Entity()
 export class CollectionContents {
