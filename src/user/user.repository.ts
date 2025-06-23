@@ -2,8 +2,8 @@ import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserRequestDto } from './dto/request/create-user-request.dto';
+import { UpdateUserRequestDto } from './dto/request/update-user-request.dto';
 
 @Injectable()
 export class UserRepository {
@@ -24,8 +24,8 @@ export class UserRepository {
     return await this.repository.findOneBy({ nickname });
   }
 
-  async createUser(createUserDto: CreateUserDto) {
-    const { email, password, nickname, contact, image } = createUserDto;
+  async createUser(dto: CreateUserRequestDto) {
+    const { email, password, nickname, contact, image } = dto;
 
     const newUser = this.repository.create({
       email,
@@ -38,14 +38,14 @@ export class UserRepository {
     return await this.repository.save(newUser);
   }
 
-  async updateUser(userId: number, updateUserDto: UpdateUserDto) {
+  async updateUser(userId: number, dto: UpdateUserRequestDto) {
     const user = await this.findOneById(userId);
 
     if (!user) {
       throw new NotFoundException('');
     }
 
-    const { nickname, image } = updateUserDto;
+    const { nickname, image } = dto;
 
     if (nickname) {
       user.nickname = nickname;

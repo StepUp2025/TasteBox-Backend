@@ -1,5 +1,4 @@
-export class TokenResponse {
-  id: number;
+export interface TokenResponse {
   accessToken: string;
   refreshToken: string;
 }

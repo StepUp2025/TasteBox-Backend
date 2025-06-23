@@ -6,9 +6,9 @@ import refreshJwtConfig from './config/refresh-jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import Redis from 'ioredis';
-import { AuthJwtPayload } from './types/auth-jwtPayload';
-import { TokenResponse } from './dto/token-response.dto';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { AuthJwtPayload } from './types/auth-jwt-payload';
+import { TokenResponse } from './dto/response/token-response.interface';
+import { CreateUserRequestDto } from 'src/user/dto/request/create-user-request.dto';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
@@ -65,15 +65,12 @@ export class AuthService {
     );
 
     return {
-      id: userId,
       accessToken,
       refreshToken,
     };
   }
 
-  async generateTokens(
-    userId: number,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  async generateTokens(userId: number): Promise<TokenResponse> {
     const payload: AuthJwtPayload = { sub: userId };
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload),
@@ -137,7 +134,7 @@ export class AuthService {
     };
   }
 
-  async validateGoogleUser(googleUser: CreateUserDto) {
+  async validateGoogleUser(googleUser: CreateUserRequestDto) {
     const user = await this.userRepository.findOneByEmail(googleUser.email);
     if (user) return user;
     return await this.userService.createUser(googleUser);
