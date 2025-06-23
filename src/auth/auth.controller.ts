@@ -17,14 +17,14 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { CreateUserRequestDto } from 'src/user/dto/request/create-user-request.dto';
 import { UserService } from 'src/user/user.service';
 import { Public } from './decorators/public.decorator';
 import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
 import { RequestWithUser } from './types/request-with-user.interface';
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
+import { LoginRequestDto } from './dto/request/login-request.dto';
 import { Response } from 'express';
 import * as ms from 'ms';
 import { setTokenCookie } from 'src/utils/cookie.util';
@@ -44,8 +44,8 @@ export class AuthController {
   @ApiCreatedResponse({
     description: '회원가입 성공',
   })
-  async signup(@Body() createUserDto: CreateUserDto) {
-    await this.userService.createUser(createUserDto);
+  async signup(@Body() dto: CreateUserRequestDto) {
+    await this.userService.createUser(dto);
   }
 
   @Public()
@@ -53,7 +53,7 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '로그인' })
-  @ApiBody({ type: LoginDto })
+  @ApiBody({ type: LoginRequestDto })
   @ApiOkResponse({
     description:
       '로그인 성공 시 accessToken과 refreshToken이 쿠키에 저장되어 반환됩니다.',
@@ -62,17 +62,7 @@ export class AuthController {
     const { accessToken, refreshToken } = await this.authService.login(
       req.user.id,
     );
-
-    const accessTokenMaxAge = ms(
-      (process.env.JWT_EXPIRES_IN as ms.StringValue) ?? '1d',
-    );
-    const refreshTokenMaxAge = ms(
-      (process.env.REFRESH_JWT_EXPIRES_IN as ms.StringValue) ?? '7d',
-    );
-
-    setTokenCookie(res, 'accessToken', accessToken, accessTokenMaxAge);
-    setTokenCookie(res, 'refreshToken', refreshToken, refreshTokenMaxAge);
-
+    this.setCookies(res, accessToken, refreshToken);
     return res.sendStatus(HttpStatus.OK);
   }
 
@@ -104,17 +94,7 @@ export class AuthController {
     const { accessToken, refreshToken } = await this.authService.refreshToken(
       req.user.id,
     );
-
-    const accessTokenMaxAge = ms(
-      (process.env.JWT_EXPIRES_IN as ms.StringValue) ?? '1d',
-    );
-    const refreshTokenMaxAge = ms(
-      (process.env.REFRESH_JWT_EXPIRES_IN as ms.StringValue) ?? '7d',
-    );
-
-    setTokenCookie(res, 'accessToken', accessToken, accessTokenMaxAge);
-    setTokenCookie(res, 'refreshToken', refreshToken, refreshTokenMaxAge);
-
+    this.setCookies(res, accessToken, refreshToken);
     return res.sendStatus(HttpStatus.OK);
   }
 
@@ -130,17 +110,20 @@ export class AuthController {
     const { accessToken, refreshToken } = await this.authService.login(
       req.user.id,
     );
+    this.setCookies(res, accessToken, refreshToken);
+    return res.redirect(`http://localhost:5000`);
+  }
 
+  private setCookies(res: Response, accessToken: string, refreshToken: string) {
     const accessTokenMaxAge = ms(
       (process.env.JWT_EXPIRES_IN as ms.StringValue) ?? '1d',
     );
+
     const refreshTokenMaxAge = ms(
       (process.env.REFRESH_JWT_EXPIRES_IN as ms.StringValue) ?? '7d',
     );
 
     setTokenCookie(res, 'accessToken', accessToken, accessTokenMaxAge);
     setTokenCookie(res, 'refreshToken', refreshToken, refreshTokenMaxAge);
-
-    return res.redirect(`http://localhost:5000`);
   }
 }
