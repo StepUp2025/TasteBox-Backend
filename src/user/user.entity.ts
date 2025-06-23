@@ -13,15 +13,40 @@ export class User extends BaseEntity {
   @Column({ unique: true })
   nickname: string;
 
-  @Column({ unique: true, nullable: true })
-  contact: string;
+  @Column({ type: 'varchar', unique: true, nullable: true })
+  contact: string | null;
 
-  @Column({ nullable: true })
-  image: string;
+  @Column({ type: 'varchar', nullable: true })
+  image: string | null;
 
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 10);
+  }
+
+  static create(
+    email: string,
+    password: string,
+    nickname: string,
+    contact?: string,
+    image?: string,
+  ) {
+    const user = new User();
+    user.email = email;
+    user.password = password;
+    user.nickname = nickname;
+    user.contact = contact ?? null;
+    user.image = image ?? null;
+  }
+
+  updateProfile(
+    nickname?: string,
+    contact?: string | null,
+    image?: string | null,
+  ) {
+    if (nickname !== undefined) this.nickname = nickname;
+    if (contact !== undefined) this.contact = contact;
+    if (image !== undefined) this.image = image;
   }
 }

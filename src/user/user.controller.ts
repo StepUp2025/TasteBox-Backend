@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Patch, Req } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UpdateUserRequestDto } from './dto/request/update-user-request.dto';
+import { UpdateUserProfileRequestDto } from './dto/request/update-user-request.dto';
 import { RequestWithUser } from '../auth/types/request-with-user.interface';
 import { UserResponseDto } from './dto/response/user-response.dto';
 import {
@@ -18,7 +18,7 @@ import {
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get()
+  @Get('profile')
   @ApiCookieAuth()
   @ApiOperation({ summary: '회원 정보 조회' })
   @ApiOkResponse({
@@ -30,18 +30,18 @@ export class UserController {
     return await this.userService.findUserById(req.user.id);
   }
 
-  @Patch()
+  @Patch('profile')
   @ApiCookieAuth()
-  @ApiOperation({ summary: '회원 정보 수정' })
-  @ApiBody({ type: UpdateUserRequestDto })
+  @ApiOperation({ summary: '회원 프로필 수정' })
+  @ApiBody({ type: UpdateUserProfileRequestDto })
   @ApiOkResponse({
-    description: '회원 정보 수정 성공',
+    description: '회원 프로필 수정 성공',
   })
   @ApiBadRequestResponse({ description: '잘못된 요청' })
   async updateUserInfo(
     @Req() req: RequestWithUser,
-    @Body() dto: UpdateUserRequestDto,
+    @Body() dto: UpdateUserProfileRequestDto,
   ) {
-    await this.userService.updateUser(req.user.id, dto);
+    await this.userService.updateUserProfile(req.user.id, dto);
   }
 }

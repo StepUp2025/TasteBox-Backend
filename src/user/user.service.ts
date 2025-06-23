@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { UserValidator } from './user.validator';
-import { UpdateUserRequestDto } from './dto/request/update-user-request.dto';
+import { UpdateUserProfileRequestDto } from './dto/request/update-user-request.dto';
 import { UserResponseDto } from './dto/response/user-response.dto';
 import { CreateUserRequestDto } from './dto/request/create-user-request.dto';
 import { plainToInstance } from 'class-transformer';
@@ -51,7 +51,7 @@ export class UserService {
     return await this.userRepository.createUser(dto);
   }
 
-  async updateUser(userId: number, dto: UpdateUserRequestDto) {
+  async updateUserProfile(userId: number, dto: UpdateUserProfileRequestDto) {
     const { nickname } = dto;
 
     // 닉네임 검증
@@ -59,7 +59,7 @@ export class UserService {
       await this.userValidator.duplicateNickname(nickname);
     }
 
-    await this.userRepository.updateUser(userId, dto);
+    await this.userRepository.updateUserProfile(userId, dto);
   }
 
   async generateUniqueNickname(base?: string): Promise<string> {

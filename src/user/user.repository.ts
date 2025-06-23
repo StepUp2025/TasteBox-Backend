@@ -3,7 +3,7 @@ import { User } from './user.entity';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserRequestDto } from './dto/request/create-user-request.dto';
-import { UpdateUserRequestDto } from './dto/request/update-user-request.dto';
+import { UpdateUserProfileRequestDto } from './dto/request/update-user-request.dto';
 
 @Injectable()
 export class UserRepository {
@@ -38,22 +38,14 @@ export class UserRepository {
     return await this.repository.save(newUser);
   }
 
-  async updateUser(userId: number, dto: UpdateUserRequestDto) {
+  async updateUserProfile(userId: number, dto: UpdateUserProfileRequestDto) {
     const user = await this.findOneById(userId);
 
     if (!user) {
       throw new NotFoundException('');
     }
 
-    const { nickname, image } = dto;
-
-    if (nickname) {
-      user.nickname = nickname;
-    }
-
-    if (image) {
-      user.image = image;
-    }
+    user.updateProfile(dto.nickname, dto.contact, dto.image);
 
     await this.repository.save(user);
   }
