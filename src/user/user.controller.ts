@@ -38,7 +38,7 @@ export class UserController {
     description: '회원 프로필 수정 성공',
   })
   @ApiBadRequestResponse({ description: '잘못된 요청' })
-  async updateUserInfo(
+  async updateUserProfile(
     @Req() req: RequestWithUser,
     @Body() dto: UpdateUserProfileRequestDto,
   ) {
