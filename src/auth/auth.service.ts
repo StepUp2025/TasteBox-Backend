@@ -95,7 +95,7 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<{ id: number }> {
     const user = await this.userRepository.findOneByEmail(email);
 
-    if (!user) {
+    if (!user || !user.password) {
       throw new UnauthorizedException('존재하지 않는 유저 정보입니다.');
     }
 

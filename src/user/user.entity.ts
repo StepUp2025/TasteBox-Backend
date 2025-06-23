@@ -7,8 +7,8 @@ export class User extends BaseEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column()
-  password: string;
+  @Column({ type: 'varchar', nullable: true })
+  password: string | null;
 
   @Column({ unique: true })
   nickname: string;
@@ -22,12 +22,16 @@ export class User extends BaseEntity {
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
+    if (this.password === null || this.password === '') {
+      return;
+    }
+
     this.password = await bcrypt.hash(this.password, 10);
   }
 
   static create(
     email: string,
-    password: string,
+    password: string | null,
     nickname: string,
     contact?: string,
     image?: string,
