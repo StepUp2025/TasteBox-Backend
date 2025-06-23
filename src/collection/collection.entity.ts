@@ -1,3 +1,4 @@
+import { User } from 'src/user/user.entity';
 import {
   Column,
   Entity,
@@ -5,7 +6,6 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from '../../user/user.entity';
 
 @Entity()
 export class Collection {

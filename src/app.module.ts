@@ -7,9 +7,20 @@ import { CollectionModule } from './collection/collection.module';
 import { CollectionContentsModule } from './collection-contents/collection-contents.module';
 import { GenreModule } from './genre/genre.module';
 import { PreferenceModule } from './preference/preference.module';
+import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from './common/database/database.module';
 
 @Module({
-  imports: [AuthModule, UserModule, CollectionModule, CollectionContentsModule, GenreModule, PreferenceModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    DatabaseModule,
+    AuthModule,
+    UserModule,
+    CollectionModule,
+    CollectionContentsModule,
+    GenreModule,
+    PreferenceModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
