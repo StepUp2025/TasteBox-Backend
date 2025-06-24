@@ -1,5 +1,4 @@
-import { TMDBMovie } from '../type/movie-list';
-
+import { TMDBMovie } from '../interfaces/movie-list.interface';
 export class MovieListItemDto {
   constructor(
     public id: number,

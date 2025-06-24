@@ -1,40 +1,40 @@
-import { TMDBMovieDetailResponse } from '../type/movie';
+import { TMDBMovieDetailResponse } from '../interfaces/movie.interface';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class FindMovieDetailResponseDto {
   @ApiProperty({ description: '영화의 고유 ID', example: 574475 })
-  public id: number;
+  id: number;
 
   @ApiProperty({
     description: '영화 제목',
     example: '파이널 데스티네이션 블러드라인스',
   })
-  public title: string;
+  title: string;
 
   @ApiProperty({
     description: '영화 줄거리 요약',
     example:
       '악몽에 시달리던 대학생 스테파니는 가족의 끔찍한 죽음을 막기 위해...',
   })
-  public overview: string;
+  overview: string;
 
   @ApiProperty({
     description: '영화 포스터 이미지 경로',
     example: '/6WxhEvFsauuACfv8HyoVX6mZKFj.jpg',
   })
-  public poster_path: string;
+  poster_path: string;
 
   @ApiProperty({
     description: '영화 배경 이미지 경로',
     example: '/uIpJPDNFoeX0TVml9smPrs9KUVx.jpg',
   })
-  public backdrop_path: string;
+  backdrop_path: string;
 
   @ApiProperty({ description: '성인 관람가 여부', example: false })
-  public adult: boolean;
+  adult: boolean;
 
   @ApiProperty({ description: '원본 언어', example: 'en' })
-  public original_language: string;
+  original_language: string;
 
   @ApiProperty({
     description: '영화 장르 목록',
@@ -51,28 +51,28 @@ export class FindMovieDetailResponseDto {
       { id: 9648, name: '미스터리' },
     ],
   })
-  public genres: { id: number; name: string }[];
+  genres: { id: number; name: string }[];
 
   @ApiProperty({
     description: '영화의 현재 상태 (예: Released, Rumored)',
     example: 'Released',
   })
-  public status: string;
+  status: string;
 
   @ApiProperty({ description: '영화 상영 시간 (분)', example: 90 })
-  public runtime: number;
+  runtime: number;
 
   @ApiProperty({ description: '인기도 점수', example: 1124.222 })
-  public popularity: number;
+  popularity: number;
 
   @ApiProperty({ description: '개봉일 (YYYY-MM-DD)', example: '2025-05-14' })
-  public release_date: string;
+  release_date: string;
 
   @ApiProperty({ description: '평균 평점', example: 7.219 })
-  public vote_average: number;
+  vote_average: number;
 
   @ApiProperty({ description: '투표 수', example: 1147 })
-  public vote_count: number;
+  vote_count: number;
 
   constructor(
     id: number,

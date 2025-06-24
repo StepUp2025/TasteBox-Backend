@@ -1,4 +1,4 @@
-import { TMDBNowPlayingResponse } from '../type/movie-list';
+import { TMDBNowPlayingResponse } from '../interfaces/movie-list.interface';
 import { MovieListItemDto } from './movie-list-item.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -15,13 +15,13 @@ export class FindMovieListResponseDto {
       { id: 123456, poster_path: '/abc.jpg', title: '영화이름2' },
     ],
   })
-  public movies: MovieListItemDto[];
+  movies: MovieListItemDto[];
 
   @ApiProperty({ description: '현재 페이지 번호', example: 1 })
-  public page: number;
+  page: number;
 
   @ApiProperty({ description: '총 페이지 수', example: 1000 })
-  public totalPages: number;
+  totalPages: number;
 
   constructor(movies: MovieListItemDto[], page: number, totalPages: number) {
     this.movies = movies;
