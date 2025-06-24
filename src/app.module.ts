@@ -10,6 +10,7 @@ import { PreferenceModule } from './preference/preference.module';
 import { ConfigModule } from '@nestjs/config';
 import { MovieModule } from './movie/movie.module';
 import { DatabaseModule } from './common/database/database.module';
+import { TvModule } from './tv/tv.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { DatabaseModule } from './common/database/database.module';
     AuthModule,
     UserModule,
     MovieModule,
+    TvModule,
     CollectionModule,
     CollectionContentsModule,
     GenreModule,
