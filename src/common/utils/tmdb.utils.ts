@@ -1,13 +1,9 @@
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const DEFAULT_LANGUAGE = 'ko-KR';
-
-const TMDB_AUTH_HEADER = {
-  Authorization: `Bearer ${process.env.TMDB_ACCESS_TOKEN}`,
-  accept: 'application/json',
-};
 
 export function buildTmdbUrl(
   path: string,
@@ -29,10 +25,19 @@ export function buildTmdbUrl(
 export async function fetchFromTmdb<T>(
   httpService: HttpService,
   url: string,
+  configService: ConfigService,
 ): Promise<T> {
+  const token = configService.get<string>('TMDB_ACCESS_TOKEN');
+  if (!token) {
+    throw new Error('TMDB_ACCESS_TOKEN not found in environment variables');
+  }
+
   const response = await firstValueFrom(
     httpService.get<T>(url, {
-      headers: TMDB_AUTH_HEADER,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        accept: 'application/json',
+      },
     }),
   );
   return response.data;
