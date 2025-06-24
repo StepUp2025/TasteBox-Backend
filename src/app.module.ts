@@ -20,7 +20,7 @@ import { DatabaseModule } from './common/database/database.module';
     DatabaseModule,
     AuthModule,
     UserModule,
-    MovieModule
+    MovieModule,
     CollectionModule,
     CollectionContentsModule,
     GenreModule,
