@@ -1,67 +1,42 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { firstValueFrom } from 'rxjs';
-import { TMDBNowPlayingResponse } from './type/movie-list';
+import { TMDBNowPlayingResponse } from './interfaces/movie-list.interface';
 import { FindMovieListResponseDto } from './dto/find-movie-list-response.dto';
 import { FindMovieDetailResponseDto } from './dto/find-movie-detail-response.dto';
-import { TMDBMovieDetailResponse } from './type/movie';
+import { TMDBMovieDetailResponse } from './interfaces/movie.interface';
+import { buildTmdbUrl, fetchFromTmdb } from '../common/utils/tmdb.utils';
 
 @Injectable()
 export class MovieService {
-  private readonly TMDB_BASE_URL = 'https://api.themoviedb.org/3';
-  private readonly TMDB_AUTH_HEADER = {
-    Authorization: `Bearer ${process.env.TMDB_ACCESS_TOKEN}`,
-    accept: 'application/json',
-  };
-  private readonly DEFAULT_LANGUAGE = 'ko-KR';
-
   constructor(private readonly httpService: HttpService) {}
-
-  private buildUrl(
-    path: string,
-    query: Record<string, string | number> = {},
-  ): string {
-    const processedQuery: Record<string, string> = {};
-    for (const key in query) {
-      if (Object.prototype.hasOwnProperty.call(query, key)) {
-        processedQuery[key] = String(query[key]);
-      }
-    }
-
-    processedQuery['language'] =
-      processedQuery['language'] || this.DEFAULT_LANGUAGE;
-
-    const queryString = new URLSearchParams(processedQuery).toString();
-    return `${this.TMDB_BASE_URL}${path}${queryString ? '?' + queryString : ''}`;
-  }
-
-  private async fetchFromTmdb<T>(url: string): Promise<T> {
-    const response = await firstValueFrom(
-      this.httpService.get<T>(url, {
-        headers: this.TMDB_AUTH_HEADER,
-      }),
-    );
-    return response.data;
-  }
 
   // 영화 상세 정보 조회
   async getMovieById(id: number): Promise<FindMovieDetailResponseDto> {
-    const url = this.buildUrl(`/movie/${id}`);
-    const tmdbResponse = await this.fetchFromTmdb<TMDBMovieDetailResponse>(url);
+    const url = buildTmdbUrl(`/movie/${id}`);
+    const tmdbResponse = await fetchFromTmdb<TMDBMovieDetailResponse>(
+      this.httpService,
+      url,
+    );
     return FindMovieDetailResponseDto.fromTMDB(tmdbResponse);
   }
 
   // 상영 중인 영화 조회
   async getNowPlayingMovies(page = 1): Promise<FindMovieListResponseDto> {
-    const url = this.buildUrl('/movie/now_playing', { page });
-    const tmdbResponse = await this.fetchFromTmdb<TMDBNowPlayingResponse>(url);
+    const url = buildTmdbUrl('/movie/now_playing', { page });
+    const tmdbResponse = await fetchFromTmdb<TMDBNowPlayingResponse>(
+      this.httpService,
+      url,
+    );
     return FindMovieListResponseDto.fromTMDBResponse(tmdbResponse);
   }
 
   // 평점 높은 영화 조회
   async getTopRatedMovies(page = 1): Promise<FindMovieListResponseDto> {
-    const url = this.buildUrl('/movie/top_rated', { page });
-    const tmdbResponse = await this.fetchFromTmdb<TMDBNowPlayingResponse>(url);
+    const url = buildTmdbUrl('/movie/top_rated', { page });
+    const tmdbResponse = await fetchFromTmdb<TMDBNowPlayingResponse>(
+      this.httpService,
+      url,
+    );
     return FindMovieListResponseDto.fromTMDBResponse(tmdbResponse);
   }
 
@@ -70,11 +45,14 @@ export class MovieService {
     genreId: number,
     page = 1,
   ): Promise<FindMovieListResponseDto> {
-    const url = this.buildUrl('/discover/movie', {
+    const url = buildTmdbUrl('/discover/movie', {
       with_genres: genreId,
       page: page,
     });
-    const tmdbResponse = await this.fetchFromTmdb<TMDBNowPlayingResponse>(url);
+    const tmdbResponse = await fetchFromTmdb<TMDBNowPlayingResponse>(
+      this.httpService,
+      url,
+    );
     return FindMovieListResponseDto.fromTMDBResponse(tmdbResponse);
   }
 
@@ -83,10 +61,13 @@ export class MovieService {
     movieId: number,
     page = 1,
   ): Promise<FindMovieListResponseDto> {
-    const url = this.buildUrl(`/movie/${movieId}/recommendations`, {
+    const url = buildTmdbUrl(`/movie/${movieId}/recommendations`, {
       page: page,
     });
-    const tmdbResponse = await this.fetchFromTmdb<TMDBNowPlayingResponse>(url);
+    const tmdbResponse = await fetchFromTmdb<TMDBNowPlayingResponse>(
+      this.httpService,
+      url,
+    );
     return FindMovieListResponseDto.fromTMDBResponse(tmdbResponse);
   }
 }
