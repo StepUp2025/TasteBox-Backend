@@ -9,6 +9,7 @@ import { GenreModule } from './genre/genre.module';
 import { PreferenceModule } from './preference/preference.module';
 import { ConfigModule } from '@nestjs/config';
 import { MovieModule } from './movie/movie.module';
+import { DatabaseModule } from './common/database/database.module';
 
 @Module({
   imports: [
@@ -16,9 +17,10 @@ import { MovieModule } from './movie/movie.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    DatabaseModule,
     AuthModule,
     UserModule,
-    MovieModule,
+    MovieModule
     CollectionModule,
     CollectionContentsModule,
     GenreModule,
