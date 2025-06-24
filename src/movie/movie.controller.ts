@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { FindMovieListResponseDto } from './dto/find-movie-list-response.dto';
 import { FindMovieDetailResponseDto } from './dto/find-movie-detail-response.dto';
@@ -11,11 +11,11 @@ export class MovieController {
 
   @Get('now-playing')
   @ApiOperation({
-    summary: '상영 중인 영화 리스트록 조회',
+    summary: '상영 중인 영화 리스트를 조회',
     description: '현재 상영 중인 영화 리스트를 조회합니다.',
   })
   async getNowPlayingMovies(
-    @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+    @Query('page') page?: number,
   ): Promise<FindMovieListResponseDto> {
     return this.movieService.getNowPlayingMovies(page);
   }
@@ -26,7 +26,7 @@ export class MovieController {
     description: '평점이 높은 영화 리스트를 조회합니다.',
   })
   async getTopRatedMovies(
-    @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+    @Query('page') page?: number,
   ): Promise<FindMovieListResponseDto> {
     return this.movieService.getTopRatedMovies(page);
   }
@@ -37,7 +37,7 @@ export class MovieController {
     description: '영화 ID를 통해 영화의 상세 정보를 조회합니다.',
   })
   async getMovieById(
-    @Param('movieId', ParseIntPipe) movieId: number,
+    @Param('movieId') movieId: number,
   ): Promise<FindMovieDetailResponseDto> {
     return this.movieService.getMovieById(movieId);
   }
@@ -48,7 +48,7 @@ export class MovieController {
     description: '장르 ID를 통해 해당 장르의 영화 리스트를 조회합니다.',
   })
   async getMoviesByGenre(
-    @Query('genreId', ParseIntPipe) genreId: number,
+    @Query('genreId') genreId: number,
   ): Promise<FindMovieListResponseDto> {
     return this.movieService.getMoviesByGenre(genreId);
   }
@@ -59,7 +59,7 @@ export class MovieController {
     description: '영화 ID를 통해 추천 영화 리스트를 조회합니다.',
   })
   async getRecommendedMoviesById(
-    @Param('movieId', ParseIntPipe) movieId: number,
+    @Param('movieId') movieId: number,
   ): Promise<FindMovieListResponseDto> {
     return this.movieService.getRecommendedMoviesById(movieId);
   }
