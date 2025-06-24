@@ -8,14 +8,19 @@ import { CollectionContentsModule } from './collection-contents/collection-conte
 import { GenreModule } from './genre/genre.module';
 import { PreferenceModule } from './preference/preference.module';
 import { ConfigModule } from '@nestjs/config';
+import { MovieModule } from './movie/movie.module';
 import { DatabaseModule } from './common/database/database.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
     DatabaseModule,
     AuthModule,
     UserModule,
+    MovieModule
     CollectionModule,
     CollectionContentsModule,
     GenreModule,

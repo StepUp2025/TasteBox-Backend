@@ -5,8 +5,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const config = new DocumentBuilder()
+    .setTitle('Movie API')
+    .setDescription('The movie API description')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
 
+  const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
 
   app.useGlobalPipes(
@@ -25,7 +31,6 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-
   SwaggerModule.setup('api-docs', app, document);
 
   app.enableCors({
