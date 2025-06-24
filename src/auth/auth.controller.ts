@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Put,
   Req,
   Res,
   UseGuards,
@@ -29,6 +30,8 @@ import { Response } from 'express';
 import * as ms from 'ms';
 import { setTokenCookie } from 'src/utils/cookie.util';
 import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
+import { UpdatePasswordRequestDto } from './dto/request/update-password-request.dto';
+import { LocalUserOnlyGuard } from './guards/local-auth/local-user-only.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -98,14 +101,47 @@ export class AuthController {
     return res.sendStatus(HttpStatus.OK);
   }
 
+  @UseGuards(LocalUserOnlyGuard)
+  @Put('password')
+  @ApiCookieAuth()
+  @ApiOperation({
+    summary: '비밀번호 변경',
+    description: '로그인한 사용자의 비밀번호를 변경합니다.',
+  })
+  @ApiOkResponse({
+    description: '비밀번호가 성공적으로 변경되었습니다.',
+  })
+  @ApiBody({ type: UpdatePasswordRequestDto })
+  async updatePassword(
+    @Req() req: RequestWithUser,
+    @Body() dto: UpdatePasswordRequestDto,
+  ) {
+    await this.authService.updatePassword(req.user.id, dto);
+  }
+
   @Public()
   @UseGuards(GoogleAuthGuard)
   @Get('google/login')
+  @ApiOperation({
+    summary: 'Google 로그인 시작',
+    description: 'Google OAuth 로그인을 시작합니다.',
+  })
+  @ApiOkResponse({
+    description: 'Google 로그인 페이지로 리다이렉트됩니다.',
+  })
   googleLogin() {}
 
   @Public()
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
+  @ApiOperation({
+    summary: 'Google 로그인 콜백',
+    description: 'Google OAuth 로그인 후 콜백을 처리합니다.',
+  })
+  @ApiOkResponse({
+    description:
+      'Google 로그인 성공 시 accessToken과 refreshToken이 쿠키에 저장되고, 프론트엔드로 리다이렉트됩니다.',
+  })
   async googleCallback(@Req() req: RequestWithUser, @Res() res: Response) {
     const { accessToken, refreshToken } = await this.authService.login(
       req.user.id,

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
+import { AuthProvider } from 'src/user/enums/auth-provider.enum';
 
 @Exclude()
 export class UserResponseDto {
@@ -21,4 +22,12 @@ export class UserResponseDto {
   })
   @Expose()
   image: string;
+
+  @ApiProperty({
+    description: '가입 방식',
+    enum: AuthProvider,
+    example: AuthProvider.LOCAL, // 또는 'google', 'kakao' 등
+  })
+  @Expose()
+  provider: AuthProvider;
 }

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { AuthProvider } from 'src/user/enums/auth-provider.enum';
 
 export class CreateUserRequestDto {
   @ApiProperty({ description: '이메일', example: 'stepup@mail.com' })
@@ -28,4 +29,12 @@ export class CreateUserRequestDto {
   })
   @IsString()
   image?: string;
+
+  @ApiProperty({
+    description: '가입 경로',
+    enum: AuthProvider,
+    example: AuthProvider.LOCAL,
+  })
+  @IsEnum(AuthProvider)
+  provider?: AuthProvider;
 }

@@ -1,7 +1,13 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { compare } from 'bcrypt';
 import { UserRepository } from 'src/user/user.repository';
 import * as argon2 from 'argon2';
+import * as bcrypt from 'bcrypt';
 import refreshJwtConfig from './config/refresh-jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -10,6 +16,7 @@ import { AuthJwtPayload } from './types/auth-jwt-payload';
 import { TokenResponse } from './dto/response/token-response.interface';
 import { CreateUserRequestDto } from 'src/user/dto/request/create-user-request.dto';
 import { UserService } from 'src/user/user.service';
+import { UpdatePasswordRequestDto } from './dto/request/update-password-request.dto';
 
 @Injectable()
 export class AuthService {
@@ -48,6 +55,32 @@ export class AuthService {
     const key = this.getRefreshTokenKey(userId);
 
     await this.redis.del(key);
+  }
+
+  async updatePassword(userId: number, dto: UpdatePasswordRequestDto) {
+    const user = await this.userRepository.findOneById(userId);
+
+    if (!user) {
+      throw new UnauthorizedException('존재하지 않는 유저입니다.');
+    }
+
+    if (!user.password) {
+      throw new UnauthorizedException('비밀번호가 없는 계정입니다.'); // OAuth 계정을 의미
+    }
+
+    // 1. 현재 비밀번호 검증
+    const isValid = await bcrypt.compare(dto.currentPassword, user.password);
+    if (!isValid)
+      throw new UnauthorizedException('현재 비밀번호가 올바르지 않습니다.');
+
+    // 2. 새 비밀번호 일치 검증
+    if (dto.newPassword !== dto.newPasswordConfirm) {
+      throw new BadRequestException('새 비밀번호가 서로 일치하지 않습니다.');
+    }
+
+    // 3. 새 비밀번호 업데이트
+    user.password = dto.newPassword;
+    await this.userRepository.save(user);
   }
 
   // Access Token 갱신과 동시에 RefreshToken도 갱신 (RTR - Refresh Token Rotation)
