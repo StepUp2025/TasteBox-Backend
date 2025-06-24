@@ -1,6 +1,7 @@
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { AuthProvider } from './enums/auth-provider.enum';
 
 @Entity()
 export class User extends BaseEntity {
@@ -19,6 +20,14 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', nullable: true })
   image: string | null;
 
+  @Column({
+    type: 'enum',
+    enum: AuthProvider,
+    nullable: false,
+    default: AuthProvider.LOCAL,
+  })
+  provider: AuthProvider; // 'local', 'google' 등
+
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
@@ -33,6 +42,7 @@ export class User extends BaseEntity {
     email: string,
     password: string | null,
     nickname: string,
+    provider?: AuthProvider,
     contact?: string,
     image?: string,
   ) {
@@ -40,8 +50,10 @@ export class User extends BaseEntity {
     user.email = email;
     user.password = password;
     user.nickname = nickname;
+    user.provider = provider ?? AuthProvider.LOCAL;
     user.contact = contact ?? null;
     user.image = image ?? null;
+    return user;
   }
 
   updateProfile(
@@ -52,5 +64,9 @@ export class User extends BaseEntity {
     if (nickname !== undefined) this.nickname = nickname;
     if (contact !== undefined) this.contact = contact;
     if (image !== undefined) this.image = image;
+  }
+
+  updatePassword(newPassword: string) {
+    this.password = newPassword;
   }
 }

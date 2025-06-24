@@ -25,15 +25,16 @@ export class UserRepository {
   }
 
   async createUser(dto: CreateUserRequestDto) {
-    const { email, password, nickname, contact, image } = dto;
+    const { email, password, nickname, contact, image, provider } = dto;
 
-    const newUser = this.repository.create({
+    const newUser = User.create(
       email,
       password,
       nickname,
+      provider,
       contact,
       image,
-    });
+    );
 
     return await this.repository.save(newUser);
   }
@@ -47,6 +48,10 @@ export class UserRepository {
 
     user.updateProfile(dto.nickname, dto.contact, dto.image);
 
+    await this.repository.save(user);
+  }
+
+  async save(user: User) {
     await this.repository.save(user);
   }
 }

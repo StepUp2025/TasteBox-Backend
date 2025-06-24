@@ -5,6 +5,7 @@ import googleOauthConfig from '../config/google-oauth.config';
 import { ConfigType } from '@nestjs/config';
 import { AuthService } from '../auth.service';
 import { UserService } from 'src/user/user.service';
+import { AuthProvider } from 'src/user/enums/auth-provider.enum';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
@@ -47,6 +48,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       email: emails[0].value,
       nickname: await this.userService.generateUniqueNickname(name?.givenName),
       password: '',
+      provider: AuthProvider.GOOGLE,
     });
 
     // done(null, user);
