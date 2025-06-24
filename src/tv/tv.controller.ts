@@ -3,14 +3,12 @@ import { TvService } from './tv.service';
 import { FindTvListResponseDto } from './dto/find-tv-list-response.dto';
 import { FindTvDetailResponseDto } from './dto/find-tv-detail-response.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('tvs')
 @ApiTags('Tvs')
 export class TvController {
   constructor(private readonly tvService: TvService) {}
 
-  @Public()
   @Get('now-playing')
   @ApiOperation({
     summary: '상영 중인 TV 시리즈 리스트를 조회',
@@ -22,7 +20,6 @@ export class TvController {
     return this.tvService.getNowPlayingTvs(page);
   }
 
-  @Public()
   @Get('top-rated')
   @ApiOperation({
     summary: '평점 높은 TV 시리즈 리스트 조회',
@@ -34,7 +31,6 @@ export class TvController {
     return this.tvService.getTopRatedTvs(page);
   }
 
-  @Public()
   @Get(':tvId')
   @ApiOperation({
     summary: 'TV 시리즈 상세 정보 조회',
@@ -46,7 +42,6 @@ export class TvController {
     return this.tvService.getTvById(tvId);
   }
 
-  @Public()
   @Get('')
   @ApiOperation({
     summary: '장르별 TV 시리즈 리스트 조회',
@@ -59,7 +54,6 @@ export class TvController {
     return this.tvService.getTvsByGenre(genreId, page);
   }
 
-  @Public()
   @Get(':tvId/recommends')
   @ApiOperation({
     summary: '추천 TV 시리즈 리스트 조회',
