@@ -125,7 +125,10 @@ export class AuthService {
     );
   }
 
-  async validateUser(email: string, password: string): Promise<{ id: number }> {
+  async validateLocalUser(
+    email: string,
+    password: string,
+  ): Promise<{ id: number }> {
     const user = await this.userRepository.findOneByEmail(email);
 
     if (!user || !user.password) {
@@ -141,6 +144,12 @@ export class AuthService {
     return {
       id: user.id,
     };
+  }
+
+  async validateOAuthUser(dto: CreateUserRequestDto) {
+    const user = await this.userRepository.findOneByEmail(dto.email);
+    if (user) return user;
+    return await this.userService.createUser(dto);
   }
 
   async validateRefreshToken(
@@ -165,12 +174,6 @@ export class AuthService {
     return {
       id: userId,
     };
-  }
-
-  async validateGoogleUser(googleUser: CreateUserRequestDto) {
-    const user = await this.userRepository.findOneByEmail(googleUser.email);
-    if (user) return user;
-    return await this.userService.createUser(googleUser);
   }
 
   async getHashedRefreshToken(userId: number): Promise<string | null> {

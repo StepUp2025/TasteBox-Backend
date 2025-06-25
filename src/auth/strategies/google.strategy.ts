@@ -31,27 +31,20 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(
-    accessToken: string,
-    refreshToken: string,
-    profile: Profile,
-    // done: VerifyCallback,
-  ) {
-    console.log({ profile });
+  async validate(accessToken: string, refreshToken: string, profile: Profile) {
     const { emails, name } = profile;
 
     if (!emails || emails.length === 0) {
       throw new Error('Google 프로필에 이메일 정보가 없습니다.');
     }
 
-    const user = await this.authService.validateGoogleUser({
+    const user = await this.authService.validateOAuthUser({
       email: emails[0].value,
       nickname: await this.userService.generateUniqueNickname(name?.givenName),
       password: '',
       provider: AuthProvider.GOOGLE,
     });
 
-    // done(null, user);
     return user;
   }
 }

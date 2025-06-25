@@ -14,6 +14,8 @@ import jwtConfig from './config/jwt.config';
 import refreshJwtConfig from './config/refresh-jwt.config';
 import googleOauthConfig from './config/google-oauth.config';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { KakaoStrategy } from './strategies/kakao.strategy';
+import kakaoOauthConfig from './config/kakao-oauth.config';
 
 @Module({
   imports: [
@@ -22,6 +24,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
     ConfigModule.forFeature(jwtConfig),
     ConfigModule.forFeature(refreshJwtConfig),
     ConfigModule.forFeature(googleOauthConfig),
+    ConfigModule.forFeature(kakaoOauthConfig),
     RedisModule,
   ],
   controllers: [AuthController],
@@ -31,6 +34,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
     JwtStrategy,
     RefreshJwtStrategy,
     GoogleStrategy,
+    KakaoStrategy,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard, // @UseGuards(JwtAuthGuard) 모든 엔드포인트에 적용
