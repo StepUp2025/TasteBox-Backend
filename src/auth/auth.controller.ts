@@ -32,6 +32,7 @@ import { setTokenCookie } from 'src/utils/cookie.util';
 import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
 import { UpdatePasswordRequestDto } from './dto/request/update-password-request.dto';
 import { LocalUserOnlyGuard } from './guards/local-auth/local-user-only.guard';
+import { KakaoAuthGuard } from './guards/kakao-auth/kakao-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -143,6 +144,22 @@ export class AuthController {
       'Google 로그인 성공 시 accessToken과 refreshToken이 쿠키에 저장되고, 프론트엔드로 리다이렉트됩니다.',
   })
   async googleCallback(@Req() req: RequestWithUser, @Res() res: Response) {
+    const { accessToken, refreshToken } = await this.authService.login(
+      req.user.id,
+    );
+    this.setCookies(res, accessToken, refreshToken);
+    return res.redirect(`http://localhost:5000`);
+  }
+
+  @Public()
+  @UseGuards(KakaoAuthGuard)
+  @Get('kakao/login')
+  kakaoLogin() {}
+
+  @Public()
+  @UseGuards(KakaoAuthGuard)
+  @Get('kakao/callback')
+  async kakaoCallback(@Req() req: RequestWithUser, @Res() res: Response) {
     const { accessToken, refreshToken } = await this.authService.login(
       req.user.id,
     );
