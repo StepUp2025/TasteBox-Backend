@@ -23,6 +23,7 @@ import { TvModule } from './tv/tv.module';
     UserModule,
     MovieModule,
     TvModule,
+    GenreModule,
     CollectionModule,
     CollectionContentsModule,
     GenreModule,
