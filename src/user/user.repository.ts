@@ -1,9 +1,10 @@
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserRequestDto } from './dto/request/create-user-request.dto';
 import { UpdateUserProfileRequestDto } from './dto/request/update-user-request.dto';
+import { UserNotFoundException } from 'src/user/exceptions/user-not-found.exception';
 
 @Injectable()
 export class UserRepository {
@@ -43,7 +44,7 @@ export class UserRepository {
     const user = await this.findOneById(userId);
 
     if (!user) {
-      throw new NotFoundException('');
+      throw new UserNotFoundException();
     }
 
     user.updateProfile(dto.nickname, dto.contact, dto.image);

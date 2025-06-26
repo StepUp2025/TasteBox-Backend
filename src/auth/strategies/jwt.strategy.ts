@@ -5,6 +5,7 @@ import jwtConfig from '../config/jwt.config';
 import { AuthJwtPayload } from '../types/auth-jwt-payload';
 import { Strategy } from 'passport-jwt';
 import { Request } from 'express';
+import { StrategyConfigException } from '../exceptions/strategy-config.exception';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -13,7 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
   ) {
     if (!jwtConfiguration.secret) {
-      throw new Error('JWT_SECRET must be defined');
+      throw new StrategyConfigException('JWT', 'secret');
     }
 
     super({

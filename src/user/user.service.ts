@@ -1,11 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { UserValidator } from './user.validator';
 import { UpdateUserProfileRequestDto } from './dto/request/update-user-request.dto';
 import { UserResponseDto } from './dto/response/user-response.dto';
 import { CreateUserRequestDto } from './dto/request/create-user-request.dto';
 import { plainToInstance } from 'class-transformer';
-import { generateRandomNickname } from 'src/utils/nickname.util';
+import { generateRandomNickname } from 'src/common/utils/nickname.util';
+import { UserNotFoundException } from 'src/user/exceptions/user-not-found.exception';
+import { UniqueNicknameGenerationException } from './exceptions/unique-nickname-generation.exception';
 
 @Injectable()
 export class UserService {
@@ -18,7 +20,7 @@ export class UserService {
     const findUser = await this.userRepository.findOneById(id);
 
     if (!findUser) {
-      throw new NotFoundException(`User not found`);
+      throw new UserNotFoundException();
     }
 
     return plainToInstance(UserResponseDto, findUser, {
@@ -30,7 +32,7 @@ export class UserService {
     const findUser = await this.userRepository.findOneByEmail(email);
 
     if (!findUser) {
-      throw new NotFoundException(`User not found`);
+      throw new UserNotFoundException();
     }
 
     return plainToInstance(UserResponseDto, findUser, {
@@ -71,7 +73,7 @@ export class UserService {
       nickname = generateRandomNickname(base);
       attempts++;
       if (attempts >= MAX_ATTEMPTS) {
-        throw new Error('고유한 닉네임을 생성하지 못했습니다.');
+        throw new UniqueNicknameGenerationException();
       }
     }
     return nickname;
