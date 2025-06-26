@@ -11,6 +11,8 @@ import { ConfigModule } from '@nestjs/config';
 import { MovieModule } from './movie/movie.module';
 import { DatabaseModule } from './common/database/database.module';
 import { TvModule } from './tv/tv.module';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 @Module({
   imports: [
@@ -30,6 +32,12 @@ import { TvModule } from './tv/tv.module';
     PreferenceModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
 })
 export class AppModule {}
