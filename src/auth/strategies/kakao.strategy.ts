@@ -10,6 +10,8 @@ import {
   KakaoAccount,
   KakaoProfileResponse,
 } from '../interfaces/kakao.interface';
+import { StrategyConfigException } from '../exceptions/strategy-config.exception';
+import { KakaoEmailNotFoundException } from '../exceptions/kakao-email-not-found.exception';
 
 @Injectable()
 export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
@@ -19,8 +21,11 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
     private readonly authService: AuthService,
     private readonly userService: UserService,
   ) {
-    if (!kakaoConfiguration.clientID || !kakaoConfiguration.callbackURL) {
-      throw new Error('Kakao OAuth Configuration must be defined');
+    if (!kakaoConfiguration.clientID) {
+      throw new StrategyConfigException('Kakao', 'clientID');
+    }
+    if (!kakaoConfiguration.callbackURL) {
+      throw new StrategyConfigException('Kakao', 'callbackURL');
     }
 
     super({
@@ -36,19 +41,16 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
     const email = kakaoAccount.email;
 
     if (!email) {
-      throw new Error('카카오 프로필에 이메일 정보가 없습니다.');
+      throw new KakaoEmailNotFoundException();
     }
 
-    const nickname = await this.userService.generateUniqueNickname(
-      this.getKakaoNickname(profile, kakaoAccount),
-    );
+    const baseName = this.getKakaoNickname(profile, kakaoAccount);
 
-    const user = await this.authService.validateOAuthUser({
+    const user = await this.authService.validateOAuthUser(
       email,
-      nickname,
-      password: '',
-      provider: AuthProvider.KAKAO,
-    });
+      AuthProvider.KAKAO,
+      baseName,
+    );
 
     return user;
   }

@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { compare } from 'bcrypt';
 import { UserRepository } from 'src/user/user.repository';
 import * as argon2 from 'argon2';
@@ -17,6 +12,15 @@ import { TokenResponse } from './dto/response/token-response.interface';
 import { CreateUserRequestDto } from 'src/user/dto/request/create-user-request.dto';
 import { UserService } from 'src/user/user.service';
 import { UpdatePasswordRequestDto } from './dto/request/update-password-request.dto';
+import { UserNotFoundException } from '../user/exceptions/user-not-found.exception';
+import { OAuthAccountLoginException } from './exceptions/oauth-account-login.exception';
+import { InvalidCredentialsException } from './exceptions/invalid-credentials.exception';
+import { PasswordMismatchException } from './exceptions/password-mismatch.exception';
+import { InvalidRefreshTokenException } from './exceptions/invalid-refresh-token.exception';
+import { OAuthAccountPasswordChangeException } from './exceptions/oauth-account-password-change.exception';
+import { InvalidCurrentPasswordException } from './exceptions/invalid-current-password.exception';
+import { AlreadyRegisteredAccountException } from './exceptions/already-registered-account.exception';
+import { AuthProvider } from 'src/user/enums/auth-provider.enum';
 
 @Injectable()
 export class AuthService {
@@ -61,21 +65,22 @@ export class AuthService {
     const user = await this.userRepository.findOneById(userId);
 
     if (!user) {
-      throw new UnauthorizedException('존재하지 않는 유저입니다.');
+      throw new UserNotFoundException();
     }
 
     if (!user.password) {
-      throw new UnauthorizedException('비밀번호가 없는 계정입니다.'); // OAuth 계정을 의미
+      throw new OAuthAccountPasswordChangeException();
     }
 
     // 1. 현재 비밀번호 검증
     const isValid = await bcrypt.compare(dto.currentPassword, user.password);
-    if (!isValid)
-      throw new UnauthorizedException('현재 비밀번호가 올바르지 않습니다.');
+    if (!isValid) {
+      throw new InvalidCurrentPasswordException();
+    }
 
     // 2. 새 비밀번호 일치 검증
     if (dto.newPassword !== dto.newPasswordConfirm) {
-      throw new BadRequestException('새 비밀번호가 서로 일치하지 않습니다.');
+      throw new PasswordMismatchException();
     }
 
     // 3. 새 비밀번호 업데이트
@@ -131,14 +136,18 @@ export class AuthService {
   ): Promise<{ id: number }> {
     const user = await this.userRepository.findOneByEmail(email);
 
-    if (!user || !user.password) {
-      throw new UnauthorizedException('존재하지 않는 유저 정보입니다.');
+    if (!user) {
+      throw new UserNotFoundException();
+    }
+
+    if (!user.password) {
+      throw new OAuthAccountLoginException();
     }
 
     const isPasswordValid = await compare(password, user.password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('비밀번호를 확인해주세요.');
+      throw new InvalidCredentialsException();
     }
 
     return {
@@ -146,9 +155,32 @@ export class AuthService {
     };
   }
 
-  async validateOAuthUser(dto: CreateUserRequestDto) {
-    const user = await this.userRepository.findOneByEmail(dto.email);
-    if (user) return user;
+  async validateOAuthUser(
+    email: string,
+    provider: AuthProvider,
+    baseName: string | undefined,
+  ) {
+    // 이메일 중복 검증
+    const user = await this.userRepository.findOneByEmail(email);
+
+    if (user) {
+      if (user.provider !== provider) {
+        throw new AlreadyRegisteredAccountException(user.provider);
+      }
+      return user;
+    }
+
+    // 닉네임 생성
+    const nickname = await this.userService.generateUniqueNickname(baseName);
+
+    // DTO 생성
+    const dto: CreateUserRequestDto = {
+      email,
+      password: '',
+      nickname,
+      provider,
+    };
+
     return await this.userService.createUser(dto);
   }
 
@@ -159,7 +191,7 @@ export class AuthService {
     const hashedRefreshToken = await this.getHashedRefreshToken(userId);
 
     if (!hashedRefreshToken) {
-      throw new UnauthorizedException('Invalid Refresh Token');
+      throw new InvalidRefreshTokenException();
     }
 
     const isRefreshTokenValid = await argon2.verify(
@@ -168,7 +200,7 @@ export class AuthService {
     );
 
     if (!isRefreshTokenValid) {
-      throw new UnauthorizedException('Invalid Refresh Token');
+      throw new InvalidRefreshTokenException();
     }
 
     return {
