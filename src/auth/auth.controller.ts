@@ -29,11 +29,23 @@ import { AuthService } from './auth.service';
 import { LoginRequestDto } from './dto/request/login-request.dto';
 import { Response } from 'express';
 import * as ms from 'ms';
-import { setTokenCookie } from 'src/utils/cookie.util';
+import { setTokenCookie } from 'src/common/utils/cookie.util';
 import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
 import { UpdatePasswordRequestDto } from './dto/request/update-password-request.dto';
 import { LocalUserOnlyGuard } from './guards/local-auth/local-user-only.guard';
 import { KakaoAuthGuard } from './guards/kakao-auth/kakao-auth.guard';
+import { InvalidCredentialsException } from './exceptions/invalid-credentials.exception';
+import { OAuthAccountLoginException } from './exceptions/oauth-account-login.exception';
+import { UserNotFoundException } from '../user/exceptions/user-not-found.exception';
+import { CustomApiException } from 'src/common/decorators/custom-api-exception.decorator';
+import { DuplicateNicknameException } from '../user/exceptions/duplicate-nickname.exception';
+import { InvalidRefreshTokenException } from './exceptions/invalid-refresh-token.exception';
+import { OAuthAccountPasswordChangeException } from './exceptions/oauth-account-password-change.exception';
+import { InvalidCurrentPasswordException } from './exceptions/invalid-current-password.exception';
+import { PasswordMismatchException } from './exceptions/password-mismatch.exception';
+import { UniqueNicknameGenerationException } from 'src/user/exceptions/unique-nickname-generation.exception';
+import { AlreadyRegisteredAccountException } from './exceptions/already-registered-account.exception';
+import { DuplicateEmailException } from 'src/user/exceptions/duplicate-email.exception';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -49,6 +61,11 @@ export class AuthController {
   @ApiCreatedResponse({
     description: '회원가입 성공',
   })
+  @CustomApiException(() => [
+    DuplicateNicknameException,
+    DuplicateEmailException,
+    AlreadyRegisteredAccountException,
+  ])
   async signup(@Body() dto: CreateUserRequestDto) {
     await this.userService.createUser(dto);
   }
@@ -63,6 +80,11 @@ export class AuthController {
     description:
       '로그인 성공 시 accessToken과 refreshToken이 쿠키에 저장되어 반환됩니다.',
   })
+  @CustomApiException(() => [
+    InvalidCredentialsException,
+    OAuthAccountLoginException,
+    UserNotFoundException,
+  ])
   async login(@Req() req: RequestWithUser, @Res() res: Response) {
     const { accessToken, refreshToken } = await this.authService.login(
       req.user.id,
@@ -95,6 +117,7 @@ export class AuthController {
     description:
       '토큰 갱신 성공 시 accessToken과 refreshToken이 쿠키에 저장되어 반환됩니다.',
   })
+  @CustomApiException(() => [InvalidRefreshTokenException])
   async refreshToken(@Req() req: RequestWithUser, @Res() res: Response) {
     const { accessToken, refreshToken } = await this.authService.refreshToken(
       req.user.id,
@@ -110,10 +133,16 @@ export class AuthController {
     summary: '비밀번호 변경',
     description: '로그인한 사용자의 비밀번호를 변경합니다.',
   })
+  @ApiBody({ type: UpdatePasswordRequestDto })
   @ApiOkResponse({
     description: '비밀번호가 성공적으로 변경되었습니다.',
   })
-  @ApiBody({ type: UpdatePasswordRequestDto })
+  @CustomApiException(() => [
+    UserNotFoundException,
+    OAuthAccountPasswordChangeException,
+    InvalidCurrentPasswordException,
+    PasswordMismatchException,
+  ])
   async updatePassword(
     @Req() req: RequestWithUser,
     @Body() dto: UpdatePasswordRequestDto,
@@ -127,11 +156,16 @@ export class AuthController {
   @HttpCode(HttpStatus.FOUND)
   @ApiOperation({
     summary: 'Google 로그인 시작',
-    description: 'Google OAuth 로그인을 시작합니다.',
+    description:
+      'Google OAuth 로그인을 시작합니다. 최초 로그인 시, 회원가입됩니다.',
   })
   @ApiFoundResponse({
     description: 'Google 로그인 페이지로 리다이렉트됩니다.',
   })
+  @CustomApiException(() => [
+    AlreadyRegisteredAccountException,
+    UniqueNicknameGenerationException,
+  ])
   googleLogin() {}
 
   @Public()
@@ -160,11 +194,16 @@ export class AuthController {
   @HttpCode(HttpStatus.FOUND)
   @ApiOperation({
     summary: '카카오 로그인 시작',
-    description: '카카오 OAuth 로그인을 시작합니다.',
+    description:
+      '카카오 OAuth 로그인을 시작합니다. 최초 로그인 시, 회원가입됩니다.',
   })
   @ApiFoundResponse({
     description: '카카오 로그인 페이지로 리다이렉트됩니다.',
   })
+  @CustomApiException(() => [
+    AlreadyRegisteredAccountException,
+    UniqueNicknameGenerationException,
+  ])
   kakaoLogin() {}
 
   @Public()

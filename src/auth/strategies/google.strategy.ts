@@ -6,6 +6,8 @@ import { ConfigType } from '@nestjs/config';
 import { AuthService } from '../auth.service';
 import { UserService } from 'src/user/user.service';
 import { AuthProvider } from 'src/user/enums/auth-provider.enum';
+import { StrategyConfigException } from '../exceptions/strategy-config.exception';
+import { GoogleEmailNotFoundException } from '../exceptions/google-email-not-found.exception';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
@@ -15,12 +17,14 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     private readonly authService: AuthService,
     private readonly userService: UserService,
   ) {
-    if (
-      !googleConfiguration.clientID ||
-      !googleConfiguration.clientSecret ||
-      !googleConfiguration.callbackURL
-    ) {
-      throw new Error('Google OAuth Configuration must be defined');
+    if (!googleConfiguration.clientID) {
+      throw new StrategyConfigException('Google', 'clientID');
+    }
+    if (!googleConfiguration.clientSecret) {
+      throw new StrategyConfigException('Google', 'clientSecret');
+    }
+    if (!googleConfiguration.callbackURL) {
+      throw new StrategyConfigException('Google', 'callbackURL');
     }
 
     super({
@@ -35,15 +39,17 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     const { emails, name } = profile;
 
     if (!emails || emails.length === 0) {
-      throw new Error('Google 프로필에 이메일 정보가 없습니다.');
+      throw new GoogleEmailNotFoundException();
     }
 
-    const user = await this.authService.validateOAuthUser({
-      email: emails[0].value,
-      nickname: await this.userService.generateUniqueNickname(name?.givenName),
-      password: '',
-      provider: AuthProvider.GOOGLE,
-    });
+    const email = emails[0].value;
+    const baseName = name?.givenName;
+
+    const user = await this.authService.validateOAuthUser(
+      email,
+      AuthProvider.GOOGLE,
+      baseName,
+    );
 
     return user;
   }

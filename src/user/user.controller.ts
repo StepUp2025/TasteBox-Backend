@@ -4,13 +4,15 @@ import { UpdateUserProfileRequestDto } from './dto/request/update-user-request.d
 import { RequestWithUser } from '../auth/types/request-with-user.interface';
 import { UserResponseDto } from './dto/response/user-response.dto';
 import {
-  ApiBadRequestResponse,
   ApiBody,
   ApiCookieAuth,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { CustomApiException } from 'src/common/decorators/custom-api-exception.decorator';
+import { UserNotFoundException } from 'src/user/exceptions/user-not-found.exception';
+import { DuplicateNicknameException } from './exceptions/duplicate-nickname.exception';
 
 @ApiCookieAuth('accessToken')
 @ApiTags('User')
@@ -25,7 +27,7 @@ export class UserController {
     description: '회원 정보 조회 성공',
     type: UserResponseDto,
   })
-  @ApiBadRequestResponse({ description: '잘못된 요청' })
+  @CustomApiException(() => [UserNotFoundException])
   async getUserInfo(@Req() req: RequestWithUser) {
     return await this.userService.findUserById(req.user.id);
   }
@@ -37,7 +39,7 @@ export class UserController {
   @ApiOkResponse({
     description: '회원 프로필 수정 성공',
   })
-  @ApiBadRequestResponse({ description: '잘못된 요청' })
+  @CustomApiException(() => [DuplicateNicknameException])
   async updateUserProfile(
     @Req() req: RequestWithUser,
     @Body() dto: UpdateUserProfileRequestDto,

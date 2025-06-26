@@ -6,6 +6,7 @@ import refreshJwtConfig from '../config/refresh-jwt.config';
 import { AuthJwtPayload } from '../types/auth-jwt-payload';
 import { Request } from 'express';
 import { Strategy } from 'passport-jwt';
+import { StrategyConfigException } from '../exceptions/strategy-config.exception';
 
 @Injectable()
 export class RefreshJwtStrategy extends PassportStrategy(
@@ -20,7 +21,7 @@ export class RefreshJwtStrategy extends PassportStrategy(
     private readonly authService: AuthService,
   ) {
     if (!refreshJwtConfiguration.secret) {
-      throw new Error('REFRESH_JWT_SECRET must be defined');
+      throw new StrategyConfigException('Refresh', 'secret');
     }
 
     super({
