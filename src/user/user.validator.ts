@@ -1,5 +1,9 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
+import { DuplicateNicknameException } from 'src/user/exceptions/duplicate-nickname.exception';
+import { AlreadyRegisteredAccountException } from 'src/auth/exceptions/already-registered-account.exception';
+import { AuthProvider } from './enums/auth-provider.enum';
+import { DuplicateEmailException } from './exceptions/duplicate-email.exception';
 
 @Injectable()
 export class UserValidator {
@@ -9,7 +13,7 @@ export class UserValidator {
     const findUser = await this.userRepository.findOneByNickname(nickname);
 
     if (findUser) {
-      throw new ConflictException('이미 존재하는 닉네임입니다.');
+      throw new DuplicateNicknameException();
     }
   }
 
@@ -17,7 +21,10 @@ export class UserValidator {
     const findUser = await this.userRepository.findOneByEmail(email);
 
     if (findUser) {
-      throw new ConflictException('이미 가입된 이메일입니다.');
+      if (findUser.provider !== AuthProvider.LOCAL) {
+        throw new AlreadyRegisteredAccountException(findUser.provider);
+      }
+      throw new DuplicateEmailException();
     }
   }
 }
