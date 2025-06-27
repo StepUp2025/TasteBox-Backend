@@ -62,22 +62,25 @@ export class TvController {
     return this.tvService.getTopRatedTvs(page);
   }
 
-  @Get(':tvId')
+  @Get('popular')
   @ApiOperation({
-    summary: 'TV 시리즈 상세 정보 조회',
-    description: 'TV 시리즈 ID를 통해 TV 시리즈의 상세 정보를 조회합니다.',
+    summary: '인기 있는 TV 시리즈 리스트 조회',
+    description: '인기 있는 TV 시리즈 리스트를 조회합니다.',
   })
-  @ApiParam({
-    name: 'tvId',
+  @ApiOkResponse({
+    description: '인기 있는 TV 시리즈 리스트 조회 성공',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: '페이지 번호 (기본값: 1)',
     type: Number,
-    required: true,
-    description: 'TV 시리즈 ID',
   })
-  @CustomApiException(() => [ExternalApiException, ContentNotFoundException])
-  async getTvById(
-    @Param('tvId') tvId: number,
-  ): Promise<FindTvDetailResponseDto> {
-    return this.tvService.getTvById(tvId);
+  @CustomApiException(() => [ExternalApiException, InvalidPageException])
+  async getPopularTv(
+    @Query('page') page?: number,
+  ): Promise<FindTvListResponseDto> {
+    return this.tvService.getPopularTvs(page);
   }
 
   @Get('')
@@ -111,6 +114,24 @@ export class TvController {
     @Query('page') page?: number,
   ): Promise<FindTvListResponseDto> {
     return this.tvService.getTvsByGenre(genreId, page);
+  }
+
+  @Get(':tvId')
+  @ApiOperation({
+    summary: 'TV 시리즈 상세 정보 조회',
+    description: 'TV 시리즈 ID를 통해 TV 시리즈의 상세 정보를 조회합니다.',
+  })
+  @ApiParam({
+    name: 'tvId',
+    type: Number,
+    required: true,
+    description: 'TV 시리즈 ID',
+  })
+  @CustomApiException(() => [ExternalApiException, ContentNotFoundException])
+  async getTvById(
+    @Param('tvId') tvId: number,
+  ): Promise<FindTvDetailResponseDto> {
+    return this.tvService.getTvById(tvId);
   }
 
   @Get(':tvId/recommends')

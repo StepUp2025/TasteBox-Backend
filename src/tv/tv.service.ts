@@ -51,6 +51,18 @@ export class TvService {
     return FindTvListResponseDto.of(tmdbResponse.data!);
   }
 
+  // 인기 있는 TV 시리즈 조회
+  async getPopularTvs(page = 1): Promise<FindTvListResponseDto> {
+    const url = buildTmdbUrl('/tv/popular', { page });
+    const tmdbResponse = await fetchFromTmdb<TMDBTvListResponse>(
+      this.httpService,
+      url,
+      this.configService,
+    );
+    if (tmdbResponse.error) throw new ExternalApiException();
+    return FindTvListResponseDto.of(tmdbResponse.data!);
+  }
+
   // 특정 장르 TV 시리즈 조회
   async getTvsByGenre(
     genreId: number,
