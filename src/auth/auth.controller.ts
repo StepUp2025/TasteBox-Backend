@@ -45,7 +45,6 @@ import { InvalidCurrentPasswordException } from './exceptions/invalid-current-pa
 import { PasswordMismatchException } from './exceptions/password-mismatch.exception';
 import { UniqueNicknameGenerationException } from 'src/user/exceptions/unique-nickname-generation.exception';
 import { AlreadyRegisteredAccountException } from './exceptions/already-registered-account.exception';
-import { DuplicateEmailException } from 'src/user/exceptions/duplicate-email.exception';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -57,24 +56,23 @@ export class AuthController {
 
   @Public()
   @Post('signup')
-  @ApiOperation({ summary: '회원가입' })
+  @ApiOperation({ summary: 'Local 회원가입' })
   @ApiCreatedResponse({
     description: '회원가입 성공',
   })
   @CustomApiException(() => [
     DuplicateNicknameException,
-    DuplicateEmailException,
     AlreadyRegisteredAccountException,
   ])
   async signup(@Body() dto: CreateUserRequestDto) {
-    await this.userService.createUser(dto);
+    await this.userService.createLocalUser(dto);
   }
 
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '로그인' })
+  @ApiOperation({ summary: 'Local 회원 로그인' })
   @ApiBody({ type: LoginRequestDto })
   @ApiOkResponse({
     description:
@@ -131,7 +129,7 @@ export class AuthController {
   @ApiCookieAuth()
   @ApiOperation({
     summary: '비밀번호 변경',
-    description: '로그인한 사용자의 비밀번호를 변경합니다.',
+    description: '로그인한 사용자의 비밀번호를 변경합니다. (Local 회원만 가능)',
   })
   @ApiBody({ type: UpdatePasswordRequestDto })
   @ApiOkResponse({
