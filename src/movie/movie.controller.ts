@@ -62,25 +62,25 @@ export class MovieController {
     return this.movieService.getTopRatedMovies(page);
   }
 
-  @Get(':movieId')
+  @Get('popular')
   @ApiOperation({
-    summary: '영화 상세 정보 조회',
-    description: '영화 ID를 통해 영화의 상세 정보를 조회합니다.',
+    summary: '인기 있는 영화 리스트 조회',
+    description: '인기 있는 영화 리스트를 조회합니다.',
   })
   @ApiOkResponse({
-    description: '영화 상세 정보 조회 성공',
+    description: '인기 있는 영화 리스트 조회 성공',
   })
-  @ApiParam({
-    name: 'movieId',
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: '페이지 번호 (기본값: 1)',
     type: Number,
-    required: true,
-    description: '영화 ID',
   })
-  @CustomApiException(() => [ContentNotFoundException, ExternalApiException])
-  async getMovieById(
-    @Param('movieId') movieId: number,
-  ): Promise<FindMovieDetailResponseDto> {
-    return this.movieService.getMovieById(movieId);
+  @CustomApiException(() => [InvalidPageException, ExternalApiException])
+  async getPopularMovies(
+    @Query('page') page?: number,
+  ): Promise<FindMovieListResponseDto> {
+    return this.movieService.getPopularMovies(page);
   }
 
   @Get('')
@@ -114,6 +114,27 @@ export class MovieController {
     @Query('page') page?: number,
   ): Promise<FindMovieListResponseDto> {
     return this.movieService.getMoviesByGenre(genreId, page);
+  }
+
+  @Get(':movieId')
+  @ApiOperation({
+    summary: '영화 상세 정보 조회',
+    description: '영화 ID를 통해 영화의 상세 정보를 조회합니다.',
+  })
+  @ApiOkResponse({
+    description: '영화 상세 정보 조회 성공',
+  })
+  @ApiParam({
+    name: 'movieId',
+    type: Number,
+    required: true,
+    description: '영화 ID',
+  })
+  @CustomApiException(() => [ContentNotFoundException, ExternalApiException])
+  async getMovieById(
+    @Param('movieId') movieId: number,
+  ): Promise<FindMovieDetailResponseDto> {
+    return this.movieService.getMovieById(movieId);
   }
 
   @Get(':movieId/recommends')

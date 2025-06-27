@@ -52,6 +52,18 @@ export class MovieService {
     return FindMovieListResponseDto.of(tmdbResponse.data!);
   }
 
+  // 인기 있는 영화 조회
+  async getPopularMovies(page = 1): Promise<FindMovieListResponseDto> {
+    const url = buildTmdbUrl('/movie/popular', { page });
+    const tmdbResponse = await fetchFromTmdb<TMDBNowPlayingResponse>(
+      this.httpService,
+      url,
+      this.configService,
+    );
+    if (tmdbResponse.error) throw new ExternalApiException();
+    return FindMovieListResponseDto.of(tmdbResponse.data!);
+  }
+
   // 특정 장르 영화 조회
   async getMoviesByGenre(
     genreId: number,
