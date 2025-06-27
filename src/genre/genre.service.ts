@@ -7,6 +7,7 @@ import { mapGenreToEmoji } from './utils/genre-emoji-mapper.util';
 import { TMDBGenreListResponse } from './interfaces/genre.interface';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
+import { ExternalApiException } from 'src/common/exceptions/external-api-exception';
 
 @Injectable()
 export class GenreService {
@@ -25,12 +26,14 @@ export class GenreService {
 
     for (const { path, type } of endpoints) {
       const url = buildTmdbUrl(path);
-      const data = await fetchFromTmdb<TMDBGenreListResponse>(
+      const { data, error } = await fetchFromTmdb<TMDBGenreListResponse>(
         this.httpService,
         url,
         this.configService,
       );
-
+      if (error || !data) {
+        throw new ExternalApiException();
+      }
       for (const genre of data.genres) {
         await this.genreRepository.upsertGenre(
           genre.id.toString(),
@@ -48,6 +51,6 @@ export class GenreService {
   ): Promise<GenreListResponseDto> {
     const genreEntities =
       await this.genreRepository.findByContentType(contentType);
-    return GenreListResponseDto.fromGenres(genreEntities);
+    return GenreListResponseDto.of(genreEntities);
   }
 }

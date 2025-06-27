@@ -74,54 +74,22 @@ export class FindMovieDetailResponseDto {
   @ApiProperty({ description: '투표 수', example: 1147 })
   vote_count: number;
 
-  constructor(
-    id: number,
-    title: string,
-    overview: string,
-    poster_path: string,
-    backdrop_path: string,
-    adult: boolean,
-    original_language: string,
-    genres: { id: number; name: string }[],
-    status: string,
-    runtime: number,
-    popularity: number,
-    release_date: string,
-    vote_average: number,
-    vote_count: number,
-  ) {
-    this.id = id;
-    this.title = title;
-    this.overview = overview;
-    this.poster_path = poster_path;
-    this.backdrop_path = backdrop_path;
-    this.adult = adult;
-    this.original_language = original_language;
-    this.genres = genres;
-    this.status = status;
-    this.runtime = runtime;
-    this.popularity = popularity;
-    this.release_date = release_date;
-    this.vote_average = vote_average;
-    this.vote_count = vote_count;
-  }
-
-  static fromTMDB(raw: TMDBMovieDetailResponse): FindMovieDetailResponseDto {
-    return new FindMovieDetailResponseDto(
-      raw.id,
-      raw.title,
-      raw.overview,
-      raw.poster_path,
-      raw.backdrop_path,
-      raw.adult,
-      raw.original_language,
-      raw.genres,
-      raw.status,
-      raw.runtime,
-      raw.popularity,
-      raw.release_date,
-      raw.vote_average,
-      raw.vote_count,
-    );
+  static of(raw: TMDBMovieDetailResponse): FindMovieDetailResponseDto {
+    return {
+      id: raw.id,
+      title: raw.title,
+      overview: raw.overview,
+      poster_path: raw.poster_path,
+      backdrop_path: raw.backdrop_path,
+      adult: raw.adult,
+      original_language: raw.original_language,
+      genres: raw.genres,
+      status: raw.status,
+      runtime: raw.runtime,
+      popularity: raw.popularity,
+      release_date: raw.release_date,
+      vote_average: raw.vote_average,
+      vote_count: raw.vote_count,
+    };
   }
 }

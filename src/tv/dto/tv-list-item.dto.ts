@@ -1,13 +1,21 @@
 import { TMDBTvItem } from '../interfaces/tv-list.interface';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class TvListItemDto {
-  constructor(
-    public id: number,
-    public title: string,
-    public poster_path: string,
-  ) {}
+  @ApiProperty({ description: 'TV ID', example: 1399 })
+  id: number;
 
-  static fromTMDB(raw: TMDBTvItem): TvListItemDto {
-    return new TvListItemDto(raw.id, raw.name, raw.poster_path);
+  @ApiProperty({ description: 'TV 제목', example: 'Game of Thrones' })
+  title: string;
+
+  @ApiProperty({ description: '포스터 경로', example: '/example.jpg' })
+  poster_path: string;
+
+  static of(raw: TMDBTvItem): TvListItemDto {
+    return {
+      id: raw.id,
+      title: raw.name,
+      poster_path: raw.poster_path,
+    };
   }
 }

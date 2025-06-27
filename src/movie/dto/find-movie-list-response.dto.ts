@@ -9,10 +9,10 @@ export class FindMovieListResponseDto {
     example: [
       {
         id: 157336,
-        poster_path: '/example.jpg',
+        posterUrl: '/example.jpg',
         title: '영화이름1',
       },
-      { id: 123456, poster_path: '/abc.jpg', title: '영화이름2' },
+      { id: 123456, posterUrl: '/abc.jpg', title: '영화이름2' },
     ],
   })
   movies: MovieListItemDto[];
@@ -29,12 +29,11 @@ export class FindMovieListResponseDto {
     this.totalPages = totalPages;
   }
 
-  static fromTMDBResponse(
-    raw: TMDBNowPlayingResponse,
-  ): FindMovieListResponseDto {
-    const movies = raw.results.map((movie) =>
-      MovieListItemDto.fromTMDBMovie(movie),
-    );
-    return new FindMovieListResponseDto(movies, raw.page, raw.total_pages);
+  static of(raw: TMDBNowPlayingResponse): FindMovieListResponseDto {
+    return {
+      movies: raw.results.map(MovieListItemDto.of),
+      page: raw.page,
+      totalPages: raw.total_pages,
+    };
   }
 }

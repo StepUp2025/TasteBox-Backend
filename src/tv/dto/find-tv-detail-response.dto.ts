@@ -1,10 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsOptional } from 'class-validator';
-import {
-  TMDBGenre,
-  TMDBTvDetailResponse,
-  TMDBTvSeason,
-} from '../interfaces/tv.interface';
+import { TMDBGenre } from '../../common/interfaces/tmdb-common.interface';
+import { TMDBTvDetailResponse, TMDBTvSeason } from '../interfaces/tv.interface';
 
 export class FindTvDetailResponseDto {
   @ApiProperty()
@@ -78,7 +75,8 @@ export class FindTvDetailResponseDto {
     vote_average: number;
   }[];
 
-  static fromTMDB(raw: TMDBTvDetailResponse): FindTvDetailResponseDto {
+  // TMDB 응답 객체 -> FindTvDetailResponseDto 변환 메서드
+  static of(raw: TMDBTvDetailResponse): FindTvDetailResponseDto {
     return {
       id: raw.id,
       title: raw.name,
