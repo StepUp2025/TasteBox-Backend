@@ -13,7 +13,6 @@ import { CustomApiException } from 'src/common/decorators/custom-api-exception.d
 import { ContentNotFoundException } from 'src/common/exceptions/content-not-found.exception';
 import { InvalidGenreIdException } from 'src/common/exceptions/invalid-genre-id.exception';
 import { InvalidPageException } from 'src/common/exceptions/invalid-page.exception';
-import { Public } from 'src/auth/decorators/public.decorator';
 import { ExternalApiException } from 'src/common/exceptions/external-api-exception';
 
 @Controller('movies')
@@ -21,7 +20,6 @@ import { ExternalApiException } from 'src/common/exceptions/external-api-excepti
 export class MovieController {
   constructor(private readonly movieService: MovieService) {}
 
-  @Public()
   @Get('now-playing')
   @ApiOperation({
     summary: '상영 중인 영화 리스트를 조회',
