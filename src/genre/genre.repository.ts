@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Genre } from './entity/genre.entity';
 import { ContentType } from 'src/common/types/content-type.enum';
-import { TMDBGenre } from './interfaces/genre.interface';
+import { TMDBGenre } from '../common/interfaces/tmdb-common.interface';
 import { mapGenreToEmoji } from './utils/genre-emoji-mapper.util';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
