@@ -6,6 +6,7 @@ import { FindTvDetailResponseDto } from './dto/find-tv-detail-response.dto';
 import { TMDBTvDetailResponse } from './interfaces/tv.interface';
 import { TMDBTvListResponse } from './interfaces/tv-list.interface';
 import { buildTmdbUrl, fetchFromTmdb } from '../common/utils/tmdb.utils';
+import { ExternalApiException } from 'src/common/exceptions/external-api-exception';
 
 @Injectable()
 export class TvService {
@@ -22,7 +23,8 @@ export class TvService {
       url,
       this.configService,
     );
-    return FindTvDetailResponseDto.fromTMDB(tmdbResponse);
+    if (tmdbResponse.error) throw new ExternalApiException();
+    return FindTvDetailResponseDto.of(tmdbResponse.data!);
   }
 
   // 상영 중인 TV 시리즈 조회
@@ -33,7 +35,8 @@ export class TvService {
       url,
       this.configService,
     );
-    return FindTvListResponseDto.fromTMDBResponse(tmdbResponse);
+    if (tmdbResponse.error) throw new ExternalApiException();
+    return FindTvListResponseDto.of(tmdbResponse.data!);
   }
 
   // 평점 높은 TV 시리즈 조회
@@ -44,7 +47,8 @@ export class TvService {
       url,
       this.configService,
     );
-    return FindTvListResponseDto.fromTMDBResponse(tmdbResponse);
+    if (tmdbResponse.error) throw new ExternalApiException();
+    return FindTvListResponseDto.of(tmdbResponse.data!);
   }
 
   // 특정 장르 TV 시리즈 조회
@@ -61,7 +65,8 @@ export class TvService {
       url,
       this.configService,
     );
-    return FindTvListResponseDto.fromTMDBResponse(tmdbResponse);
+    if (tmdbResponse.error) throw new ExternalApiException();
+    return FindTvListResponseDto.of(tmdbResponse.data!);
   }
 
   // 추천 TV 시리즈 조회
@@ -77,6 +82,7 @@ export class TvService {
       url,
       this.configService,
     );
-    return FindTvListResponseDto.fromTMDBResponse(tmdbResponse);
+    if (tmdbResponse.error) throw new ExternalApiException();
+    return FindTvListResponseDto.of(tmdbResponse.data!);
   }
 }

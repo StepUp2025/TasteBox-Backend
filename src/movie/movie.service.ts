@@ -1,11 +1,12 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { TMDBNowPlayingResponse } from './interfaces/movie-list.interface';
+import { TMDBMovieDetailResponse } from './interfaces/movie.interface';
 import { FindMovieListResponseDto } from './dto/find-movie-list-response.dto';
 import { FindMovieDetailResponseDto } from './dto/find-movie-detail-response.dto';
-import { TMDBMovieDetailResponse } from './interfaces/movie.interface';
 import { buildTmdbUrl, fetchFromTmdb } from '../common/utils/tmdb.utils';
 import { ConfigService } from '@nestjs/config';
+import { ExternalApiException } from 'src/common/exceptions/external-api-exception';
 
 @Injectable()
 export class MovieService {
@@ -22,7 +23,9 @@ export class MovieService {
       url,
       this.configService,
     );
-    return FindMovieDetailResponseDto.fromTMDB(tmdbResponse);
+    if (tmdbResponse.error) throw new ExternalApiException();
+
+    return FindMovieDetailResponseDto.of(tmdbResponse.data!);
   }
 
   // 상영 중인 영화 조회
@@ -33,7 +36,8 @@ export class MovieService {
       url,
       this.configService,
     );
-    return FindMovieListResponseDto.fromTMDBResponse(tmdbResponse);
+    if (tmdbResponse.error) throw new ExternalApiException();
+    return FindMovieListResponseDto.of(tmdbResponse.data!);
   }
 
   // 평점 높은 영화 조회
@@ -44,7 +48,8 @@ export class MovieService {
       url,
       this.configService,
     );
-    return FindMovieListResponseDto.fromTMDBResponse(tmdbResponse);
+    if (tmdbResponse.error) throw new ExternalApiException();
+    return FindMovieListResponseDto.of(tmdbResponse.data!);
   }
 
   // 특정 장르 영화 조회
@@ -61,7 +66,8 @@ export class MovieService {
       url,
       this.configService,
     );
-    return FindMovieListResponseDto.fromTMDBResponse(tmdbResponse);
+    if (tmdbResponse.error) throw new ExternalApiException();
+    return FindMovieListResponseDto.of(tmdbResponse.data!);
   }
 
   // 추천 영화 조회
@@ -77,6 +83,7 @@ export class MovieService {
       url,
       this.configService,
     );
-    return FindMovieListResponseDto.fromTMDBResponse(tmdbResponse);
+    if (tmdbResponse.error) throw new ExternalApiException();
+    return FindMovieListResponseDto.of(tmdbResponse.data!);
   }
 }

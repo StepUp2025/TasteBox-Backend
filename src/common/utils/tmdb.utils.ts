@@ -1,6 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
+import { TmdbErrorResponse } from '../interfaces/tmdb-error.interface';
+import { AxiosError } from 'axios';
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const DEFAULT_LANGUAGE = 'ko-KR';
@@ -26,19 +28,25 @@ export async function fetchFromTmdb<T>(
   httpService: HttpService,
   url: string,
   configService: ConfigService,
-): Promise<T> {
+): Promise<{ data?: T; error?: TmdbErrorResponse }> {
   const token = configService.get<string>('TMDB_ACCESS_TOKEN');
   if (!token) {
     throw new Error('TMDB_ACCESS_TOKEN not found in environment variables');
   }
 
-  const response = await firstValueFrom(
-    httpService.get<T>(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        accept: 'application/json',
-      },
-    }),
-  );
-  return response.data;
+  try {
+    const response = await firstValueFrom(
+      httpService.get<T>(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          accept: 'application/json',
+        },
+      }),
+    );
+    return { data: response.data };
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    const errorData = axiosError.response?.data as TmdbErrorResponse;
+    return { error: errorData };
+  }
 }
