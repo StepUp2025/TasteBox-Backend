@@ -45,7 +45,6 @@ import { InvalidCurrentPasswordException } from './exceptions/invalid-current-pa
 import { PasswordMismatchException } from './exceptions/password-mismatch.exception';
 import { UniqueNicknameGenerationException } from 'src/user/exceptions/unique-nickname-generation.exception';
 import { AlreadyRegisteredAccountException } from './exceptions/already-registered-account.exception';
-import { DuplicateEmailException } from 'src/user/exceptions/duplicate-email.exception';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -63,7 +62,6 @@ export class AuthController {
   })
   @CustomApiException(() => [
     DuplicateNicknameException,
-    DuplicateEmailException,
     AlreadyRegisteredAccountException,
   ])
   async signup(@Body() dto: CreateUserRequestDto) {
