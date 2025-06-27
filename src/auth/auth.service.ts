@@ -157,16 +157,19 @@ export class AuthService {
 
   async validateOAuthUser(
     email: string,
-    provider: AuthProvider,
+    currentProvider: AuthProvider,
     baseName: string | undefined,
   ) {
-    // 이메일 중복 검증
+    // OAuth 계정의 Email로 가입된 회원 존재하는지 확인
     const user = await this.userRepository.findOneByEmail(email);
 
+    // 이미 해당 이메일로 가입된 회원인 경우
     if (user) {
-      if (user.provider !== provider) {
+      // 현재 로그인 시도하는 OAuth provider와 기존 가입 provider가 다를 경우 예외 발생
+      if (user.provider !== currentProvider) {
         throw new AlreadyRegisteredAccountException(user.provider);
       }
+      // provider까지 일치하면 회원 정보를 전달 (이후에는 콜백을 통해 쿠키 설정 후 프론트로 리다이렉트)
       return user;
     }
 
@@ -178,10 +181,11 @@ export class AuthService {
       email,
       password: '',
       nickname,
-      provider,
+      provider: currentProvider,
     };
 
-    return await this.userService.createUser(dto);
+    // 회원 생성 및 저장
+    return await this.userRepository.createUser(dto);
   }
 
   async validateRefreshToken(
