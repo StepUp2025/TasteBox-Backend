@@ -20,7 +20,7 @@ export class GenreListResponseDto {
   @Expose()
   count: number;
 
-  static fromGenres(genres: Genre[]): GenreListResponseDto {
+  static of(genres: Genre[]): GenreListResponseDto {
     const genreDtos = plainToInstance(GenreDto, genres, {
       excludeExtraneousValues: true,
     });

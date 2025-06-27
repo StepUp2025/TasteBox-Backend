@@ -40,9 +40,12 @@ export class FindTvListResponseDto {
     this.totalPages = totalPages;
   }
 
-  static fromTMDBResponse(raw: TMDBTvListResponse): FindTvListResponseDto {
-    const tvs = raw.results.map((tvItem) => TvListItemDto.fromTMDB(tvItem));
-
-    return new FindTvListResponseDto(tvs, raw.page, raw.total_pages);
+  // TMDB 응답 객체 -> FindTvListResponseDto 변환 메서드
+  static of(raw: TMDBTvListResponse): FindTvListResponseDto {
+    return {
+      tvs: raw.results.map((tv) => TvListItemDto.of(tv)),
+      page: raw.page,
+      totalPages: raw.total_pages,
+    };
   }
 }
