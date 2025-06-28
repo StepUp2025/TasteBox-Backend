@@ -1,5 +1,5 @@
-import { TMDBMovie } from '../interfaces/movie-list.interface';
 import { ApiProperty } from '@nestjs/swagger';
+import type { TMDBMovie } from '../interfaces/movie-list.interface';
 
 export class MovieListItemDto {
   @ApiProperty({

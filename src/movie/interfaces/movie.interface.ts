@@ -1,7 +1,7 @@
-import {
+import type {
   TMDBGenre,
-  TMDBSpokenLanguage,
   TMDBProductionCompany,
+  TMDBSpokenLanguage,
 } from '../../common/interfaces/tmdb-common.interface';
 
 export interface TMDBMovieDetailResponse {

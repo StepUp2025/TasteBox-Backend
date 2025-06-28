@@ -1,13 +1,13 @@
+import type { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { GenreRepository } from './genre.repository';
-import { GenreListResponseDto } from './dto/genre-list-response.dto';
+import type { ConfigService } from '@nestjs/config';
+import { ExternalApiException } from 'src/common/exceptions/external-api-exception';
 import { ContentType } from './../common/types/content-type.enum';
 import { buildTmdbUrl, fetchFromTmdb } from '../common/utils/tmdb.utils';
+import { GenreListResponseDto } from './dto/genre-list-response.dto';
+import type { GenreRepository } from './genre.repository';
+import type { TMDBGenreListResponse } from './interfaces/genre.interface';
 import { mapGenreToEmoji } from './utils/genre-emoji-mapper.util';
-import { TMDBGenreListResponse } from './interfaces/genre.interface';
-import { HttpService } from '@nestjs/axios';
-import { ConfigService } from '@nestjs/config';
-import { ExternalApiException } from 'src/common/exceptions/external-api-exception';
 
 @Injectable()
 export class GenreService {

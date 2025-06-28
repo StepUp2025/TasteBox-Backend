@@ -1,12 +1,12 @@
-import { ConfigService } from '@nestjs/config';
-import { HttpService } from '@nestjs/axios';
+import type { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { FindTvListResponseDto } from './dto/find-tv-list-response.dto';
-import { FindTvDetailResponseDto } from './dto/find-tv-detail-response.dto';
-import { TMDBTvDetailResponse } from './interfaces/tv.interface';
-import { TMDBTvListResponse } from './interfaces/tv-list.interface';
-import { buildTmdbUrl, fetchFromTmdb } from '../common/utils/tmdb.utils';
+import type { ConfigService } from '@nestjs/config';
 import { ExternalApiException } from 'src/common/exceptions/external-api-exception';
+import { buildTmdbUrl, fetchFromTmdb } from '../common/utils/tmdb.utils';
+import { FindTvDetailResponseDto } from './dto/find-tv-detail-response.dto';
+import { FindTvListResponseDto } from './dto/find-tv-list-response.dto';
+import type { TMDBTvDetailResponse } from './interfaces/tv.interface';
+import type { TMDBTvListResponse } from './interfaces/tv-list.interface';
 
 @Injectable()
 export class TvService {

@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNumber, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsArray, IsNumber, ValidateNested } from 'class-validator';
+import type { TMDBTvListResponse } from '../interfaces/tv-list.interface';
 import { TvListItemDto } from './tv-list-item.dto';
-import { TMDBTvListResponse } from '../interfaces/tv-list.interface';
 
 export class FindTvListResponseDto {
   @ApiProperty({

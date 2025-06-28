@@ -1,13 +1,13 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
-
-import { ContentType } from 'src/common/types/content-type.enum';
 import { Collection } from 'src/collection/collection.entity';
+
+import type { ContentType } from 'src/common/types/content-type.enum';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class CollectionContents {

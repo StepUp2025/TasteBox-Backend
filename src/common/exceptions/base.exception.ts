@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, type HttpStatus } from '@nestjs/common';
 
 export class BaseException extends HttpException {
   public readonly error: string;

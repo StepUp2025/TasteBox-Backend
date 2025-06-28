@@ -1,11 +1,11 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import type { ContentType } from 'src/common/types/content-type.enum';
+import type { Repository } from 'typeorm';
+import type { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import type { TMDBGenre } from '../common/interfaces/tmdb-common.interface';
 import { Genre } from './entity/genre.entity';
-import { ContentType } from 'src/common/types/content-type.enum';
-import { TMDBGenre } from '../common/interfaces/tmdb-common.interface';
 import { mapGenreToEmoji } from './utils/genre-emoji-mapper.util';
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 @Injectable()
 export class GenreRepository {

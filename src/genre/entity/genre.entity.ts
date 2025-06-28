@@ -1,6 +1,6 @@
 import { Expose } from 'class-transformer';
-import { ContentType } from 'src/common/types/content-type.enum';
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import type { ContentType } from 'src/common/types/content-type.enum';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Genre {

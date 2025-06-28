@@ -1,12 +1,12 @@
-import { HttpService } from '@nestjs/axios';
+import type { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { TMDBNowPlayingResponse } from './interfaces/movie-list.interface';
-import { TMDBMovieDetailResponse } from './interfaces/movie.interface';
-import { FindMovieListResponseDto } from './dto/find-movie-list-response.dto';
-import { FindMovieDetailResponseDto } from './dto/find-movie-detail-response.dto';
-import { buildTmdbUrl, fetchFromTmdb } from '../common/utils/tmdb.utils';
-import { ConfigService } from '@nestjs/config';
+import type { ConfigService } from '@nestjs/config';
 import { ExternalApiException } from 'src/common/exceptions/external-api-exception';
+import { buildTmdbUrl, fetchFromTmdb } from '../common/utils/tmdb.utils';
+import { FindMovieDetailResponseDto } from './dto/find-movie-detail-response.dto';
+import { FindMovieListResponseDto } from './dto/find-movie-list-response.dto';
+import type { TMDBMovieDetailResponse } from './interfaces/movie.interface';
+import type { TMDBNowPlayingResponse } from './interfaces/movie-list.interface';
 
 @Injectable()
 export class MovieService {

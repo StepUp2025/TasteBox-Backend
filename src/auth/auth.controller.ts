@@ -19,32 +19,32 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { CreateUserRequestDto } from 'src/user/dto/request/create-user-request.dto';
-import { UserService } from 'src/user/user.service';
-import { Public } from './decorators/public.decorator';
-import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
-import { RequestWithUser } from './types/request-with-user.interface';
-import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
-import { AuthService } from './auth.service';
-import { LoginRequestDto } from './dto/request/login-request.dto';
-import { Response } from 'express';
+import type { Response } from 'express';
 import * as ms from 'ms';
-import { setTokenCookie } from 'src/common/utils/cookie.util';
-import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
-import { UpdatePasswordRequestDto } from './dto/request/update-password-request.dto';
-import { LocalUserOnlyGuard } from './guards/local-auth/local-user-only.guard';
-import { KakaoAuthGuard } from './guards/kakao-auth/kakao-auth.guard';
-import { InvalidCredentialsException } from './exceptions/invalid-credentials.exception';
-import { OAuthAccountLoginException } from './exceptions/oauth-account-login.exception';
-import { UserNotFoundException } from '../user/exceptions/user-not-found.exception';
 import { CustomApiException } from 'src/common/decorators/custom-api-exception.decorator';
-import { DuplicateNicknameException } from '../user/exceptions/duplicate-nickname.exception';
-import { InvalidRefreshTokenException } from './exceptions/invalid-refresh-token.exception';
-import { OAuthAccountPasswordChangeException } from './exceptions/oauth-account-password-change.exception';
-import { InvalidCurrentPasswordException } from './exceptions/invalid-current-password.exception';
-import { PasswordMismatchException } from './exceptions/password-mismatch.exception';
+import { setTokenCookie } from 'src/common/utils/cookie.util';
+import type { CreateUserRequestDto } from 'src/user/dto/request/create-user-request.dto';
 import { UniqueNicknameGenerationException } from 'src/user/exceptions/unique-nickname-generation.exception';
+import type { UserService } from 'src/user/user.service';
+import { DuplicateNicknameException } from '../user/exceptions/duplicate-nickname.exception';
+import { UserNotFoundException } from '../user/exceptions/user-not-found.exception';
+import type { AuthService } from './auth.service';
+import { Public } from './decorators/public.decorator';
+import { LoginRequestDto } from './dto/request/login-request.dto';
+import { UpdatePasswordRequestDto } from './dto/request/update-password-request.dto';
 import { AlreadyRegisteredAccountException } from './exceptions/already-registered-account.exception';
+import { InvalidCredentialsException } from './exceptions/invalid-credentials.exception';
+import { InvalidCurrentPasswordException } from './exceptions/invalid-current-password.exception';
+import { InvalidRefreshTokenException } from './exceptions/invalid-refresh-token.exception';
+import { OAuthAccountLoginException } from './exceptions/oauth-account-login.exception';
+import { OAuthAccountPasswordChangeException } from './exceptions/oauth-account-password-change.exception';
+import { PasswordMismatchException } from './exceptions/password-mismatch.exception';
+import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
+import { KakaoAuthGuard } from './guards/kakao-auth/kakao-auth.guard';
+import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
+import { LocalUserOnlyGuard } from './guards/local-auth/local-user-only.guard';
+import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
+import type { RequestWithUser } from './types/request-with-user.interface';
 
 @ApiTags('Auth')
 @Controller('auth')
