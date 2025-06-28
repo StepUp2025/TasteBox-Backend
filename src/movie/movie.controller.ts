@@ -1,19 +1,19 @@
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiTags,
   ApiQuery,
+  ApiTags,
 } from '@nestjs/swagger';
-import { Controller, Get, Param, Query } from '@nestjs/common';
-import { MovieService } from './movie.service';
-import { FindMovieListResponseDto } from './dto/find-movie-list-response.dto';
-import { FindMovieDetailResponseDto } from './dto/find-movie-detail-response.dto';
 import { CustomApiException } from 'src/common/decorators/custom-api-exception.decorator';
 import { ContentNotFoundException } from 'src/common/exceptions/content-not-found.exception';
+import { ExternalApiException } from 'src/common/exceptions/external-api-exception';
 import { InvalidGenreIdException } from 'src/common/exceptions/invalid-genre-id.exception';
 import { InvalidPageException } from 'src/common/exceptions/invalid-page.exception';
-import { ExternalApiException } from 'src/common/exceptions/external-api-exception';
+import type { FindMovieDetailResponseDto } from './dto/find-movie-detail-response.dto';
+import type { FindMovieListResponseDto } from './dto/find-movie-list-response.dto';
+import type { MovieService } from './movie.service';
 
 @Controller('movies')
 @ApiTags('Movies')

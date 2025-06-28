@@ -1,6 +1,6 @@
+import * as bcrypt from 'bcrypt';
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
-import * as bcrypt from 'bcrypt';
 import { AuthProvider } from './enums/auth-provider.enum';
 
 @Entity()

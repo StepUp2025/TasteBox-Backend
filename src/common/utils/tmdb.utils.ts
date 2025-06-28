@@ -1,8 +1,8 @@
-import { HttpService } from '@nestjs/axios';
+import type { HttpService } from '@nestjs/axios';
+import type { ConfigService } from '@nestjs/config';
+import type { AxiosError } from 'axios';
 import { firstValueFrom } from 'rxjs';
-import { ConfigService } from '@nestjs/config';
-import { TmdbErrorResponse } from '../interfaces/tmdb-error.interface';
-import { AxiosError } from 'axios';
+import type { TmdbErrorResponse } from '../interfaces/tmdb-error.interface';
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const DEFAULT_LANGUAGE = 'ko-KR';
@@ -13,7 +13,7 @@ export function buildTmdbUrl(
 ): string {
   const processedQuery: Record<string, string> = {};
   for (const key in query) {
-    if (Object.prototype.hasOwnProperty.call(query, key)) {
+    if (Object.hasOwn(query, key)) {
       processedQuery[key] = String(query[key]);
     }
   }

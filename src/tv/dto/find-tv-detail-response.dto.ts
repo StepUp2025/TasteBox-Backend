@@ -1,7 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsOptional } from 'class-validator';
-import { TMDBGenre } from '../../common/interfaces/tmdb-common.interface';
-import { TMDBTvDetailResponse, TMDBTvSeason } from '../interfaces/tv.interface';
+import type { TMDBGenre } from '../../common/interfaces/tmdb-common.interface';
+import type {
+  TMDBTvDetailResponse,
+  TMDBTvSeason,
+} from '../interfaces/tv.interface';
 
 export class FindTvDetailResponseDto {
   @ApiProperty()

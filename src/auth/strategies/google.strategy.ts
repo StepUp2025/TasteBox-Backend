@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { ConfigType } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { Profile, Strategy } from 'passport-google-oauth20';
-import googleOauthConfig from '../config/google-oauth.config';
-import { ConfigType } from '@nestjs/config';
-import { AuthService } from '../auth.service';
-import { UserService } from 'src/user/user.service';
+import { type Profile, Strategy } from 'passport-google-oauth20';
 import { AuthProvider } from 'src/user/enums/auth-provider.enum';
-import { StrategyConfigException } from '../exceptions/strategy-config.exception';
+import type { UserService } from 'src/user/user.service';
+import type { AuthService } from '../auth.service';
+import googleOauthConfig from '../config/google-oauth.config';
 import { GoogleEmailNotFoundException } from '../exceptions/google-email-not-found.exception';
+import { StrategyConfigException } from '../exceptions/strategy-config.exception';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {

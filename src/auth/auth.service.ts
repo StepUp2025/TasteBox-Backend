@@ -1,26 +1,26 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { compare } from 'bcrypt';
-import { UserRepository } from 'src/user/user.repository';
+import type { ConfigType } from '@nestjs/config';
+import type { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import * as bcrypt from 'bcrypt';
-import refreshJwtConfig from './config/refresh-jwt.config';
-import { ConfigType } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import Redis from 'ioredis';
-import { AuthJwtPayload } from './types/auth-jwt-payload';
-import { TokenResponse } from './dto/response/token-response.interface';
-import { CreateUserRequestDto } from 'src/user/dto/request/create-user-request.dto';
-import { UserService } from 'src/user/user.service';
-import { UpdatePasswordRequestDto } from './dto/request/update-password-request.dto';
+import { compare } from 'bcrypt';
+import type Redis from 'ioredis';
+import type { CreateUserRequestDto } from 'src/user/dto/request/create-user-request.dto';
+import type { AuthProvider } from 'src/user/enums/auth-provider.enum';
+import type { UserRepository } from 'src/user/user.repository';
+import type { UserService } from 'src/user/user.service';
 import { UserNotFoundException } from '../user/exceptions/user-not-found.exception';
-import { OAuthAccountLoginException } from './exceptions/oauth-account-login.exception';
-import { InvalidCredentialsException } from './exceptions/invalid-credentials.exception';
-import { PasswordMismatchException } from './exceptions/password-mismatch.exception';
-import { InvalidRefreshTokenException } from './exceptions/invalid-refresh-token.exception';
-import { OAuthAccountPasswordChangeException } from './exceptions/oauth-account-password-change.exception';
-import { InvalidCurrentPasswordException } from './exceptions/invalid-current-password.exception';
+import refreshJwtConfig from './config/refresh-jwt.config';
+import type { UpdatePasswordRequestDto } from './dto/request/update-password-request.dto';
+import type { TokenResponse } from './dto/response/token-response.interface';
 import { AlreadyRegisteredAccountException } from './exceptions/already-registered-account.exception';
-import { AuthProvider } from 'src/user/enums/auth-provider.enum';
+import { InvalidCredentialsException } from './exceptions/invalid-credentials.exception';
+import { InvalidCurrentPasswordException } from './exceptions/invalid-current-password.exception';
+import { InvalidRefreshTokenException } from './exceptions/invalid-refresh-token.exception';
+import { OAuthAccountLoginException } from './exceptions/oauth-account-login.exception';
+import { OAuthAccountPasswordChangeException } from './exceptions/oauth-account-password-change.exception';
+import { PasswordMismatchException } from './exceptions/password-mismatch.exception';
+import type { AuthJwtPayload } from './types/auth-jwt-payload';
 
 @Injectable()
 export class AuthService {

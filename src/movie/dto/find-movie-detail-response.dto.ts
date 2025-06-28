@@ -1,5 +1,5 @@
-import { TMDBMovieDetailResponse } from '../interfaces/movie.interface';
 import { ApiProperty } from '@nestjs/swagger';
+import type { TMDBMovieDetailResponse } from '../interfaces/movie.interface';
 
 export class FindMovieDetailResponseDto {
   @ApiProperty({ description: '영화의 고유 ID', example: 574475 })

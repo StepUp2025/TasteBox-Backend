@@ -1,7 +1,11 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { RequestWithUser } from 'src/auth/types/request-with-user.interface';
+import {
+  type CanActivate,
+  type ExecutionContext,
+  Injectable,
+} from '@nestjs/common';
+import type { RequestWithUser } from 'src/auth/types/request-with-user.interface';
 import { AuthProvider } from 'src/user/enums/auth-provider.enum';
-import { UserRepository } from 'src/user/user.repository';
+import type { UserRepository } from 'src/user/user.repository';
 
 @Injectable()
 export class LocalUserOnlyGuard implements CanActivate {

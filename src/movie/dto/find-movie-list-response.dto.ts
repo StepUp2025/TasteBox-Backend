@@ -1,6 +1,6 @@
-import { TMDBNowPlayingResponse } from '../interfaces/movie-list.interface';
-import { MovieListItemDto } from './movie-list-item.dto';
 import { ApiProperty } from '@nestjs/swagger';
+import type { TMDBNowPlayingResponse } from '../interfaces/movie-list.interface';
+import { MovieListItemDto } from './movie-list-item.dto';
 
 export class FindMovieListResponseDto {
   @ApiProperty({

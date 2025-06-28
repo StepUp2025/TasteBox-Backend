@@ -1,17 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { ConfigType } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { Profile, Strategy } from 'passport-kakao';
-import { ConfigType } from '@nestjs/config';
-import { AuthService } from '../auth.service';
-import { UserService } from 'src/user/user.service';
-import kakaoOauthConfig from '../config/kakao-oauth.config';
+import { type Profile, Strategy } from 'passport-kakao';
 import { AuthProvider } from 'src/user/enums/auth-provider.enum';
-import {
+import type { UserService } from 'src/user/user.service';
+import type { AuthService } from '../auth.service';
+import kakaoOauthConfig from '../config/kakao-oauth.config';
+import { KakaoEmailNotFoundException } from '../exceptions/kakao-email-not-found.exception';
+import { StrategyConfigException } from '../exceptions/strategy-config.exception';
+import type {
   KakaoAccount,
   KakaoProfileResponse,
 } from '../interfaces/kakao.interface';
-import { StrategyConfigException } from '../exceptions/strategy-config.exception';
-import { KakaoEmailNotFoundException } from '../exceptions/kakao-email-not-found.exception';
 
 @Injectable()
 export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {

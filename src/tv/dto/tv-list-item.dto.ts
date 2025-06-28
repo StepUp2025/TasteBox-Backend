@@ -1,5 +1,5 @@
-import { TMDBTvItem } from '../interfaces/tv-list.interface';
 import { ApiProperty } from '@nestjs/swagger';
+import type { TMDBTvItem } from '../interfaces/tv-list.interface';
 
 export class TvListItemDto {
   @ApiProperty({ description: 'TV ID', example: 1399 })
