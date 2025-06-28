@@ -1,98 +1,151 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Tastebox Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## 📚 프로젝트 개요
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Tastebox Backend는 NestJS 기반의 백엔드 서버로, 인증, 사용자 관리, 영화/TV 정보 제공 등의 API를 제공합니다.
 
-## Description
+## ✨ 주요 기능
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- 사용자 인증 및 소셜 로그인(Google, Kakao)
+- 영화/TV 정보 제공 API
+- JWT/Refresh Token 기반 인증
+- Redis를 활용한 세션/토큰 관리
+- Swagger(OpenAPI) 기반 API 문서 제공
+- 코드 포맷팅/린팅 자동화 및 커밋 컨벤션 강제
 
-## Project setup
+## 🛠️ 기술 스택
 
-```bash
-$ npm install
+- **Node.js, NestJS, TypeScript**
+- **MySQL, Redis**
+- **JWT, OAuth2 (Google, Kakao)**
+
+## 🧰 개발 도구 / 코드 품질 관리
+
+- **Biome, Prettier, Husky, lint-staged, commitlint**
+
+## ⚙️ 환경변수 설정 안내
+
+`.env` 파일은 **절대 깃허브에 올리지 마세요**.  
+아래 예시를 참고해 `.env.example` 파일을 복사하여 `.env`로 사용하고,  
+각 항목에 실제 값을 입력하세요.
+
+### .env.example
+
+```text
+# MySQL 환경변수
+MYSQL_DATABASE=
+MYSQL_HOST=
+MYSQL_PORT=
+MYSQL_USERNAME=
+MYSQL_PASSWORD=
+MYSQL_SYNCHRONIZE=
+
+# Redis 환경변수
+REDIS_HOST=
+REDIS_PORT=
+REDIS_PASSWORD=
+REDIS_REFRESH_EXPIRE_SECONDS=
+
+# Google API
+GOOGLE_API_KEY=
+
+# JWT
+JWT_SECRET=
+JWT_EXPIRES_IN=
+
+# Refresh JWT
+REFRESH_JWT_SECRET=
+REFRESH_JWT_EXPIRES_IN=
+
+# Google OAuth
+GOOGLE_CLIENT_ID=
+GOOGLE_SECRET=
+GOOGLE_CALLBACK_URL=
+
+# Kakao OAuth
+KAKAO_CLIENT_ID=
+KAKAO_CALLBACK_URL=
 ```
 
-## Compile and run the project
+### 환경변수 설명
 
-```bash
-# development
-$ npm run start
+| 변수명                       | 설명                             | 예시값/비고                                |
+| ---------------------------- | -------------------------------- | ------------------------------------------ |
+| MYSQL_DATABASE               | MySQL 데이터베이스 이름          | tastebox                                   |
+| MYSQL_HOST                   | MySQL 호스트 주소                | 127.0.0.1                                  |
+| MYSQL_PORT                   | MySQL 포트 번호                  | 3306                                       |
+| MYSQL_USERNAME               | MySQL 사용자명                   | root                                       |
+| MYSQL_PASSWORD               | MySQL 비밀번호                   |                                            |
+| MYSQL_SYNCHRONIZE            | TypeORM 동기화 여부 (true/false) | true                                       |
+| REDIS_HOST                   | Redis 호스트 주소                | 127.0.0.1                                  |
+| REDIS_PORT                   | Redis 포트 번호                  | 6379                                       |
+| REDIS_PASSWORD               | Redis 비밀번호                   |                                            |
+| REDIS_REFRESH_EXPIRE_SECONDS | Redis 리프레시 토큰 만료(초)     | 86400 (1일)                                |
+| GOOGLE_API_KEY               | Google API 키                    |                                            |
+| JWT_SECRET                   | JWT 서명용 시크릿                |                                            |
+| JWT_EXPIRES_IN               | JWT 만료 기간                    | 1d                                         |
+| REFRESH_JWT_SECRET           | 리프레시 토큰용 시크릿           |                                            |
+| REFRESH_JWT_EXPIRES_IN       | 리프레시 토큰 만료 기간          | 7d                                         |
+| GOOGLE_CLIENT_ID             | 구글 OAuth Client ID             |                                            |
+| GOOGLE_SECRET                | 구글 OAuth Secret                |                                            |
+| GOOGLE_CALLBACK_URL          | 구글 OAuth 콜백 URL              | http://localhost:3000/auth/google/callback |
+| KAKAO_CLIENT_ID              | 카카오 OAuth Client ID           |                                            |
+| KAKAO_CALLBACK_URL           | 카카오 OAuth 콜백 URL            | http://localhost:3000/auth/kakao/callback  |
 
-# watch mode
-$ npm run start:dev
+## 🚀 설치 및 실행
 
-# production mode
-$ npm run start:prod
+1. **레포지토리 클론**
+
+   ```bash
+     git clone https://github.com/StepUp2025/TasteBox-Backend.git
+
+     cd tastebox-backend
+   ```
+
+2. **의존성 설치**
+   ```bash
+    npm install
+   ```
+3. **환경변수 파일 생성**
+
+   - `.env.example`을 복사해 `.env`로 만들고, 실제 값을 입력하세요.
+
+4. **DB/Redis 등 외부 서비스 준비**
+
+5. **개발 서버 실행**
+   ```bash
+    npm run start:dev
+   ```
+
+## 🗂️ 폴더 구조
+
+```text
+  src/
+  ├── auth/ # 인증/인가 관련 모듈
+  ├── user/ # 사용자 관련 모듈
+  ├── movie/ # 영화 정보 API
+  ├── tv/ # TV 정보 API
+  ├── common/ # 공통 유틸리티, 데코레이터 등
+  ├── main.ts # 엔트리포인트
+  └── ...
 ```
 
-## Run tests
+## 🧑‍💻 협업 및 개발 환경 가이드
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- **코드 포맷팅/린팅**
+  - `npm run format`으로 전체 코드 자동 정렬(기존 작업 중인 파일도 포함)
+  - 마크다운 파일은 Prettier로, 나머지는 Biome으로 포맷팅
+- **커밋 컨벤션**
+  - 커밋 메시지는 팀 규칙을 따라 작성 (commitlint 자동 체크)
+- **브랜치 네이밍**
+  - `feat/`, `fix/`, `chore/` 등 prefix 사용
+- **VSCode 확장**
+  - Biome 확장 설치
+  - `.vscode/settings.json` 참고
+- **윈도우 사용자**
+  - 줄바꿈 정책:
+    ```bash
+      git config --global core.autocrlf false
+    ```
+- **초기 설정 단계에서는 자동화 체크(CI/CD, git hook 등)로 에러/경고가 있어도 커밋/PR/머지가 가능**
+- **코드 품질 경고가 모두 수정되면, 이후에는 CI/CD에서 에러/경고 발생 시 PR/머지가 차단될 예정**
