@@ -18,23 +18,23 @@ export class FindTvDetailResponseDto {
 
   @ApiProperty({ nullable: true })
   @IsOptional()
-  poster_path: string | null;
+  posterPath: string | null;
 
   @ApiProperty({ nullable: true })
   @IsOptional()
-  backdrop_path: string | null;
+  backdropPath: string | null;
 
   @ApiProperty()
   adult: boolean;
 
   @ApiProperty()
-  original_language: string;
+  originalLanguage: string;
 
   @ApiProperty({ type: [String] })
   languages: string[];
 
   @ApiProperty()
-  in_production: boolean;
+  inProduction: boolean;
 
   @ApiProperty({ type: [Object] })
   genres: { id: number; name: string }[];
@@ -44,38 +44,38 @@ export class FindTvDetailResponseDto {
 
   @ApiProperty({ nullable: true })
   @IsOptional()
-  first_air_date: string | null;
+  firstAirDate: string | null;
 
   @ApiProperty({ nullable: true })
   @IsOptional()
-  last_air_date: string | null;
+  lastAirDate: string | null;
 
   @ApiProperty()
   popularity: number;
 
   @ApiProperty()
-  vote_average: number;
+  voteAverage: number;
 
   @ApiProperty()
-  vote_count: number;
+  voteCount: number;
 
   @ApiProperty()
-  number_of_seasons: number;
+  numberOfSeasons: number;
 
   @ApiProperty()
-  number_of_episodes: number;
+  numberOfEpisodes: number;
 
   @ApiProperty({ type: [Object] })
   @IsArray()
   seasons: {
     id: number;
-    season_number: number;
-    episode_count: number;
-    poster_path: string | null;
-    air_date: string | null;
+    seasonNumber: number;
+    episodeCount: number;
+    posterPath: string | null;
+    airDate: string | null;
     name: string;
     title: string;
-    vote_average: number;
+    voteAverage: number;
   }[];
 
   // TMDB 응답 객체 -> FindTvDetailResponseDto 변환 메서드
@@ -84,30 +84,30 @@ export class FindTvDetailResponseDto {
       id: raw.id,
       title: raw.name,
       overview: raw.overview,
-      poster_path: raw.poster_path,
-      backdrop_path: raw.backdrop_path,
+      posterPath: raw.poster_path,
+      backdropPath: raw.backdrop_path,
       adult: raw.adult,
-      original_language: raw.original_language,
+      originalLanguage: raw.original_language,
       languages: raw.languages,
-      in_production: raw.in_production,
+      inProduction: raw.in_production,
       genres: raw.genres.map((g: TMDBGenre) => ({ id: g.id, name: g.name })),
       status: raw.status,
-      first_air_date: raw.first_air_date,
-      last_air_date: raw.last_air_date,
+      firstAirDate: raw.first_air_date,
+      lastAirDate: raw.last_air_date,
       popularity: raw.popularity,
-      vote_average: raw.vote_average,
-      vote_count: raw.vote_count,
-      number_of_seasons: raw.number_of_seasons,
-      number_of_episodes: raw.number_of_episodes,
+      voteAverage: raw.vote_average,
+      voteCount: raw.vote_count,
+      numberOfSeasons: raw.number_of_seasons,
+      numberOfEpisodes: raw.number_of_episodes,
       seasons: raw.seasons.map((s: TMDBTvSeason) => ({
         id: s.id,
-        season_number: s.season_number,
-        episode_count: s.episode_count,
-        poster_path: s.poster_path,
-        air_date: s.air_date,
+        seasonNumber: s.season_number,
+        episodeCount: s.episode_count,
+        posterPath: s.poster_path,
+        airDate: s.air_date,
         name: s.name,
         title: s.name,
-        vote_average: s.vote_average,
+        voteAverage: s.vote_average,
       })),
     };
   }

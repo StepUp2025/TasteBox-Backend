@@ -15,13 +15,13 @@ export class MovieListItemDto {
     description: '영화 포스터 이미지 URL',
     example: '/example.jpg',
   })
-  poster_path: string;
+  posterPath: string;
 
   static of(this: void, raw: TMDBMovie): MovieListItemDto {
     return {
       id: raw.id,
       title: raw.title,
-      poster_path: raw.poster_path,
+      posterPath: raw.poster_path,
     };
   }
 }

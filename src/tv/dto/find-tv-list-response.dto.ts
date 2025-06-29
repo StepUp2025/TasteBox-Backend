@@ -11,12 +11,12 @@ export class FindTvListResponseDto {
     example: [
       {
         id: 1396,
-        poster_path: '/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg',
+        posterPath: '/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg',
         title: '브레이킹 배드',
       },
       {
         id: 1398,
-        poster_path: '/rTc7ZXdroqjkKivFPvCPX0Ru7uw.jpg',
+        posterPath: '/rTc7ZXdroqjkKivFPvCPX0Ru7uw.jpg',
         title: '더 소프라노스',
       },
     ],
