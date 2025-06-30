@@ -11,9 +11,9 @@ import { ContentNotFoundException } from 'src/common/exceptions/content-not-foun
 import { ExternalApiException } from 'src/common/exceptions/external-api-exception';
 import { InvalidGenreIdException } from 'src/common/exceptions/invalid-genre-id.exception';
 import { InvalidPageException } from 'src/common/exceptions/invalid-page.exception';
-import type { FindMovieDetailResponseDto } from './dto/find-movie-detail-response.dto';
-import type { FindMovieListResponseDto } from './dto/find-movie-list-response.dto';
-import type { MovieService } from './movie.service';
+import { FindMovieDetailResponseDto } from './dto/find-movie-detail-response.dto';
+import { FindMovieListResponseDto } from './dto/find-movie-list-response.dto';
+import { MovieService } from './movie.service';
 
 @Controller('movies')
 @ApiTags('Movies')
