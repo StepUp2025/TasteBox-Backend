@@ -9,10 +9,10 @@ export class FindMovieListResponseDto {
     example: [
       {
         id: 157336,
-        posterUrl: '/example.jpg',
+        posterPath: '/example.jpg',
         title: '영화이름1',
       },
-      { id: 123456, posterUrl: '/abc.jpg', title: '영화이름2' },
+      { id: 123456, posterPath: '/abc.jpg', title: '영화이름2' },
     ],
   })
   movies: MovieListItemDto[];

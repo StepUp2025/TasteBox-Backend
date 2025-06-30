@@ -22,19 +22,19 @@ export class FindMovieDetailResponseDto {
     description: '영화 포스터 이미지 경로',
     example: '/6WxhEvFsauuACfv8HyoVX6mZKFj.jpg',
   })
-  poster_path: string;
+  posterPath: string;
 
   @ApiProperty({
     description: '영화 배경 이미지 경로',
     example: '/uIpJPDNFoeX0TVml9smPrs9KUVx.jpg',
   })
-  backdrop_path: string;
+  backdropPath: string;
 
   @ApiProperty({ description: '성인 관람가 여부', example: false })
   adult: boolean;
 
   @ApiProperty({ description: '원본 언어', example: 'en' })
-  original_language: string;
+  originalLanguage: string;
 
   @ApiProperty({
     description: '영화 장르 목록',
@@ -66,30 +66,30 @@ export class FindMovieDetailResponseDto {
   popularity: number;
 
   @ApiProperty({ description: '개봉일 (YYYY-MM-DD)', example: '2025-05-14' })
-  release_date: string;
+  releaseDate: string;
 
   @ApiProperty({ description: '평균 평점', example: 7.219 })
-  vote_average: number;
+  voteAverage: number;
 
   @ApiProperty({ description: '투표 수', example: 1147 })
-  vote_count: number;
+  voteCount: number;
 
   static of(raw: TMDBMovieDetailResponse): FindMovieDetailResponseDto {
     return {
       id: raw.id,
       title: raw.title,
       overview: raw.overview,
-      poster_path: raw.poster_path,
-      backdrop_path: raw.backdrop_path,
+      posterPath: raw.poster_path,
+      backdropPath: raw.backdrop_path,
       adult: raw.adult,
-      original_language: raw.original_language,
+      originalLanguage: raw.original_language,
       genres: raw.genres,
       status: raw.status,
       runtime: raw.runtime,
       popularity: raw.popularity,
-      release_date: raw.release_date,
-      vote_average: raw.vote_average,
-      vote_count: raw.vote_count,
+      releaseDate: raw.release_date,
+      voteAverage: raw.vote_average,
+      voteCount: raw.vote_count,
     };
   }
 }

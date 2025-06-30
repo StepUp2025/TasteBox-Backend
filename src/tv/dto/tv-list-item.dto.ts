@@ -9,13 +9,13 @@ export class TvListItemDto {
   title: string;
 
   @ApiProperty({ description: '포스터 경로', example: '/example.jpg' })
-  poster_path: string;
+  posterPath: string;
 
   static of(raw: TMDBTvItem): TvListItemDto {
     return {
       id: raw.id,
       title: raw.name,
-      poster_path: raw.poster_path,
+      posterPath: raw.poster_path,
     };
   }
 }
