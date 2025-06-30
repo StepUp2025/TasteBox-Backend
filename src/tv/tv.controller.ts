@@ -11,9 +11,9 @@ import { ContentNotFoundException } from 'src/common/exceptions/content-not-foun
 import { ExternalApiException } from 'src/common/exceptions/external-api-exception';
 import { InvalidGenreIdException } from 'src/common/exceptions/invalid-genre-id.exception';
 import { InvalidPageException } from 'src/common/exceptions/invalid-page.exception';
-import type { FindTvDetailResponseDto } from './dto/find-tv-detail-response.dto';
-import type { FindTvListResponseDto } from './dto/find-tv-list-response.dto';
-import type { TvService } from './tv.service';
+import { FindTvDetailResponseDto } from './dto/find-tv-detail-response.dto';
+import { FindTvListResponseDto } from './dto/find-tv-list-response.dto';
+import { TvService } from './tv.service';
 
 @Controller('tvs')
 @ApiTags('Tvs')

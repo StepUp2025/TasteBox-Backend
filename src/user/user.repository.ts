@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserNotFoundException } from 'src/user/exceptions/user-not-found.exception';
-import type { Repository } from 'typeorm';
-import type { CreateUserRequestDto } from './dto/request/create-user-request.dto';
-import type { UpdateUserProfileRequestDto } from './dto/request/update-user-request.dto';
+import { Repository } from 'typeorm';
+import { CreateUserRequestDto } from './dto/request/create-user-request.dto';
+import { UpdateUserProfileRequestDto } from './dto/request/update-user-request.dto';
 import { User } from './user.entity';
 
 @Injectable()

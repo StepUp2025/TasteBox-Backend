@@ -19,16 +19,16 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import type { Response } from 'express';
+import { Response } from 'express';
 import * as ms from 'ms';
 import { CustomApiException } from 'src/common/decorators/custom-api-exception.decorator';
 import { setTokenCookie } from 'src/common/utils/cookie.util';
-import type { CreateUserRequestDto } from 'src/user/dto/request/create-user-request.dto';
+import { CreateUserRequestDto } from 'src/user/dto/request/create-user-request.dto';
 import { UniqueNicknameGenerationException } from 'src/user/exceptions/unique-nickname-generation.exception';
-import type { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/user.service';
 import { DuplicateNicknameException } from '../user/exceptions/duplicate-nickname.exception';
 import { UserNotFoundException } from '../user/exceptions/user-not-found.exception';
-import type { AuthService } from './auth.service';
+import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { LoginRequestDto } from './dto/request/login-request.dto';
 import { UpdatePasswordRequestDto } from './dto/request/update-password-request.dto';
@@ -44,7 +44,7 @@ import { KakaoAuthGuard } from './guards/kakao-auth/kakao-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
 import { LocalUserOnlyGuard } from './guards/local-auth/local-user-only.guard';
 import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
-import type { RequestWithUser } from './types/request-with-user.interface';
+import { RequestWithUser } from './types/request-with-user.interface';
 
 @ApiTags('Auth')
 @Controller('auth')

@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { ConfigType } from '@nestjs/config';
+import { ConfigType } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { type Profile, Strategy } from 'passport-kakao';
+import { Profile, Strategy } from 'passport-kakao';
 import { AuthProvider } from 'src/user/enums/auth-provider.enum';
-import type { UserService } from 'src/user/user.service';
-import type { AuthService } from '../auth.service';
+import { UserService } from 'src/user/user.service';
+import { AuthService } from '../auth.service';
 import kakaoOauthConfig from '../config/kakao-oauth.config';
 import { KakaoEmailNotFoundException } from '../exceptions/kakao-email-not-found.exception';
 import { StrategyConfigException } from '../exceptions/strategy-config.exception';
-import type {
+import {
   KakaoAccount,
   KakaoProfileResponse,
 } from '../interfaces/kakao.interface';
@@ -34,7 +34,11 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
     });
   }
 
-  async validate(accessToken: string, refreshToken: string, profile: Profile) {
+  async validate(
+    _accessToken: string,
+    _refreshTokenn: string,
+    profile: Profile,
+  ) {
     console.log(profile);
     const response = profile._json as KakaoProfileResponse;
     const kakaoAccount = response.kakao_account;

@@ -3,13 +3,13 @@ import { plainToInstance } from 'class-transformer';
 import { AlreadyRegisteredAccountException } from 'src/auth/exceptions/already-registered-account.exception';
 import { generateRandomNickname } from 'src/common/utils/nickname.util';
 import { UserNotFoundException } from 'src/user/exceptions/user-not-found.exception';
-import type { CreateUserRequestDto } from './dto/request/create-user-request.dto';
-import type { UpdateUserProfileRequestDto } from './dto/request/update-user-request.dto';
+import { CreateUserRequestDto } from './dto/request/create-user-request.dto';
+import { UpdateUserProfileRequestDto } from './dto/request/update-user-request.dto';
 import { UserResponseDto } from './dto/response/user-response.dto';
 import { DuplicateNicknameException } from './exceptions/duplicate-nickname.exception';
 import { UniqueNicknameGenerationException } from './exceptions/unique-nickname-generation.exception';
-import type { EmailDuplicateResult } from './types/user.types';
-import type { UserRepository } from './user.repository';
+import { EmailDuplicateResult } from './types/user.types';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {

@@ -8,11 +8,11 @@ import {
 } from '@nestjs/swagger';
 import { CustomApiException } from 'src/common/decorators/custom-api-exception.decorator';
 import { UserNotFoundException } from 'src/user/exceptions/user-not-found.exception';
-import type { RequestWithUser } from '../auth/types/request-with-user.interface';
+import { RequestWithUser } from '../auth/types/request-with-user.interface';
 import { UpdateUserProfileRequestDto } from './dto/request/update-user-request.dto';
 import { UserResponseDto } from './dto/response/user-response.dto';
 import { DuplicateNicknameException } from './exceptions/duplicate-nickname.exception';
-import type { UserService } from './user.service';
+import { UserService } from './user.service';
 
 @ApiCookieAuth('accessToken')
 @ApiTags('User')

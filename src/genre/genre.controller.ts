@@ -12,8 +12,8 @@ import { ContentNotFoundException } from 'src/common/exceptions/content-not-foun
 import { ExternalApiException } from 'src/common/exceptions/external-api-exception';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { ContentType } from '../common/types/content-type.enum';
-import type { GenreListResponseDto } from './dto/genre-list-response.dto';
-import type { GenreService } from './genre.service';
+import { GenreListResponseDto } from './dto/genre-list-response.dto';
+import { GenreService } from './genre.service';
 
 @ApiTags('Genres')
 @ApiBearerAuth()
