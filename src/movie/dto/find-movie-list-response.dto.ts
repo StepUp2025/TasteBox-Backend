@@ -4,6 +4,12 @@ import { MovieListItemDto } from './movie-list-item.dto';
 
 export class FindMovieListResponseDto {
   @ApiProperty({
+    description: '콘텐츠 유형',
+    example: 'movie',
+  })
+  contentType: string;
+
+  @ApiProperty({
     description: '조회된 영화 목록',
     type: [MovieListItemDto],
     example: [
@@ -31,6 +37,7 @@ export class FindMovieListResponseDto {
 
   static of(raw: TMDBNowPlayingResponse): FindMovieListResponseDto {
     return {
+      contentType: 'movie',
       movies: raw.results.map(MovieListItemDto.of),
       page: raw.page,
       totalPages: raw.total_pages,

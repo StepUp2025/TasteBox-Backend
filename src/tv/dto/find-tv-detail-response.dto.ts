@@ -11,6 +11,9 @@ export class FindTvDetailResponseDto {
   id: number;
 
   @ApiProperty()
+  contentType: string;
+
+  @ApiProperty()
   title: string;
 
   @ApiProperty()
@@ -82,6 +85,7 @@ export class FindTvDetailResponseDto {
   static of(raw: TMDBTvDetailResponse): FindTvDetailResponseDto {
     return {
       id: raw.id,
+      contentType: 'tv',
       title: raw.name,
       overview: raw.overview,
       posterPath: raw.poster_path,

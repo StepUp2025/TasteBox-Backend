@@ -5,6 +5,9 @@ export class FindMovieDetailResponseDto {
   @ApiProperty({ description: '영화의 고유 ID', example: 574475 })
   id: number;
 
+  @ApiProperty({ description: '콘텐츠 유형', example: 'movie' })
+  contentType: string;
+
   @ApiProperty({
     description: '영화 제목',
     example: '파이널 데스티네이션 블러드라인스',
@@ -77,6 +80,7 @@ export class FindMovieDetailResponseDto {
   static of(raw: TMDBMovieDetailResponse): FindMovieDetailResponseDto {
     return {
       id: raw.id,
+      contentType: 'movie',
       title: raw.title,
       overview: raw.overview,
       posterPath: raw.poster_path,
