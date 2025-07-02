@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseArrayPipe, Query } from '@nestjs/common';
 import {
   ApiOkResponse,
   ApiOperation,
@@ -110,8 +110,11 @@ export class MovieController {
     InvalidPageException,
   ])
   async getMoviesByGenre(
-    @Query('genreId') genreId: number,
-    @Query('page') page?: number,
+    @Query('genreId', new ParseArrayPipe({ items: String, optional: true }))
+    genreId: string[],
+
+    @Query('page')
+    page?: number,
   ): Promise<FindMovieListResponseDto> {
     return this.movieService.getMoviesByGenre(genreId, page);
   }

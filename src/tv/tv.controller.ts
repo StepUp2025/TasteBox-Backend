@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseArrayPipe, Query } from '@nestjs/common';
 import {
   ApiOkResponse,
   ApiOperation,
@@ -110,7 +110,8 @@ export class TvController {
     InvalidPageException,
   ])
   async getTvsByGenre(
-    @Query('genreId') genreId: number,
+    @Query('genreId', new ParseArrayPipe({ items: String, optional: true }))
+    genreId: string[],
     @Query('page') page?: number,
   ): Promise<FindTvListResponseDto> {
     return this.tvService.getTvsByGenre(genreId, page);
