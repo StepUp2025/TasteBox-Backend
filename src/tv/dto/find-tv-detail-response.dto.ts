@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsOptional } from 'class-validator';
+import { ContentType } from 'src/common/types/content-type.enum';
 import type { TMDBGenre } from '../../common/interfaces/tmdb-common.interface';
 import type {
   TMDBTvDetailResponse,
@@ -11,7 +12,7 @@ export class FindTvDetailResponseDto {
   id: number;
 
   @ApiProperty()
-  contentType: string;
+  contentType: ContentType;
 
   @ApiProperty()
   title: string;
@@ -85,7 +86,7 @@ export class FindTvDetailResponseDto {
   static of(raw: TMDBTvDetailResponse): FindTvDetailResponseDto {
     return {
       id: raw.id,
-      contentType: 'tv',
+      contentType: ContentType.TV,
       title: raw.name,
       overview: raw.overview,
       posterPath: raw.poster_path,

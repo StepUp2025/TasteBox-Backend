@@ -1,12 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ContentType } from 'src/common/types/content-type.enum';
 import type { TMDBMovieDetailResponse } from '../interfaces/movie.interface';
 
 export class FindMovieDetailResponseDto {
   @ApiProperty({ description: '영화의 고유 ID', example: 574475 })
   id: number;
 
-  @ApiProperty({ description: '콘텐츠 유형', example: 'movie' })
-  contentType: string;
+  @ApiProperty({
+    enum: ContentType,
+    description: '콘텐츠 유형',
+    example: ContentType.MOVIE,
+  })
+  contentType: ContentType;
 
   @ApiProperty({
     description: '영화 제목',
@@ -80,7 +85,7 @@ export class FindMovieDetailResponseDto {
   static of(raw: TMDBMovieDetailResponse): FindMovieDetailResponseDto {
     return {
       id: raw.id,
-      contentType: 'movie',
+      contentType: ContentType.MOVIE,
       title: raw.title,
       overview: raw.overview,
       posterPath: raw.poster_path,
