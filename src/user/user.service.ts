@@ -3,6 +3,7 @@ import { plainToInstance } from 'class-transformer';
 import { AlreadyRegisteredAccountException } from 'src/auth/exceptions/already-registered-account.exception';
 import { generateRandomNickname } from 'src/common/utils/nickname.util';
 import { UserNotFoundException } from 'src/user/exceptions/user-not-found.exception';
+import { User } from 'src/user/user.entity';
 import { CreateUserRequestDto } from './dto/request/create-user-request.dto';
 import { UpdateUserProfileRequestDto } from './dto/request/update-user-request.dto';
 import { UserResponseDto } from './dto/response/user-response.dto';
@@ -16,25 +17,15 @@ export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
   async findUserById(id: number): Promise<UserResponseDto> {
-    const findUser = await this.userRepository.findOneById(id);
-
-    if (!findUser) {
-      throw new UserNotFoundException();
-    }
-
-    return plainToInstance(UserResponseDto, findUser, {
+    const user = await this.getOrThrowById(id);
+    return plainToInstance(UserResponseDto, user, {
       excludeExtraneousValues: true,
     });
   }
 
   async findUserByEmail(email: string): Promise<UserResponseDto> {
-    const findUser = await this.userRepository.findOneByEmail(email);
-
-    if (!findUser) {
-      throw new UserNotFoundException();
-    }
-
-    return plainToInstance(UserResponseDto, findUser, {
+    const user = await this.getOrThrowByEmail(email);
+    return plainToInstance(UserResponseDto, user, {
       excludeExtraneousValues: true,
     });
   }
@@ -94,5 +85,16 @@ export class UserService {
     const findUser = await this.userRepository.findOneByEmail(email);
     if (!findUser) return { isDuplicate: false };
     return { isDuplicate: true, provider: findUser.provider };
+  }
+
+  async getOrThrowById(id: number): Promise<User> {
+    const user = await this.userRepository.findOneById(id);
+    if (!user) throw new UserNotFoundException();
+    return user;
+  }
+  async getOrThrowByEmail(email: string): Promise<User> {
+    const user = await this.userRepository.findOneByEmail(email);
+    if (!user) throw new UserNotFoundException();
+    return user;
   }
 }

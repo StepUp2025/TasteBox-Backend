@@ -10,6 +10,7 @@ import { GenreService } from './genre.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Genre]), HttpModule, ConfigModule],
+  exports: [GenreService],
   controllers: [GenreController],
   providers: [GenreRepository, GenreService],
 })

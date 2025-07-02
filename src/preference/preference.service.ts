@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { ContentType } from 'src/common/types/content-type.enum';
 import { GenreDto } from 'src/genre/dto/genre.dto';
 import { Genre } from 'src/genre/entity/genre.entity';
 import { User } from 'src/user/user.entity';
-import { In, Repository } from 'typeorm';
-import { UserNotFoundException } from './../user/exceptions/user-not-found.exception';
+import { UserService } from 'src/user/user.service';
+import { DataSource, Repository } from 'typeorm';
+import { GenreService } from './../genre/genre.service';
 import { UpdatePreferenceRequestDto } from './dto/request/update-preference-request.dto';
 import { GetPreferenceResponseDto } from './dto/response/get-preferences-response.dto';
 import { PreferenceDetailDto } from './dto/response/preference-detail.dto';
-import { GenreNotFoundException } from './exceptions/genre-not-found.exception';
 import { Preference } from './preference.entity';
 
 @Injectable()
@@ -18,30 +18,34 @@ export class PreferenceService {
     @InjectRepository(Preference)
     private readonly preferenceRepository: Repository<Preference>,
 
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
 
-    @InjectRepository(Genre)
-    private readonly genreRepository: Repository<Genre>,
+    private readonly userService: UserService,
+    private readonly genreService: GenreService,
   ) {}
 
   async updateUserPreferences(
     userId: number,
     dto: UpdatePreferenceRequestDto,
   ): Promise<void> {
-    const user = await this.getUserOrThrow(userId);
-    const genreIds = this.extractGenreIds(dto);
-    await this.preferenceRepository.delete({ user: { id: userId } });
-    if (genreIds.length === 0) return;
+    await this.dataSource.transaction(async (manager) => {
+      const user = await this.userService.getOrThrowById(userId);
+      const genreIds = this.extractGenreIds(dto).map(String);
 
-    const genres = await this.getGenresOrThrow(genreIds);
-    const preferences = this.createPreferences(user, genres);
-    await this.preferenceRepository.save(preferences);
+      await manager.getRepository(Preference).delete({ user: { id: userId } });
+
+      if (genreIds.length === 0) return;
+
+      const genres = await this.genreService.getGenresOrThrow(genreIds);
+      const preferences = this.createPreferences(user, genres);
+      await manager.getRepository(Preference).save(preferences);
+    });
   }
 
   // 전체 취향 조회
   async getUserPreferences(userId: number): Promise<GetPreferenceResponseDto> {
-    await this.getUserOrThrow(userId);
+    await this.userService.getOrThrowById(userId);
     const preferences = await this.getPreferencesByUserId(userId);
     return {
       movie: this.buildPreferenceDetail(preferences, ContentType.MOVIE),
@@ -51,14 +55,14 @@ export class PreferenceService {
 
   // 회원 영화 취향 조회
   async getMoviePreferences(userId: number): Promise<PreferenceDetailDto> {
-    await this.getUserOrThrow(userId);
+    await this.userService.getOrThrowById(userId);
     const preferences = await this.getPreferencesByUserId(userId);
     return this.buildPreferenceDetail(preferences, 0);
   }
 
   // 회원 TV 취향 정보 조회
   async getTvPreferences(userId: number): Promise<PreferenceDetailDto> {
-    await this.getUserOrThrow(userId);
+    await this.userService.getOrThrowById(userId);
     const preferences = await this.getPreferencesByUserId(userId);
     return this.buildPreferenceDetail(preferences, 1);
   }
@@ -68,20 +72,6 @@ export class PreferenceService {
     const movieGenreIds = dto.movie?.genreIds ?? [];
     const tvGenreIds = dto.tv?.genreIds ?? [];
     return [...movieGenreIds, ...tvGenreIds];
-  }
-
-  // User 검증
-  private async getUserOrThrow(userId: number): Promise<User> {
-    const user = await this.userRepository.findOneBy({ id: userId });
-    if (!user) throw new UserNotFoundException();
-    return user;
-  }
-
-  // Genre 존재 검증
-  private async getGenresOrThrow(genreIds: number[]): Promise<Genre[]> {
-    const genres = await this.genreRepository.findBy({ id: In(genreIds) });
-    if (genres.length !== genreIds.length) throw new GenreNotFoundException();
-    return genres;
   }
 
   // Preference 생성
