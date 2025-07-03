@@ -56,14 +56,14 @@ export class PreferenceService {
   async getMoviePreferences(userId: number): Promise<PreferenceDetailDto> {
     await this.userService.getOrThrowById(userId);
     const preferences = await this.getPreferencesByUserId(userId);
-    return this.buildPreferenceDetail(preferences, 0);
+    return this.buildPreferenceDetail(preferences, ContentType.MOVIE);
   }
 
   // 회원 TV 취향 정보 조회
   async getTvPreferences(userId: number): Promise<PreferenceDetailDto> {
     await this.userService.getOrThrowById(userId);
     const preferences = await this.getPreferencesByUserId(userId);
-    return this.buildPreferenceDetail(preferences, 1);
+    return this.buildPreferenceDetail(preferences, ContentType.TV);
   }
 
   // GenreId 추출
