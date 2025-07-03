@@ -1,10 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsNumber, ValidateNested } from 'class-validator';
+import { IsArray, IsNumber, IsString, ValidateNested } from 'class-validator';
 import type { TMDBTvListResponse } from '../interfaces/tv-list.interface';
 import { TvListItemDto } from './tv-list-item.dto';
 
 export class FindTvListResponseDto {
+  @ApiProperty({
+    description: '콘텐츠 유형',
+    example: 'tv',
+  })
+  @IsString()
+  contentType: string;
+
   @ApiProperty({
     description: '조회된 TV 프로그램 목록',
     type: [TvListItemDto],
@@ -43,6 +50,7 @@ export class FindTvListResponseDto {
   // TMDB 응답 객체 -> FindTvListResponseDto 변환 메서드
   static of(raw: TMDBTvListResponse): FindTvListResponseDto {
     return {
+      contentType: 'tv',
       tvs: raw.results.map((tv) => TvListItemDto.of(tv)),
       page: raw.page,
       totalPages: raw.total_pages,

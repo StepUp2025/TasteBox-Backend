@@ -11,6 +11,8 @@ import { ContentNotFoundException } from 'src/common/exceptions/content-not-foun
 import { ExternalApiException } from 'src/common/exceptions/external-api-exception';
 import { InvalidGenreIdException } from 'src/common/exceptions/invalid-genre-id.exception';
 import { InvalidPageException } from 'src/common/exceptions/invalid-page.exception';
+import { ContentListQueryDto } from './../common/dto/content-list-query-dto';
+import { PaginationQueryDto } from './../common/dto/pagination-query.dto';
 import { FindMovieDetailResponseDto } from './dto/find-movie-detail-response.dto';
 import { FindMovieListResponseDto } from './dto/find-movie-list-response.dto';
 import { MovieService } from './movie.service';
@@ -36,8 +38,9 @@ export class MovieController {
   })
   @CustomApiException(() => [InvalidPageException, ExternalApiException])
   async getNowPlayingMovies(
-    @Query('page') page?: number,
+    @Query() query: PaginationQueryDto,
   ): Promise<FindMovieListResponseDto> {
+    const { page } = query;
     return this.movieService.getNowPlayingMovies(page);
   }
 
@@ -57,8 +60,9 @@ export class MovieController {
   })
   @CustomApiException(() => [InvalidPageException, ExternalApiException])
   async getTopRatedMovies(
-    @Query('page') page?: number,
+    @Query() query: PaginationQueryDto,
   ): Promise<FindMovieListResponseDto> {
+    const { page } = query;
     return this.movieService.getTopRatedMovies(page);
   }
 
@@ -78,8 +82,9 @@ export class MovieController {
   })
   @CustomApiException(() => [InvalidPageException, ExternalApiException])
   async getPopularMovies(
-    @Query('page') page?: number,
+    @Query() query: PaginationQueryDto,
   ): Promise<FindMovieListResponseDto> {
+    const { page } = query;
     return this.movieService.getPopularMovies(page);
   }
 
@@ -110,9 +115,9 @@ export class MovieController {
     InvalidPageException,
   ])
   async getMoviesByGenre(
-    @Query('genreId') genreId: number,
-    @Query('page') page?: number,
+    @Query() query: ContentListQueryDto,
   ): Promise<FindMovieListResponseDto> {
+    const { genreId, page } = query;
     return this.movieService.getMoviesByGenre(genreId, page);
   }
 
@@ -164,8 +169,9 @@ export class MovieController {
   ])
   async getRecommendedMoviesById(
     @Param('movieId') movieId: number,
-    @Query('page') page?: number,
+    @Query() query: PaginationQueryDto,
   ): Promise<FindMovieListResponseDto> {
+    const { page } = query;
     return this.movieService.getRecommendedMoviesById(movieId, page);
   }
 }

@@ -1,10 +1,11 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ExternalApiException } from 'src/common/exceptions/external-api-exception';
 import { ContentType } from './../common/types/content-type.enum';
 import { buildTmdbUrl, fetchFromTmdb } from '../common/utils/tmdb.utils';
+import { GenreNotFoundException } from './../preference/exceptions/genre-not-found.exception';
 import { GenreListResponseDto } from './dto/genre-list-response.dto';
+import { Genre } from './entity/genre.entity';
 import { GenreRepository } from './genre.repository';
 import { TMDBGenreListResponse } from './interfaces/genre.interface';
 import { mapGenreToEmoji } from './utils/genre-emoji-mapper.util';
@@ -26,15 +27,13 @@ export class GenreService {
 
     for (const { path, type } of endpoints) {
       const url = buildTmdbUrl(path);
-      const { data, error } = await fetchFromTmdb<TMDBGenreListResponse>(
+      const tmdbData = await fetchFromTmdb<TMDBGenreListResponse>(
         this.httpService,
         url,
         this.configService,
       );
-      if (error || !data) {
-        throw new ExternalApiException();
-      }
-      for (const genre of data.genres) {
+
+      for (const genre of tmdbData.genres) {
         await this.genreRepository.upsertGenre(
           genre.id.toString(),
           genre.name,
@@ -52,5 +51,13 @@ export class GenreService {
     const genreEntities =
       await this.genreRepository.findByContentType(contentType);
     return GenreListResponseDto.of(genreEntities);
+  }
+
+  async getGenresOrThrow(ids: string[]): Promise<Genre[]> {
+    const genres = await this.genreRepository.findByIds(ids);
+    if (genres.length !== ids.length) {
+      throw new GenreNotFoundException();
+    }
+    return genres;
   }
 }
