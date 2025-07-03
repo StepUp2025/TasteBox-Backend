@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseArrayPipe, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
   ApiOkResponse,
   ApiOperation,
@@ -11,6 +11,8 @@ import { ContentNotFoundException } from 'src/common/exceptions/content-not-foun
 import { ExternalApiException } from 'src/common/exceptions/external-api-exception';
 import { InvalidGenreIdException } from 'src/common/exceptions/invalid-genre-id.exception';
 import { InvalidPageException } from 'src/common/exceptions/invalid-page.exception';
+import { ContentListQueryDto } from './../common/dto/content-list-query-dto';
+import { PaginationQueryDto } from './../common/dto/pagination-query.dto';
 import { FindTvDetailResponseDto } from './dto/find-tv-detail-response.dto';
 import { FindTvListResponseDto } from './dto/find-tv-list-response.dto';
 import { TvService } from './tv.service';
@@ -36,8 +38,9 @@ export class TvController {
   })
   @CustomApiException(() => [ExternalApiException, InvalidPageException])
   async getNowPlayingTv(
-    @Query('page') page?: number,
+    @Query() query: PaginationQueryDto,
   ): Promise<FindTvListResponseDto> {
+    const { page } = query;
     return this.tvService.getNowPlayingTvs(page);
   }
 
@@ -57,8 +60,9 @@ export class TvController {
   })
   @CustomApiException(() => [ExternalApiException, InvalidPageException])
   async getTopRatedTv(
-    @Query('page') page?: number,
+    @Query() query: PaginationQueryDto,
   ): Promise<FindTvListResponseDto> {
+    const { page } = query;
     return this.tvService.getTopRatedTvs(page);
   }
 
@@ -78,8 +82,9 @@ export class TvController {
   })
   @CustomApiException(() => [ExternalApiException, InvalidPageException])
   async getPopularTv(
-    @Query('page') page?: number,
+    @Query() query: PaginationQueryDto,
   ): Promise<FindTvListResponseDto> {
+    const { page } = query;
     return this.tvService.getPopularTvs(page);
   }
 
@@ -110,10 +115,9 @@ export class TvController {
     InvalidPageException,
   ])
   async getTvsByGenre(
-    @Query('genreId', new ParseArrayPipe({ items: String, optional: true }))
-    genreId: string[],
-    @Query('page') page?: number,
+    @Query() query: ContentListQueryDto,
   ): Promise<FindTvListResponseDto> {
+    const { genreId, page } = query;
     return this.tvService.getTvsByGenre(genreId, page);
   }
 
@@ -162,8 +166,9 @@ export class TvController {
   ])
   async getRecommendedTvsById(
     @Param('tvId') tvId: number,
-    @Query('page') page?: number,
+    @Query() query: PaginationQueryDto,
   ): Promise<FindTvListResponseDto> {
+    const { page } = query;
     return this.tvService.getRecommendedTvsById(tvId, page);
   }
 }

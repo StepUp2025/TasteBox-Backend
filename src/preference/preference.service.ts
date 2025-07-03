@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { ContentType } from 'src/common/types/content-type.enum';
 import { GenreDto } from 'src/genre/dto/genre.dto';
 import { Genre } from 'src/genre/entity/genre.entity';
@@ -18,7 +18,6 @@ export class PreferenceService {
     @InjectRepository(Preference)
     private readonly preferenceRepository: Repository<Preference>,
 
-    @InjectDataSource()
     private readonly dataSource: DataSource,
 
     private readonly userService: UserService,
