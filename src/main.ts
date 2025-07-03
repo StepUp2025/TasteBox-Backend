@@ -20,14 +20,14 @@ async function bootstrap() {
     .setTitle('TasteBox')
     .setDescription('API Document for TasteBox')
     .setVersion('1.0.0')
-    .addCookieAuth('accessToken')
+    .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' })
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs', app, document);
 
   app.enableCors({
-    origin: 'http://localhost:5000', // 프론트엔드 주소
+    origin: process.env.FRONTEND_ORIGIN, // 프론트엔드 주소
     credentials: true,
   });
 
