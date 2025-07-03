@@ -34,6 +34,7 @@ jobs:
           echo "GOOGLE_CALLBACK_URL=${{ secrets.GOOGLE_CALLBACK_URL }}" >> .env
           echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
           echo "KAKAO_CALLBACK_URL=${{ secrets.KAKAO_CALLBACK_URL }}" >> .env
+          echo "FRONTEND_ORIGIN=${{ secrets.FRONTEND_ORIGIN }}" >> .env
           echo "S3_BUCKET=${{ secrets.S3_BUCKET }}" >> .env
           echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
 
