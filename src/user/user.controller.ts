@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
   ApiOkResponse,
@@ -8,6 +9,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { CustomApiException } from 'src/common/decorators/custom-api-exception.decorator';
+import { updateUserProfileValidationErrorSchema } from 'src/common/swagger/update-user-profile-validation-error-schema';
 import { UserNotFoundException } from 'src/user/exceptions/user-not-found.exception';
 import { RequestWithUser } from '../auth/types/request-with-user.interface';
 import { UpdateUserProfileRequestDto } from './dto/request/update-user-request.dto';
@@ -40,6 +42,7 @@ export class UserController {
   @ApiOkResponse({
     description: '회원 프로필 수정 성공',
   })
+  @ApiBadRequestResponse({ schema: updateUserProfileValidationErrorSchema })
   @CustomApiException(() => [DuplicateNicknameException])
   async updateUserProfile(
     @Req() req: RequestWithUser,
