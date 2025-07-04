@@ -11,6 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
@@ -23,6 +24,9 @@ import { Response } from 'express';
 
 import * as ms from 'ms';
 import { CustomApiException } from 'src/common/decorators/custom-api-exception.decorator';
+import { loginValidationErrorSchema } from 'src/common/swagger/login-validation-error-schema';
+import { passwordValidationErrorSchema } from 'src/common/swagger/password-validation-error-schema';
+import { signupValidationErrorSchema } from 'src/common/swagger/signup-validation-error-schema';
 import { setTokenCookie } from 'src/common/utils/cookie.util';
 import { CreateUserRequestDto } from 'src/user/dto/request/create-user-request.dto';
 import { UniqueNicknameGenerationException } from 'src/user/exceptions/unique-nickname-generation.exception';
@@ -60,6 +64,7 @@ export class AuthController {
   @ApiCreatedResponse({
     description: '회원가입 성공',
   })
+  @ApiBadRequestResponse({ schema: signupValidationErrorSchema })
   @CustomApiException(() => [
     DuplicateNicknameException,
     AlreadyRegisteredAccountException,
@@ -77,6 +82,7 @@ export class AuthController {
     description:
       '로그인 성공 시 accessToken과 refreshToken이 쿠키에 저장되어 반환됩니다.',
   })
+  @ApiBadRequestResponse({ schema: loginValidationErrorSchema })
   @CustomApiException(() => [
     InvalidCredentialsException,
     OAuthAccountLoginException,
@@ -134,6 +140,7 @@ export class AuthController {
   @ApiOkResponse({
     description: '비밀번호가 성공적으로 변경되었습니다.',
   })
+  @ApiBadRequestResponse({ schema: passwordValidationErrorSchema })
   @CustomApiException(() => [
     UserNotFoundException,
     OAuthAccountPasswordChangeException,
