@@ -10,7 +10,28 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Get EC2 Instance ID
+        id: get_instance_id
+        run: |
+          INSTANCE_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=TasteBox-Server" "Name=instance-state-name,Values=running" \
+            --query "Reservations[0].Instances[0].InstanceId" \
+            --output text)
+          if [ "$INSTANCE_ID" == "None" ] || [ -z "$INSTANCE_ID" ]; then
+            echo "Error: Could not find running EC2 instance with Name tag 'TasteBox-Server'."
+            exit 1
+          fi
+          echo "Found EC2 Instance ID: $INSTANCE_ID"
+          echo "instance_id=$INSTANCE_ID" >> $GITHUB_OUTPUT
 
       - name: Create .env file from secrets
         run: |
@@ -38,22 +59,41 @@ jobs:
           echo "S3_BUCKET=${{ secrets.S3_BUCKET }}" >> .env
           echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
 
-      - name: Copy project files to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "."
-          target: "/home/ubuntu/TasteBox-Backend"
+      - name: Create application artifact from Git history
+        run: |
+          git archive --format=tar --output app.tar HEAD
+          gzip app.tar
+          echo "Created app.tar.gz from git archive."
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd /home/ubuntu/TasteBox-Backend
-            docker compose down || true
-            docker compose up -d --build
+      - name: Upload artifacts to S3
+        run: |
+          aws s3 cp app.tar.gz s3://s3-tastebox/app.tar.gz
+          aws s3 cp .env s3://s3-tastebox/.env
+
+      - name: Deploy via SSM Run Command
+        run: |
+          aws ssm send-command \
+            --instance-ids ${{ steps.get_instance_id.outputs.instance_id }} \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy TasteBox backend application with Docker Compose" \
+            --parameters 'commands=[
+              "sudo su - ubuntu",
+              "cd /home/ubuntu",
+              "aws s3 cp s3://s3-tastebox/app.tar.gz .",
+              "aws s3 cp s3://s3-tastebox/.env .",
+              "mkdir -p TasteBox-Backend",
+              "rm -rf TasteBox-Backend/*",
+              "tar -xzf app.tar.gz -C TasteBox-Backend",
+              "mv .env TasteBox-Backend/.env",
+              "rm app.tar.gz",
+
+              "cd TasteBox-Backend",
+              "sudo docker compose down || true",
+              "sudo docker compose up -d --build",
+              "sudo docker system prune -f"
+            ]'
+
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ap-northeast-2
