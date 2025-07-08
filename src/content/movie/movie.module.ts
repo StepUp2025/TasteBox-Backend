@@ -1,13 +1,13 @@
-// src/domain/movie/movie.module.ts
-
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
+import { ContentModule } from '../content.module';
 import { MovieController } from './movie.controller';
 import { MovieService } from './movie.service';
+import { MovieRepository } from './repository/movie.repository';
 
 @Module({
-  imports: [HttpModule],
+  imports: [ContentModule, HttpModule],
   controllers: [MovieController],
-  providers: [MovieService],
+  providers: [MovieService, MovieRepository],
 })
 export class MovieModule {}
