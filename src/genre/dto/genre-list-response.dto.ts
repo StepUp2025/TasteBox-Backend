@@ -19,7 +19,7 @@ export class GenreListResponseDto {
   @Expose()
   count: number;
 
-  static of(genres: Genre[]): GenreListResponseDto {
+  static of(genres: Genre[], count: number): GenreListResponseDto {
     const genreDtos = plainToInstance(GenreDto, genres, {
       excludeExtraneousValues: true,
     });
@@ -28,7 +28,7 @@ export class GenreListResponseDto {
       GenreListResponseDto,
       {
         genres: genreDtos,
-        count: genreDtos.length,
+        count: count,
       },
       {
         excludeExtraneousValues: true,
