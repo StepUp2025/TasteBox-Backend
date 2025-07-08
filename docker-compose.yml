@@ -9,12 +9,19 @@ services:
     restart: always
 
   backend:
-    build: .
+    build: ./TasteBox-Backend
     container_name: tastebox-backend
     ports:
       - "3000:3000"
     env_file:
-      - .env
+      - ./TasteBox-Backend/.env
     depends_on:
       - redis
+    restart: always
+
+  scheduler:
+    build: ./TasteBox-Scheduler
+    container_name: tastebox-scheduler
+    env_file:
+      - ./TasteBox-Scheduler/.env
     restart: always
