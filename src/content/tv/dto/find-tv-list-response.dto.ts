@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { IsArray, IsNumber, ValidateNested } from 'class-validator';
-import type { TMDBTvListResponse } from '../interfaces/tv-list.interface';
 import { TvListItemDto } from './tv-list-item.dto';
 
 export class FindTvListResponseDto {
+  @Expose()
   @ApiProperty({
     description: '조회된 TV 프로그램 목록',
     type: [TvListItemDto],
@@ -26,26 +26,13 @@ export class FindTvListResponseDto {
   @Type(() => TvListItemDto)
   tvs: TvListItemDto[];
 
+  @Expose()
   @ApiProperty({ description: '현재 페이지 번호', example: 1 })
   @IsNumber()
   page: number;
 
+  @Expose()
   @ApiProperty({ description: '총 페이지 수', example: 1000 })
   @IsNumber()
   totalPages: number;
-
-  constructor(tvs: TvListItemDto[], page: number, totalPages: number) {
-    this.tvs = tvs;
-    this.page = page;
-    this.totalPages = totalPages;
-  }
-
-  // TMDB 응답 객체 -> FindTvListResponseDto 변환 메서드
-  static of(raw: TMDBTvListResponse): FindTvListResponseDto {
-    return {
-      tvs: raw.results.map((tv) => TvListItemDto.of(tv)),
-      page: raw.page,
-      totalPages: raw.total_pages,
-    };
-  }
 }
