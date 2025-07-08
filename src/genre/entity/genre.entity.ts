@@ -1,24 +1,27 @@
-import { Expose } from 'class-transformer';
-import type { ContentType } from 'src/common/types/content-type.enum';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity } from 'src/common/entities/base.entity';
+import { ContentType } from 'src/common/types/content-type.enum';
+import { SourceType } from 'src/common/types/source-type.enum';
+import { ContentGenre } from 'src/content/entities/content-genre.entity';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 
 @Entity()
-export class Genre {
-  @PrimaryGeneratedColumn()
-  @Expose()
-  id: number;
+@Index(['externalId', 'source', 'type'], { unique: true })
+export class Genre extends BaseEntity {
+  @Column({ type: 'varchar', length: 255 })
+  externalId: string;
 
-  @Column()
-  @Expose()
+  @Column({ type: 'enum', enum: SourceType })
+  source: SourceType;
+
+  @Column({ length: 100 })
   name: string;
 
-  @Column()
-  @Expose()
-  emoji: string;
+  @Column({ type: 'enum', enum: ContentType })
+  type: ContentType;
 
-  @Column()
-  externalGenreId: string;
-
-  @Column()
-  contentType: ContentType;
+  @OneToMany(
+    () => ContentGenre,
+    (cg) => cg.genre,
+  )
+  contentGenres: ContentGenre[];
 }
