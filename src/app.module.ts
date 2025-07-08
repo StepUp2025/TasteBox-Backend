@@ -8,10 +8,9 @@ import { CollectionModule } from './collection/collection.module';
 import { CollectionContentsModule } from './collection-contents/collection-contents.module';
 import { DatabaseModule } from './common/database/database.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { ContentModule } from './content/content.module';
 import { GenreModule } from './genre/genre.module';
-import { MovieModule } from './movie/movie.module';
 import { PreferenceModule } from './preference/preference.module';
-import { TvModule } from './tv/tv.module';
 import { UserModule } from './user/user.module';
 
 @Module({
@@ -23,9 +22,8 @@ import { UserModule } from './user/user.module';
     DatabaseModule,
     AuthModule,
     UserModule,
-    MovieModule,
-    TvModule,
     GenreModule,
+    ContentModule,
     CollectionModule,
     CollectionContentsModule,
     GenreModule,
