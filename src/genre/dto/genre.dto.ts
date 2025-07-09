@@ -25,7 +25,7 @@ export class GenreDto {
     return {
       id: genre.id,
       name: genre.name,
-      emoji: genre.emoji,
+      emoji: 'emoji',
     };
   }
 }
