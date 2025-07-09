@@ -39,10 +39,11 @@ jobs:
           echo "MYSQL_PORT=${{ secrets.MYSQL_PORT }}" >> .env
           echo "MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}" >> .env
           echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
-          echo "MYSQL_SYNCHRONIZE=${{ secrets.MYSQL_SYNCHRONIZE }}" >> .env
-          echo "REDIS_HOST=redis" >> .env
-          echo "REDIS_PORT=6379" >> .env
-          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
+          echo "SYNCHRONIZE=${{ secrets.SYNCHRONIZE }}" >> .env
+          echo "DROP_SCHEMA=${{ secrets.DROP_SCHEMA }}" >> .env
+          echo "LOGGING=${{ secrets.LOGGING }}" >> .env
+          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
+          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env
           echo "REDIS_REFRESH_EXPIRE_SECONDS=${{ secrets.REDIS_REFRESH_EXPIRE_SECONDS }}" >> .env
           echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
