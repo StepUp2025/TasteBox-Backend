@@ -45,9 +45,10 @@ export class TvController {
   })
   @CustomApiException(() => [InvalidPageException])
   async getNowPlayingTv(
-    @Query('page') page?: number,
+    @Query() query: PaginationQueryDto,
   ): Promise<FindTvListResponseDto> {
-    return this.tvService.getOnTheAirTvSeries(page);
+    const { page, limit } = query;
+    return this.tvService.getOnTheAirTvSeries(page, limit);
   }
 
   @Get('top-rated')
