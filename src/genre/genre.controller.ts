@@ -11,7 +11,7 @@ import { CustomApiException } from 'src/common/decorators/custom-api-exception.d
 import { ContentNotFoundException } from 'src/common/exceptions/content-not-found.exception';
 import { ExternalApiException } from 'src/common/exceptions/external-api-exception';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
-import { ContentType } from '../common/types/content-type.enum';
+import { ContentType } from '../common/enums/content-type.enum';
 import { GenreListResponseDto } from './dto/genre-list-response.dto';
 import { GenreService } from './genre.service';
 
@@ -45,6 +45,6 @@ export class GenreController {
   })
   @CustomApiException(() => [ExternalApiException, ContentNotFoundException])
   async getTVGenres(): Promise<GenreListResponseDto> {
-    return this.genreService.getGenres(ContentType.TV);
+    return this.genreService.getGenres(ContentType.TVSERIES);
   }
 }

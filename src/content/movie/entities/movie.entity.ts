@@ -2,7 +2,7 @@ import { Content } from 'src/content/entities/content.entity';
 import { MovieStatus } from 'src/content/enum/movie-status.enum';
 import { ChildEntity, Column } from 'typeorm';
 
-@ChildEntity('movie')
+@ChildEntity()
 export class Movie extends Content {
   @Column({ type: 'text', nullable: true })
   overview: string | null;

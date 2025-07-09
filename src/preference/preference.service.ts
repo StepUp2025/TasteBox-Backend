@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ContentType } from 'src/common/types/content-type.enum';
+import { ContentType } from 'src/common/enums/content-type.enum';
 import { GenreDto } from 'src/genre/dto/genre.dto';
 import { Genre } from 'src/genre/entity/genre.entity';
 import { User } from 'src/user/user.entity';
@@ -48,7 +48,7 @@ export class PreferenceService {
     const preferences = await this.getPreferencesByUserId(userId);
     return {
       movie: this.buildPreferenceDetail(preferences, ContentType.MOVIE),
-      tv: this.buildPreferenceDetail(preferences, ContentType.TV),
+      tv: this.buildPreferenceDetail(preferences, ContentType.TVSERIES),
     };
   }
 
@@ -63,7 +63,7 @@ export class PreferenceService {
   async getTvPreferences(userId: number): Promise<PreferenceDetailDto> {
     await this.userService.getOrThrowById(userId);
     const preferences = await this.getPreferencesByUserId(userId);
-    return this.buildPreferenceDetail(preferences, ContentType.TV);
+    return this.buildPreferenceDetail(preferences, ContentType.TVSERIES);
   }
 
   // GenreId 추출

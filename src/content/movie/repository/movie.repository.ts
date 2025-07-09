@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ContentType } from 'src/common/enums/content-type.enum';
-import { Content } from 'src/content/entities/content.entity';
 import { Repository } from 'typeorm';
 import { ContentNotFoundException } from './../../exception/content-not-found.exception';
 import { Movie } from './../entities/movie.entity';
@@ -20,12 +18,12 @@ export class MovieRepository {
 
   constructor(
     @InjectRepository(Movie)
-    private readonly repository: Repository<Movie>,
+    private readonly movieRepository: Repository<Movie>,
   ) {}
 
   // 영화 상세 조회
-  async findMovieById(id: number): Promise<Movie> {
-    const result = await this.repository.findOne({
+  async getMovieDetailById(id: number): Promise<Movie> {
+    const result = await this.movieRepository.findOne({
       where: { id },
       relations: ['contentGenres.genre'],
     });
@@ -37,23 +35,21 @@ export class MovieRepository {
   async getNowPlayingMovies(
     page: number,
     limit: number,
-  ): Promise<[Content[], number]> {
+  ): Promise<[Movie[], number]> {
     const today = new Date();
     const sixWeeksAgo = new Date(today);
     sixWeeksAgo.setDate(today.getDate() - 6 * 7); // 6주 전
     const threeDaysLater = new Date(today);
     threeDaysLater.setDate(today.getDate() + 3); // 3일 후
 
-    const queryBuilder = this.repository
+    const queryBuilder = this.movieRepository
       .createQueryBuilder('content')
-      .where('content.dtype = :dtype', { dtype: ContentType.MOVIE })
-      .andWhere('content.releaseDate >= :sixWeeksAgo', {
+      .where('content.releaseDate >= :sixWeeksAgo', {
         sixWeeksAgo: sixWeeksAgo.toISOString().split('T')[0],
       }) // YYYY-MM-DD 형식으로 변환
       .andWhere('content.releaseDate <= :threeDaysLater', {
         threeDaysLater: threeDaysLater.toISOString().split('T')[0],
       }) // YYYY-MM-DD 형식으로 변환
-      .andWhere('content.type = :type', { type: 'movie' })
       .orderBy('content.releaseDate', 'DESC')
       .addOrderBy('content.popularity', 'DESC')
       .skip((page - 1) * limit)
@@ -67,10 +63,9 @@ export class MovieRepository {
   async findPopularMovies(
     page: number,
     limit: number,
-  ): Promise<[Content[], number]> {
-    const queryBuilder = this.repository
+  ): Promise<[Movie[], number]> {
+    const queryBuilder = this.movieRepository
       .createQueryBuilder('content')
-      .where('content.dtype = :dtype', { dtype: ContentType.MOVIE })
       .orderBy('content.popularity', 'DESC')
       .skip((page - 1) * limit)
       .take(limit);
@@ -83,12 +78,11 @@ export class MovieRepository {
   async findTopRatedMovies(
     page: number,
     limit: number,
-  ): Promise<[Content[], number]> {
-    const queryBuilder = this.repository
+  ): Promise<[Movie[], number]> {
+    const queryBuilder = this.movieRepository
       .createQueryBuilder('content')
       .addSelect(this.WEIGHTED_RATING_FORMULA, 'weightedRating') // (selection: 계산식 문자열, alias: 별칭)
-      .where('content.dtype = :dtype', { dtype: ContentType.MOVIE })
-      .andWhere('content.voteCount >= :minVoteCount', {
+      .where('content.voteCount >= :minVoteCount', {
         minVoteCount: this.MIN_VOTES_REQUIRED,
       })
       .orderBy('weightedRating', 'DESC')
@@ -106,13 +100,12 @@ export class MovieRepository {
     genreIds: number[],
     page: number,
     limit: number,
-  ): Promise<[Content[], number]> {
-    const queryBuilder = this.repository
+  ): Promise<[Movie[], number]> {
+    const queryBuilder = this.movieRepository
       .createQueryBuilder('content')
       .innerJoin('content.contentGenres', 'contentGenre')
       .innerJoin('contentGenre.genre', 'genre')
-      .where('content.dtype = :dtype', { dtype: ContentType.MOVIE })
-      .andWhere('genre.id IN (:...genreIds)', { genreIds })
+      .where('genre.id IN (:...genreIds)', { genreIds })
       .orderBy('content.voteAverage', 'DESC')
       .skip((page - 1) * limit)
       .take(limit)
@@ -127,17 +120,16 @@ export class MovieRepository {
     movieId: number,
     page: number,
     limit: number,
-  ): Promise<[Content[], number]> {
-    const movieWithGenres = await this.findMovieById(movieId);
+  ): Promise<[Movie[], number]> {
+    const movieWithGenres = await this.getMovieDetailById(movieId);
     const genres = movieWithGenres.contentGenres;
     if (!genres || genres.length === 0) return [[], 0];
     const genreIds = genres.map((cg) => cg.genre.id);
-    const queryBuilder = this.repository
+    const queryBuilder = this.movieRepository
       .createQueryBuilder('content')
       .innerJoin('content.contentGenres', 'contentGenre')
       .innerJoin('contentGenre.genre', 'genre')
-      .where('content.dtype = :dtype', { dtype: ContentType.MOVIE })
-      .andWhere('content.id != :movieId', { movieId })
+      .where('content.id != :movieId', { movieId })
       .andWhere('genre.id IN (:...genreIds)', { genreIds })
       .orderBy('content.popularity', 'DESC')
       .skip((page - 1) * limit)

@@ -1,6 +1,6 @@
 import { Collection } from 'src/collection/collection.entity';
 
-import type { ContentType } from 'src/common/types/content-type.enum';
+import type { ContentType } from 'src/common/enums/content-type.enum';
 import {
   Column,
   Entity,
