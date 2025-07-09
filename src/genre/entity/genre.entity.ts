@@ -1,6 +1,6 @@
 import { BaseEntity } from 'src/common/entities/base.entity';
-import { ContentType } from 'src/common/types/content-type.enum';
-import { SourceType } from 'src/common/types/source-type.enum';
+import { ContentType } from 'src/common/enums/content-type.enum';
+import { SourceType } from 'src/common/enums/source-type.enum';
 import { ContentGenre } from 'src/content/entities/content-genre.entity';
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 

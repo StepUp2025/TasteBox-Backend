@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ContentType } from './../common/types/content-type.enum';
+import { ContentType } from './../common/enums/content-type.enum';
 import { GenreNotFoundException } from './../preference/exceptions/genre-not-found.exception';
 import { GenreListResponseDto } from './dto/genre-list-response.dto';
 import { Genre } from './entity/genre.entity';
