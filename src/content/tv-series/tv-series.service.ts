@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { ContentType } from 'src/common/types/content-type.enum';
+import { ContentType } from 'src/common/enums/content-type.enum';
 import { Content } from 'src/content/entities/content.entity';
 import { TvSeriesDetailResponseDto } from './dto/tv-series-detail-response.dto';
 import { TvSeriesListItemDto } from './dto/tv-series-list-item.dto';
@@ -23,7 +23,7 @@ export class TvSeriesService {
     const tvSeriesList = plainToInstance(
       TvSeriesListResponseDto,
       {
-        contentType: ContentType.TV,
+        contentType: ContentType.TVSERIES,
         tvs: tvSeriesItems,
         page: page,
         totalPages: totalPages,

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ContentType } from 'src/common/types/content-type.enum';
+import { ContentType } from 'src/common/enums/content-type.enum';
 import { Content } from 'src/content/entities/content.entity';
 import { TvSeriesStatus } from 'src/content/enum/tv-series-status.enum';
 import { Repository } from 'typeorm';
@@ -41,7 +41,7 @@ export class TvSeriesRepository {
   ): Promise<[Content[], number]> {
     const queryBuilder = this.tvSeriesRepository
       .createQueryBuilder('content')
-      .where('content.dtype = :dtype', { dtype: ContentType.TV })
+      .where('content.dtype = :dtype', { dtype: ContentType.TVSERIES })
       .andWhere('content.status IN (:...status)', {
         status: [TvSeriesStatus.RETURNING_SERIES],
       })
@@ -60,7 +60,7 @@ export class TvSeriesRepository {
   ): Promise<[Content[], number]> {
     const queryBuilder = this.tvSeriesRepository
       .createQueryBuilder('content')
-      .where('content.dtype = :dtype', { dtype: ContentType.TV })
+      .where('content.dtype = :dtype', { dtype: ContentType.TVSERIES })
       .orderBy('content.popularity', 'DESC')
       .skip((page - 1) * limit)
       .take(limit);
@@ -76,7 +76,7 @@ export class TvSeriesRepository {
     const queryBuilder = this.tvSeriesRepository
       .createQueryBuilder('content')
       .addSelect(this.WEIGHTED_RATING_FORMULA, 'weightedRating') // (selection: 계산식 문자열, alias: 별칭)
-      .where('content.dtype = :dtype', { dtype: ContentType.TV })
+      .where('content.dtype = :dtype', { dtype: ContentType.TVSERIES })
       .andWhere('content.voteCount >= :minVoteCount', {
         minVoteCount: this.MIN_VOTES_REQUIRED,
       })
@@ -99,7 +99,7 @@ export class TvSeriesRepository {
       .createQueryBuilder('content')
       .innerJoin('content.contentGenres', 'contentGenre')
       .innerJoin('contentGenre.genre', 'genre')
-      .where('content.dtype = :dtype', { dtype: ContentType.TV })
+      .where('content.dtype = :dtype', { dtype: ContentType.TVSERIES })
       .andWhere('genre.id IN (:...genreIds)', { genreIds })
       .orderBy('content.voteAverage', 'DESC')
       .skip((page - 1) * limit)
@@ -123,7 +123,7 @@ export class TvSeriesRepository {
       .createQueryBuilder('content')
       .innerJoin('content.contentGenres', 'contentGenre')
       .innerJoin('contentGenre.genre', 'genre')
-      .where('content.dtype = :dtype', { dtype: ContentType.TV })
+      .where('content.dtype = :dtype', { dtype: ContentType.TVSERIES })
       .andWhere('content.id != :tvId', { tvId })
       .andWhere('genre.id IN (:...genreIds)', { genreIds })
       .orderBy('content.popularity', 'DESC')

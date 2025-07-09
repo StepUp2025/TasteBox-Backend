@@ -1,5 +1,5 @@
 import { BaseEntity } from 'src/common/entities/base.entity';
-import { SourceType } from 'src/common/types/source-type.enum';
+import { SourceType } from 'src/common/enums/source-type.enum';
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { TvSeries } from './tv-series.entity';
 
