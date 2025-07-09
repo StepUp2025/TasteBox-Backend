@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
-import { ContentType } from 'src/common/types/content-type.enum';
+import { ContentType } from 'src/common/enums/content-type.enum';
 import { MovieStatus } from 'src/content/enum/movie-status.enum';
 import { GenreInContentResponseDto } from 'src/genre/dto/genre-in-content-response.dto';
 import { Movie } from './../entities/movie.entity';
@@ -11,7 +11,6 @@ export class MovieDetailResponseDto {
   id: number;
 
   @Expose()
-  @ApiProperty({ description: '콘텐츠 타입', example: ContentType.MOVIE })
   contentType: ContentType;
 
   @Expose()

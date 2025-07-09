@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ContentType } from 'src/common/types/content-type.enum';
+import { ContentType } from 'src/common/enums/content-type.enum';
 import { Content } from 'src/content/entities/content.entity';
 import { Repository } from 'typeorm';
 import { ContentNotFoundException } from './../../exception/content-not-found.exception';

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { ContentType } from 'src/common/types/content-type.enum';
+import { ContentType } from 'src/common/enums/content-type.enum';
 import { Content } from 'src/content/entities/content.entity';
 import { MovieDetailResponseDto } from './dto/movie-detail-response.dto';
 import { MovieListItemDto } from './dto/movie-list-item.dto';

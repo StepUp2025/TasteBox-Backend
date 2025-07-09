@@ -3,10 +3,10 @@ import { Expose, Type } from 'class-transformer';
 import { IsArray, IsOptional } from 'class-validator';
 import { TvSeriesStatus } from 'src/content/enum/tv-series-status.enum';
 import { GenreInContentResponseDto } from 'src/genre/dto/genre-in-content-response.dto';
-import { Tv } from './../entities/tv-series.entity';
+import { TvSeries } from '../entities/tv-series.entity';
 import { TvSeasonResponseDto } from './tv-season-response.dto';
 
-export class TvDetailResponseDto {
+export class TvSeriesDetailResponseDto {
   @Expose()
   @ApiProperty({
     description: 'TV 시리즈의 고유 식별자',
@@ -147,7 +147,7 @@ export class TvDetailResponseDto {
   @Type(() => TvSeasonResponseDto)
   seasons: TvSeasonResponseDto[];
 
-  constructor(tv: Tv) {
+  constructor(tv: TvSeries) {
     this.id = tv.id;
     this.title = tv.title;
     this.overview = tv.overview;
