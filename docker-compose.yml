@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:alpine
+    container_name: tastebox-redis
+    ports:
+      - "6379:6379"
+    restart: always
+
+  backend:
+    build: ./TasteBox-Backend
+    container_name: tastebox-backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./TasteBox-Backend/.env
+    depends_on:
+      - redis
+    restart: always
+
+  scheduler:
+    build: ./TasteBox-Scheduler
+    container_name: tastebox-scheduler
+    env_file:
+      - ./TasteBox-Scheduler/.env
+    restart: always

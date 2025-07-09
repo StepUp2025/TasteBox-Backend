@@ -1,0 +1,88 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Get EC2 Instance ID
+        id: get_instance_id
+        run: |
+          INSTANCE_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=TasteBox-Server" "Name=instance-state-name,Values=running" \
+            --query "Reservations[0].Instances[0].InstanceId" \
+            --output text)
+          if [ "$INSTANCE_ID" == "None" ] || [ -z "$INSTANCE_ID" ]; then
+            echo "Error: Could not find running EC2 instance with Name tag 'TasteBox-Server'."
+            exit 1
+          fi
+          echo "instance_id=$INSTANCE_ID" >> $GITHUB_OUTPUT
+
+      - name: Create .env file for backend
+        run: |
+          echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" > .env
+          echo "MYSQL_HOST=${{ secrets.MYSQL_HOST }}" >> .env
+          echo "MYSQL_PORT=${{ secrets.MYSQL_PORT }}" >> .env
+          echo "MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}" >> .env
+          echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
+          echo "MYSQL_SYNCHRONIZE=${{ secrets.MYSQL_SYNCHRONIZE }}" >> .env
+          echo "REDIS_HOST=redis" >> .env
+          echo "REDIS_PORT=6379" >> .env
+          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
+          echo "REDIS_REFRESH_EXPIRE_SECONDS=${{ secrets.REDIS_REFRESH_EXPIRE_SECONDS }}" >> .env
+          echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}" >> .env
+          echo "REFRESH_JWT_SECRET=${{ secrets.REFRESH_JWT_SECRET }}" >> .env
+          echo "REFRESH_JWT_EXPIRES_IN=${{ secrets.REFRESH_JWT_EXPIRES_IN }}" >> .env
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+          echo "GOOGLE_SECRET=${{ secrets.GOOGLE_SECRET }}" >> .env
+          echo "GOOGLE_CALLBACK_URL=${{ secrets.GOOGLE_CALLBACK_URL }}" >> .env
+          echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
+          echo "KAKAO_CALLBACK_URL=${{ secrets.KAKAO_CALLBACK_URL }}" >> .env
+          echo "FRONTEND_ORIGIN=${{ secrets.FRONTEND_ORIGIN }}" >> .env
+          echo "S3_BUCKET=${{ secrets.S3_BUCKET }}" >> .env
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+
+      - name: Create application artifact
+        run: |
+          git archive --format=tar --output app.tar HEAD
+          gzip app.tar
+
+      - name: Upload artifacts to S3
+        run: |
+          aws s3 cp app.tar.gz s3://s3-tastebox/backend/app.tar.gz
+          aws s3 cp .env s3://s3-tastebox/backend/.env
+
+      - name: Deploy via SSM Run Command
+        run: |
+          aws ssm send-command \
+            --instance-ids ${{ steps.get_instance_id.outputs.instance_id }} \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy TasteBox backend application" \
+            --parameters 'commands=[
+              "cd /home/ubuntu",
+              "mkdir -p TasteBox/TasteBox-Backend",
+              "aws s3 cp s3://s3-tastebox/backend/app.tar.gz .",
+              "tar -xzf app.tar.gz -C ./TasteBox/TasteBox-Backend",
+              "mv ./TasteBox/TasteBox-Backend/docker-compose.yml ./TasteBox/docker-compose.yml",
+              "aws s3 cp s3://s3-tastebox/backend/.env ./TasteBox/TasteBox-Backend/.env",
+              "rm app.tar.gz",
+              "cd /home/ubuntu/TasteBox",
+              "sudo docker compose up -d --build backend",
+              "sudo docker system prune -f"
+            ]'

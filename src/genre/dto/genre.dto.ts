@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { Genre } from './../entity/genre.entity';
 
 export class GenreDto {
   @ApiProperty({ example: 1, description: '장르 ID' })
@@ -19,4 +20,12 @@ export class GenreDto {
   @IsString()
   @Expose()
   emoji: string;
+
+  static of(genre: Genre): GenreDto {
+    return {
+      id: genre.id,
+      name: genre.name,
+      emoji: genre.emoji,
+    };
+  }
 }

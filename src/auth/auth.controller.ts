@@ -11,8 +11,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiBody,
-  ApiCookieAuth,
   ApiCreatedResponse,
   ApiFoundResponse,
   ApiOkResponse,
@@ -20,8 +21,12 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Response } from 'express';
+
 import * as ms from 'ms';
 import { CustomApiException } from 'src/common/decorators/custom-api-exception.decorator';
+import { loginValidationErrorSchema } from 'src/common/swagger/login-validation-error-schema';
+import { passwordValidationErrorSchema } from 'src/common/swagger/password-validation-error-schema';
+import { signupValidationErrorSchema } from 'src/common/swagger/signup-validation-error-schema';
 import { setTokenCookie } from 'src/common/utils/cookie.util';
 import { CreateUserRequestDto } from 'src/user/dto/request/create-user-request.dto';
 import { UniqueNicknameGenerationException } from 'src/user/exceptions/unique-nickname-generation.exception';
@@ -29,7 +34,6 @@ import { UserService } from 'src/user/user.service';
 import { DuplicateNicknameException } from '../user/exceptions/duplicate-nickname.exception';
 import { UserNotFoundException } from '../user/exceptions/user-not-found.exception';
 import { AuthService } from './auth.service';
-import { Public } from './decorators/public.decorator';
 import { LoginRequestDto } from './dto/request/login-request.dto';
 import { UpdatePasswordRequestDto } from './dto/request/update-password-request.dto';
 import { AlreadyRegisteredAccountException } from './exceptions/already-registered-account.exception';
@@ -40,6 +44,7 @@ import { OAuthAccountLoginException } from './exceptions/oauth-account-login.exc
 import { OAuthAccountPasswordChangeException } from './exceptions/oauth-account-password-change.exception';
 import { PasswordMismatchException } from './exceptions/password-mismatch.exception';
 import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
 import { KakaoAuthGuard } from './guards/kakao-auth/kakao-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
 import { LocalUserOnlyGuard } from './guards/local-auth/local-user-only.guard';
@@ -54,12 +59,12 @@ export class AuthController {
     private readonly authService: AuthService,
   ) {}
 
-  @Public()
   @Post('signup')
   @ApiOperation({ summary: 'Local 회원가입' })
   @ApiCreatedResponse({
     description: '회원가입 성공',
   })
+  @ApiBadRequestResponse({ schema: signupValidationErrorSchema })
   @CustomApiException(() => [
     DuplicateNicknameException,
     AlreadyRegisteredAccountException,
@@ -68,7 +73,6 @@ export class AuthController {
     await this.userService.createLocalUser(dto);
   }
 
-  @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -78,6 +82,7 @@ export class AuthController {
     description:
       '로그인 성공 시 accessToken과 refreshToken이 쿠키에 저장되어 반환됩니다.',
   })
+  @ApiBadRequestResponse({ schema: loginValidationErrorSchema })
   @CustomApiException(() => [
     InvalidCredentialsException,
     OAuthAccountLoginException,
@@ -87,29 +92,28 @@ export class AuthController {
     const { accessToken, refreshToken } = await this.authService.login(
       req.user.id,
     );
-    this.setCookies(res, accessToken, refreshToken);
-    return res.sendStatus(HttpStatus.OK);
+    this.setRefreshTokenToCookie(res, refreshToken);
+    return res.status(HttpStatus.OK).json({ accessToken });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @ApiCookieAuth()
+  @ApiBearerAuth()
   @ApiOperation({ summary: '로그아웃' })
   @ApiOkResponse({
     description: '로그아웃 성공 시 쿠키가 삭제됩니다',
   })
   async logout(@Req() req: RequestWithUser, @Res() res: Response) {
     await this.authService.logout(req.user.id);
-    res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
     return res.sendStatus(HttpStatus.OK);
   }
 
-  @Public()
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @ApiCookieAuth()
+  @ApiBearerAuth()
   @ApiOperation({ summary: '토큰 갱신' })
   @ApiOkResponse({
     description:
@@ -120,13 +124,14 @@ export class AuthController {
     const { accessToken, refreshToken } = await this.authService.refreshToken(
       req.user.id,
     );
-    this.setCookies(res, accessToken, refreshToken);
-    return res.sendStatus(HttpStatus.OK);
+    this.setRefreshTokenToCookie(res, refreshToken);
+    return res.status(HttpStatus.OK).json({ accessToken });
   }
 
+  @UseGuards(JwtAuthGuard)
   @UseGuards(LocalUserOnlyGuard)
   @Put('password')
-  @ApiCookieAuth()
+  @ApiBearerAuth()
   @ApiOperation({
     summary: '비밀번호 변경',
     description: '로그인한 사용자의 비밀번호를 변경합니다. (Local 회원만 가능)',
@@ -135,6 +140,7 @@ export class AuthController {
   @ApiOkResponse({
     description: '비밀번호가 성공적으로 변경되었습니다.',
   })
+  @ApiBadRequestResponse({ schema: passwordValidationErrorSchema })
   @CustomApiException(() => [
     UserNotFoundException,
     OAuthAccountPasswordChangeException,
@@ -148,7 +154,6 @@ export class AuthController {
     await this.authService.updatePassword(req.user.id, dto);
   }
 
-  @Public()
   @UseGuards(GoogleAuthGuard)
   @Get('google/login')
   @HttpCode(HttpStatus.FOUND)
@@ -166,7 +171,6 @@ export class AuthController {
   ])
   googleLogin() {}
 
-  @Public()
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
   @HttpCode(HttpStatus.FOUND)
@@ -182,11 +186,13 @@ export class AuthController {
     const { accessToken, refreshToken } = await this.authService.login(
       req.user.id,
     );
-    this.setCookies(res, accessToken, refreshToken);
-    return res.redirect(`http://localhost:5000`);
+    this.setRefreshTokenToCookie(res, refreshToken);
+
+    res.setHeader('Content-Type', 'text/html');
+    this.sendAccessTokenToPopup(res, accessToken);
+    return;
   }
 
-  @Public()
   @UseGuards(KakaoAuthGuard)
   @Get('kakao/login')
   @HttpCode(HttpStatus.FOUND)
@@ -204,7 +210,6 @@ export class AuthController {
   ])
   kakaoLogin() {}
 
-  @Public()
   @UseGuards(KakaoAuthGuard)
   @Get('kakao/callback')
   @HttpCode(HttpStatus.FOUND)
@@ -220,20 +225,31 @@ export class AuthController {
     const { accessToken, refreshToken } = await this.authService.login(
       req.user.id,
     );
-    this.setCookies(res, accessToken, refreshToken);
-    return res.redirect(`http://localhost:5000`);
+    this.setRefreshTokenToCookie(res, refreshToken);
+
+    res.setHeader('Content-Type', 'text/html');
+    this.sendAccessTokenToPopup(res, accessToken);
+    return;
   }
 
-  private setCookies(res: Response, accessToken: string, refreshToken: string) {
-    const accessTokenMaxAge = ms(
-      (process.env.JWT_EXPIRES_IN as ms.StringValue) ?? '1d',
-    );
+  private sendAccessTokenToPopup(res: Response, accessToken: string) {
+    res.setHeader('Content-Type', 'text/html');
+    res.send(`
+    <script>
+      window.opener.postMessage(
+        ${JSON.stringify({ accessToken })},
+        "${process.env.FRONTEND_ORIGIN}"
+      );
+      window.close();
+    </script>
+  `);
+  }
 
+  private setRefreshTokenToCookie(res: Response, refreshToken: string) {
     const refreshTokenMaxAge = ms(
       (process.env.REFRESH_JWT_EXPIRES_IN as ms.StringValue) ?? '7d',
     );
 
-    setTokenCookie(res, 'accessToken', accessToken, accessTokenMaxAge);
     setTokenCookie(res, 'refreshToken', refreshToken, refreshTokenMaxAge);
   }
 }
