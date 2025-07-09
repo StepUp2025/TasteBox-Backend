@@ -11,10 +11,8 @@ import { InvalidPageException } from 'src/common/exceptions/invalid-page.excepti
 import { GenrePaginationQueryDto } from '../dto/genre-pagination-query.dto';
 import { PaginationQueryDto } from '../dto/pagination-query.dto';
 import { ContentNotFoundException } from './../exception/content-not-found.exception';
-import { FindMovieDetailResponseDto } from './../movie/dto/find-movie-detail-response.dto';
-import { FindMovieListResponseDto } from './../movie/dto/find-movie-list-response.dto';
-import { FindTvDetailResponseDto } from './dto/find-tv-detail-response.dto';
-import { FindTvListResponseDto } from './dto/find-tv-list-response.dto';
+import { TvDetailResponseDto } from './dto/tv-detail-response.dto';
+import { TvListResponseDto } from './dto/tv-list-response.dto';
 import { TvService } from './tv.service';
 
 @Controller('tvs')
@@ -29,7 +27,7 @@ export class TvController {
   })
   @ApiOkResponse({
     description: '상영 중인 TV 시리즈 리스트 조회 성공',
-    type: FindTvListResponseDto,
+    type: TvListResponseDto,
   })
   @ApiQuery({
     name: 'page',
@@ -46,7 +44,7 @@ export class TvController {
   @CustomApiException(() => [InvalidPageException])
   async getNowPlayingTv(
     @Query() query: PaginationQueryDto,
-  ): Promise<FindTvListResponseDto> {
+  ): Promise<TvListResponseDto> {
     const { page, limit } = query;
     return this.tvService.getOnTheAirTvSeries(page, limit);
   }
@@ -58,7 +56,7 @@ export class TvController {
   })
   @ApiOkResponse({
     description: '평점 높은 TV 시리즈 리스트 조회 성공',
-    type: FindTvListResponseDto,
+    type: TvListResponseDto,
   })
   @ApiQuery({
     name: 'page',
@@ -75,7 +73,7 @@ export class TvController {
   @CustomApiException(() => [InvalidPageException])
   async getTopRatedTv(
     @Query() query: PaginationQueryDto,
-  ): Promise<FindTvListResponseDto> {
+  ): Promise<TvListResponseDto> {
     const { page, limit } = query;
     return this.tvService.getTopRatedTvSeries(page, limit);
   }
@@ -87,7 +85,7 @@ export class TvController {
   })
   @ApiOkResponse({
     description: '인기 있는 TV 시리즈 리스트 조회 성공',
-    type: FindTvListResponseDto,
+    type: TvListResponseDto,
   })
   @ApiQuery({
     name: 'page',
@@ -104,7 +102,7 @@ export class TvController {
   @CustomApiException(() => [InvalidPageException])
   async getPopularTvSeries(
     @Query() query: PaginationQueryDto,
-  ): Promise<FindTvListResponseDto> {
+  ): Promise<TvListResponseDto> {
     const { page, limit } = query;
     return this.tvService.getPopularTvSeries(page, limit);
   }
@@ -116,7 +114,7 @@ export class TvController {
   })
   @ApiOkResponse({
     description: '장르별 TV 시리즈 리스트 조회 성공',
-    type: FindTvListResponseDto,
+    type: TvListResponseDto,
   })
   @ApiQuery({
     name: 'genreId',
@@ -139,9 +137,9 @@ export class TvController {
   @CustomApiException(() => [InvalidPageException])
   async getTvsByGenre(
     @Query() query: GenrePaginationQueryDto,
-  ): Promise<FindTvListResponseDto> {
-    const { genreId, page, limit } = query;
-    return this.tvService.getTvSeriesByGenreIds(genreId, page, limit);
+  ): Promise<TvListResponseDto> {
+    const { genreIds, page, limit } = query;
+    return this.tvService.getTvSeriesByGenreIds(genreIds, page, limit);
   }
 
   @Get(':tvId')
@@ -150,8 +148,8 @@ export class TvController {
     description: 'TV 시리즈 ID를 통해 TV 시리즈의 상세 정보를 조회합니다.',
   })
   @ApiOkResponse({
-    description: '영화 상세 정보 조회 성공',
-    type: FindMovieDetailResponseDto,
+    description: 'TV 시리즈 상세 정보 조회 성공',
+    type: TvDetailResponseDto,
   })
   @ApiParam({
     name: 'tvId',
@@ -160,9 +158,7 @@ export class TvController {
     description: 'TV 시리즈 ID',
   })
   @CustomApiException(() => [ContentNotFoundException])
-  async getTvById(
-    @Param('tvId') tvId: number,
-  ): Promise<FindTvDetailResponseDto> {
+  async getTvById(@Param('tvId') tvId: number): Promise<TvDetailResponseDto> {
     return this.tvService.findTvSeriesById(tvId);
   }
 
@@ -173,7 +169,7 @@ export class TvController {
   })
   @ApiOkResponse({
     description: '추천 TV 시리즈 리스트 조회 성공',
-    type: FindMovieListResponseDto,
+    type: TvDetailResponseDto,
   })
   @ApiParam({
     name: 'tvId',
@@ -197,7 +193,7 @@ export class TvController {
   async getRecommendedTvsById(
     @Param('tvId') tvId: number,
     @Query() query: PaginationQueryDto,
-  ): Promise<FindTvListResponseDto> {
+  ): Promise<TvListResponseDto> {
     const { page, limit } = query;
     return this.tvService.getRecommendedTvSeriesById(tvId, page, limit);
   }

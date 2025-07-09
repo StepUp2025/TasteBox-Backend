@@ -6,7 +6,7 @@ import { GenreInContentResponseDto } from 'src/genre/dto/genre-in-content-respon
 import { Tv } from './../entities/tv-series.entity';
 import { TvSeasonResponseDto } from './tv-season-response.dto';
 
-export class FindTvDetailResponseDto {
+export class TvDetailResponseDto {
   @Expose()
   @ApiProperty({
     description: 'TV 시리즈의 고유 식별자',

@@ -9,11 +9,11 @@ import {
 import { CustomApiException } from 'src/common/decorators/custom-api-exception.decorator';
 import { InvalidGenreIdException } from 'src/common/exceptions/invalid-genre-id.exception';
 import { InvalidPageException } from 'src/common/exceptions/invalid-page.exception';
-import { GenrePaginationQueryDto } from '../dto/genre-pagination-query.dto';
+import { GenrePaginationQueryDto } from './../dto/genre-pagination-query.dto';
 import { PaginationQueryDto } from '../dto/pagination-query.dto';
 import { ContentNotFoundException } from './../exception/content-not-found.exception';
-import { FindMovieDetailResponseDto } from './dto/find-movie-detail-response.dto';
-import { FindMovieListResponseDto } from './dto/find-movie-list-response.dto';
+import { MovieDetailResponseDto } from './dto/movie-detail-response.dto';
+import { MovieListResponseDto } from './dto/movie-list-response.dto';
 import { MovieService } from './movie.service';
 
 @Controller('movies')
@@ -28,7 +28,7 @@ export class MovieController {
   })
   @ApiOkResponse({
     description: '상영 중인 영화 리스트 조회 성공',
-    type: FindMovieListResponseDto,
+    type: MovieListResponseDto,
   })
   @ApiQuery({
     name: 'page',
@@ -45,7 +45,7 @@ export class MovieController {
   @CustomApiException(() => [InvalidPageException])
   async getNowPlayingMovies(
     @Query() query: PaginationQueryDto,
-  ): Promise<FindMovieListResponseDto> {
+  ): Promise<MovieListResponseDto> {
     const { page, limit } = query;
     return this.movieService.getNowPlayingMovies(page, limit);
   }
@@ -57,7 +57,7 @@ export class MovieController {
   })
   @ApiOkResponse({
     description: '평점 높은 영화 리스트 조회 성공',
-    type: FindMovieListResponseDto,
+    type: MovieListResponseDto,
   })
   @ApiQuery({
     name: 'page',
@@ -74,7 +74,7 @@ export class MovieController {
   @CustomApiException(() => [InvalidPageException])
   async getTopRatedMovies(
     @Query() query: PaginationQueryDto,
-  ): Promise<FindMovieListResponseDto> {
+  ): Promise<MovieListResponseDto> {
     const { page, limit } = query;
     return this.movieService.getTopRatedMovies(page, limit);
   }
@@ -86,7 +86,7 @@ export class MovieController {
   })
   @ApiOkResponse({
     description: '인기 있는 영화 리스트 조회 성공',
-    type: FindMovieListResponseDto,
+    type: MovieListResponseDto,
   })
   @ApiQuery({
     name: 'page',
@@ -103,7 +103,7 @@ export class MovieController {
   @CustomApiException(() => [InvalidPageException])
   async getPopularMovies(
     @Query() query: PaginationQueryDto,
-  ): Promise<FindMovieListResponseDto> {
+  ): Promise<MovieListResponseDto> {
     const { page, limit } = query;
     return this.movieService.getPopularMovies(page, limit);
   }
@@ -115,7 +115,7 @@ export class MovieController {
   })
   @ApiOkResponse({
     description: '장르별 영화 리스트 조회 성공',
-    type: FindMovieListResponseDto,
+    type: MovieListResponseDto,
   })
   @ApiQuery({
     name: 'genreId',
@@ -142,9 +142,9 @@ export class MovieController {
   ])
   async getMoviesByGenreIds(
     @Query() query: GenrePaginationQueryDto,
-  ): Promise<FindMovieListResponseDto> {
-    const { genreId, page, limit } = query;
-    return this.movieService.getMoviesByGenreIds(genreId, page, limit);
+  ): Promise<MovieListResponseDto> {
+    const { genreIds, page, limit } = query;
+    return this.movieService.getMoviesByGenreIds(genreIds, page, limit);
   }
 
   @Get(':movieId')
@@ -154,7 +154,7 @@ export class MovieController {
   })
   @ApiOkResponse({
     description: '영화 상세 정보 조회 성공',
-    type: FindMovieDetailResponseDto,
+    type: MovieDetailResponseDto,
   })
   @ApiParam({
     name: 'movieId',
@@ -165,7 +165,7 @@ export class MovieController {
   @CustomApiException(() => [ContentNotFoundException])
   async getMovieById(
     @Param('movieId') movieId: number,
-  ): Promise<FindMovieDetailResponseDto> {
+  ): Promise<MovieDetailResponseDto> {
     return this.movieService.findMovieById(movieId);
   }
 
@@ -176,7 +176,7 @@ export class MovieController {
   })
   @ApiOkResponse({
     description: '추천 영화 리스트 조회 성공',
-    type: FindMovieListResponseDto,
+    type: MovieListResponseDto,
   })
   @ApiParam({
     name: 'movieId',
@@ -200,7 +200,7 @@ export class MovieController {
   async getRecommendedMoviesById(
     @Param('movieId') movieId: number,
     @Query() query: PaginationQueryDto,
-  ): Promise<FindMovieListResponseDto> {
+  ): Promise<MovieListResponseDto> {
     const { page, limit } = query;
     return this.movieService.getRecommendedMoviesById(movieId, page, limit);
   }

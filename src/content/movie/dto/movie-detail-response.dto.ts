@@ -5,7 +5,7 @@ import { MovieStatus } from 'src/content/enum/movie-status.enum';
 import { GenreInContentResponseDto } from 'src/genre/dto/genre-in-content-response.dto';
 import { Movie } from './../entities/movie.entity';
 
-export class FindMovieDetailResponseDto {
+export class MovieDetailResponseDto {
   @Expose()
   @ApiProperty({ description: '영화의 고유 ID', example: 574475 })
   id: number;

@@ -3,7 +3,7 @@ import { Expose, Type } from 'class-transformer';
 import { ContentType } from 'src/common/types/content-type.enum';
 import { MovieListItemDto } from './movie-list-item.dto';
 
-export class FindMovieListResponseDto {
+export class MovieListResponseDto {
   @Expose()
   @ApiProperty({
     description: '컨텐츠 타입',
@@ -17,14 +17,6 @@ export class FindMovieListResponseDto {
   @ApiProperty({
     description: '조회된 영화 목록',
     type: [MovieListItemDto],
-    example: [
-      {
-        id: 157336,
-        posterPath: '/example.jpg',
-        title: '영화이름1',
-      },
-      { id: 123456, posterPath: '/abc.jpg', title: '영화이름2' },
-    ],
   })
   movies: MovieListItemDto[];
 
