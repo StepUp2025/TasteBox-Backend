@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { RedisModule } from 'src/common/redis/redis.module';
 import { UserModule } from 'src/user/user.module';
@@ -10,7 +9,6 @@ import googleOauthConfig from './config/google-oauth.config';
 import jwtConfig from './config/jwt.config';
 import kakaoOauthConfig from './config/kakao-oauth.config';
 import refreshJwtConfig from './config/refresh-jwt.config';
-import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { KakaoStrategy } from './strategies/kakao.strategy';
@@ -35,10 +33,6 @@ import { RefreshJwtStrategy } from './strategies/refresh.strategy';
     RefreshJwtStrategy,
     GoogleStrategy,
     KakaoStrategy,
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard, // @UseGuards(JwtAuthGuard) 모든 엔드포인트에 적용
-    },
   ],
 })
 export class AuthModule {}

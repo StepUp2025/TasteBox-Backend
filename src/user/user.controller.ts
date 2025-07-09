@@ -1,12 +1,15 @@
-import { Body, Controller, Get, Patch, Req } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiBody,
-  ApiCookieAuth,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { CustomApiException } from 'src/common/decorators/custom-api-exception.decorator';
+import { updateUserProfileValidationErrorSchema } from 'src/common/swagger/update-user-profile-validation-error-schema';
 import { UserNotFoundException } from 'src/user/exceptions/user-not-found.exception';
 import { RequestWithUser } from '../auth/types/request-with-user.interface';
 import { UpdateUserProfileRequestDto } from './dto/request/update-user-request.dto';
@@ -14,14 +17,14 @@ import { UserResponseDto } from './dto/response/user-response.dto';
 import { DuplicateNicknameException } from './exceptions/duplicate-nickname.exception';
 import { UserService } from './user.service';
 
-@ApiCookieAuth('accessToken')
 @ApiTags('User')
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('profile')
-  @ApiCookieAuth()
+  @ApiBearerAuth()
   @ApiOperation({ summary: '회원 정보 조회' })
   @ApiOkResponse({
     description: '회원 정보 조회 성공',
@@ -33,12 +36,13 @@ export class UserController {
   }
 
   @Patch('profile')
-  @ApiCookieAuth()
+  @ApiBearerAuth()
   @ApiOperation({ summary: '회원 프로필 수정' })
   @ApiBody({ type: UpdateUserProfileRequestDto })
   @ApiOkResponse({
     description: '회원 프로필 수정 성공',
   })
+  @ApiBadRequestResponse({ schema: updateUserProfileValidationErrorSchema })
   @CustomApiException(() => [DuplicateNicknameException])
   async updateUserProfile(
     @Req() req: RequestWithUser,
