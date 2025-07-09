@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ContentType } from 'src/common/types/content-type.enum';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { ContentNotFoundException } from './../../content/exception/content-not-found.exception';
 import { Genre } from '../entity/genre.entity';
 
@@ -19,5 +19,13 @@ export class GenreRepository {
     });
     if (!genres || count === 0) throw new ContentNotFoundException();
     return [genres, count];
+  }
+
+  async findByIds(ids: string[]): Promise<Genre[]> {
+    return this.repository.find({
+      where: {
+        id: In(ids),
+      },
+    });
   }
 }
