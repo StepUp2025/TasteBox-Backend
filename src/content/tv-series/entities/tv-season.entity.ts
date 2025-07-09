@@ -1,14 +1,7 @@
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { SourceType } from 'src/common/types/source-type.enum';
-import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  RelationId,
-} from 'typeorm';
-import { Tv } from './tv-series.entity';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { TvSeries } from './tv-series.entity';
 
 @Entity()
 @Index(['tvSeries', 'seasonNumber'], { unique: true }) // 복합 유니크 인덱스
@@ -20,15 +13,12 @@ export class TvSeason extends BaseEntity {
   externalId: string;
 
   @ManyToOne(
-    () => Tv,
+    () => TvSeries,
     (series) => series.tvSeasons,
     { onDelete: 'CASCADE' },
   )
   @JoinColumn({ name: 'tvSeriesId' })
-  tvSeries: Tv;
-
-  @RelationId((season: TvSeason) => season.tvSeries)
-  tvSeriesId: number;
+  tvSeries: TvSeries;
 
   @Column({ type: 'int' })
   seasonNumber: number;

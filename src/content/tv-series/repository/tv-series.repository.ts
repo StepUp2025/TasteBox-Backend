@@ -4,11 +4,11 @@ import { ContentType } from 'src/common/types/content-type.enum';
 import { Content } from 'src/content/entities/content.entity';
 import { TvSeriesStatus } from 'src/content/enum/tv-series-status.enum';
 import { Repository } from 'typeorm';
-import { ContentNotFoundException } from './../../exception/content-not-found.exception';
-import { Tv } from './../entities/tv-series.entity';
+import { ContentNotFoundException } from '../../exception/content-not-found.exception';
+import { TvSeries } from '../entities/tv-series.entity';
 
 @Injectable()
-export class TvRepository {
+export class TvSeriesRepository {
   // 전체 평균 평점 (C)
   private readonly GLOBAL_AVERAGE_RATING = 6.5;
   // 최소한의 투표 수 (m)
@@ -20,13 +20,13 @@ export class TvRepository {
     `(${this.MIN_VOTES_REQUIRED} / (content.voteCount + ${this.MIN_VOTES_REQUIRED})) * ${this.GLOBAL_AVERAGE_RATING}`;
 
   constructor(
-    @InjectRepository(Tv)
-    private readonly repository: Repository<Tv>,
+    @InjectRepository(TvSeries)
+    private readonly tvSeriesRepository: Repository<TvSeries>,
   ) {}
 
   // TV 시리즈 상세 조회
-  async findTvSeriesById(id: number): Promise<Tv> {
-    const result = await this.repository.findOne({
+  async findTvSeriesById(id: number): Promise<TvSeries> {
+    const result = await this.tvSeriesRepository.findOne({
       where: { id },
       relations: ['contentGenres.genre', 'tvSeasons'],
     });
@@ -39,7 +39,7 @@ export class TvRepository {
     page: number,
     limit: number,
   ): Promise<[Content[], number]> {
-    const queryBuilder = this.repository
+    const queryBuilder = this.tvSeriesRepository
       .createQueryBuilder('content')
       .where('content.dtype = :dtype', { dtype: ContentType.TV })
       .andWhere('content.status IN (:...status)', {
@@ -58,7 +58,7 @@ export class TvRepository {
     page: number,
     limit: number,
   ): Promise<[Content[], number]> {
-    const queryBuilder = this.repository
+    const queryBuilder = this.tvSeriesRepository
       .createQueryBuilder('content')
       .where('content.dtype = :dtype', { dtype: ContentType.TV })
       .orderBy('content.popularity', 'DESC')
@@ -73,7 +73,7 @@ export class TvRepository {
     page: number,
     limit: number,
   ): Promise<[Content[], number]> {
-    const queryBuilder = this.repository
+    const queryBuilder = this.tvSeriesRepository
       .createQueryBuilder('content')
       .addSelect(this.WEIGHTED_RATING_FORMULA, 'weightedRating') // (selection: 계산식 문자열, alias: 별칭)
       .where('content.dtype = :dtype', { dtype: ContentType.TV })
@@ -95,7 +95,7 @@ export class TvRepository {
     page: number,
     limit: number,
   ): Promise<[Content[], number]> {
-    const queryBuilder = this.repository
+    const queryBuilder = this.tvSeriesRepository
       .createQueryBuilder('content')
       .innerJoin('content.contentGenres', 'contentGenre')
       .innerJoin('contentGenre.genre', 'genre')
@@ -119,7 +119,7 @@ export class TvRepository {
     const genres = tvSeriesWithGenres.contentGenres;
     if (!genres || genres.length === 0) return [[], 0];
     const genreIds = genres.map((cg) => cg.genre.id);
-    const queryBuilder = this.repository
+    const queryBuilder = this.tvSeriesRepository
       .createQueryBuilder('content')
       .innerJoin('content.contentGenres', 'contentGenre')
       .innerJoin('contentGenre.genre', 'genre')

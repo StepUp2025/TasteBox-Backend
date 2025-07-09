@@ -8,11 +8,11 @@ import { Movie } from './movie/entities/movie.entity';
 import { MovieController } from './movie/movie.controller';
 import { MovieService } from './movie/movie.service';
 import { MovieRepository } from './movie/repository/movie.repository';
-import { TvSeason } from './tv/entities/tv-season.entity';
-import { Tv } from './tv/entities/tv-series.entity';
-import { TvRepository } from './tv/repository/tv.repository';
-import { TvController } from './tv/tv.controller';
-import { TvService } from './tv/tv.service';
+import { TvSeason } from './tv-series/entities/tv-season.entity';
+import { TvSeries } from './tv-series/entities/tv-series.entity';
+import { TvSeriesRepository } from './tv-series/repository/tv-series.repository';
+import { TvSeriesController } from './tv-series/tv-series.controller';
+import { TvSeriesService } from './tv-series/tv-series.service';
 
 @Module({
   imports: [
@@ -20,14 +20,19 @@ import { TvService } from './tv/tv.service';
       Content,
       ContentGenre,
       Movie,
-      Tv,
+      TvSeries,
       TvSeason,
       Genre,
       SyncStatus,
     ]),
   ],
-  controllers: [MovieController, TvController],
-  providers: [MovieService, MovieRepository, TvService, TvRepository],
+  controllers: [MovieController, TvSeriesController],
+  providers: [
+    MovieService,
+    MovieRepository,
+    TvSeriesService,
+    TvSeriesRepository,
+  ],
   exports: [TypeOrmModule],
 })
 export class ContentModule {}

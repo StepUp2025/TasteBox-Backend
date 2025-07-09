@@ -3,8 +3,8 @@ import { TvSeriesStatus } from 'src/content/enum/tv-series-status.enum';
 import { ChildEntity, Column, OneToMany } from 'typeorm';
 import { TvSeason } from './tv-season.entity';
 
-@ChildEntity('tv')
-export class Tv extends Content {
+@ChildEntity()
+export class TvSeries extends Content {
   @Column({ type: 'text', nullable: true })
   overview: string | null;
 
