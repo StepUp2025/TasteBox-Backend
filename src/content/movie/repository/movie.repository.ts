@@ -26,7 +26,7 @@ export class MovieRepository {
   // 영화 상세 조회
   async findMovieById(id: number): Promise<Movie> {
     const result = await this.repository.findOne({
-      where: { id, dtype: ContentType.MOVIE },
+      where: { id },
       relations: ['contentGenres.genre'],
     });
     if (!result) throw new ContentNotFoundException();

@@ -19,9 +19,6 @@ export abstract class Content extends BaseEntity {
   @Column({ type: 'varchar', length: 500 })
   title: string;
 
-  @Column({ type: 'enum', enum: ContentType, name: 'dtype' })
-  dtype: ContentType;
-
   @Column({ type: 'boolean', default: false })
   hasKoreanTitle: boolean;
 

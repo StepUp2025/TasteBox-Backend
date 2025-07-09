@@ -27,7 +27,7 @@ export class TvRepository {
   // TV 시리즈 상세 조회
   async findTvSeriesById(id: number): Promise<Tv> {
     const result = await this.repository.findOne({
-      where: { id, dtype: ContentType.TV },
+      where: { id },
       relations: ['contentGenres.genre', 'tvSeasons'],
     });
     if (!result) throw new ContentNotFoundException();
