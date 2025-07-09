@@ -1,6 +1,6 @@
 // genre.controller.ts
 
-import { Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -32,7 +32,7 @@ export class GenreController {
   })
   @CustomApiException(() => [ExternalApiException, ContentNotFoundException])
   async getMovieGenres(): Promise<GenreListResponseDto> {
-    return this.genreService.getGenresResponse(ContentType.MOVIE);
+    return this.genreService.getGenres(ContentType.MOVIE);
   }
 
   @Get('tvs')
@@ -45,20 +45,6 @@ export class GenreController {
   })
   @CustomApiException(() => [ExternalApiException, ContentNotFoundException])
   async getTVGenres(): Promise<GenreListResponseDto> {
-    return this.genreService.getGenresResponse(ContentType.TV);
-  }
-
-  @Post('sync')
-  @ApiOperation({
-    summary: '영화, TV 시리즈 장르 DB 동기화',
-    description: 'TMDB 영화, TV 시리즈 장르를 DB와 동기화합니다.',
-  })
-  @ApiOkResponse({
-    description: '영화, TV 시리즈 장르 DB 동기화 성공',
-  })
-  @CustomApiException(() => [ExternalApiException])
-  async syncGenres(): Promise<object> {
-    await this.genreService.syncAllGenresFromTMDB();
-    return { message: '장르 동기화 완료' };
+    return this.genreService.getGenres(ContentType.TV);
   }
 }

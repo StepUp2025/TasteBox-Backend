@@ -93,7 +93,7 @@ export class PreferenceService {
     contentType: ContentType,
   ): PreferenceDetailDto {
     const genres = preferences
-      .filter((p) => p.genre.contentType === contentType)
+      .filter((p) => p.genre.type === contentType)
       .map((p) => GenreDto.of(p.genre));
 
     return {
