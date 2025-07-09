@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ContentGenre } from 'src/content/entities/content-genre.entity';
 import { Genre } from 'src/genre/entity/genre.entity';
 import { Content } from './entities/content.entity';
+import { SyncStatus } from './entities/sync-status.entity';
 import { Movie } from './movie/entities/movie.entity';
 import { MovieController } from './movie/movie.controller';
 import { MovieService } from './movie/movie.service';
@@ -22,6 +23,7 @@ import { TvService } from './tv/tv.service';
       Tv,
       TvSeason,
       Genre,
+      SyncStatus,
     ]),
   ],
   controllers: [MovieController, TvController],
