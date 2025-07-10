@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ContentType } from 'src/common/enums/content-type.enum';
-import { Content } from 'src/content/entities/content.entity';
 import { TvSeriesStatus } from 'src/content/enum/tv-series-status.enum';
 import { Repository } from 'typeorm';
 import { ContentNotFoundException } from '../../exception/content-not-found.exception';
@@ -25,7 +23,7 @@ export class TvSeriesRepository {
   ) {}
 
   // TV 시리즈 상세 조회
-  async findTvSeriesById(id: number): Promise<TvSeries> {
+  async getTvSeriesDetailById(id: number): Promise<TvSeries> {
     const result = await this.tvSeriesRepository.findOne({
       where: { id },
       relations: ['contentGenres.genre', 'tvSeasons'],
@@ -38,11 +36,10 @@ export class TvSeriesRepository {
   async findOnTheAirTvSeries(
     page: number,
     limit: number,
-  ): Promise<[Content[], number]> {
+  ): Promise<[TvSeries[], number]> {
     const queryBuilder = this.tvSeriesRepository
       .createQueryBuilder('content')
-      .where('content.dtype = :dtype', { dtype: ContentType.TVSERIES })
-      .andWhere('content.status IN (:...status)', {
+      .where('content.status IN (:...status)', {
         status: [TvSeriesStatus.RETURNING_SERIES],
       })
       .orderBy('content.popularity', 'DESC')
@@ -57,10 +54,9 @@ export class TvSeriesRepository {
   async findPopularTvSeries(
     page: number,
     limit: number,
-  ): Promise<[Content[], number]> {
+  ): Promise<[TvSeries[], number]> {
     const queryBuilder = this.tvSeriesRepository
       .createQueryBuilder('content')
-      .where('content.dtype = :dtype', { dtype: ContentType.TVSERIES })
       .orderBy('content.popularity', 'DESC')
       .skip((page - 1) * limit)
       .take(limit);
@@ -72,12 +68,11 @@ export class TvSeriesRepository {
   async findTopRatedTvSeries(
     page: number,
     limit: number,
-  ): Promise<[Content[], number]> {
+  ): Promise<[TvSeries[], number]> {
     const queryBuilder = this.tvSeriesRepository
       .createQueryBuilder('content')
       .addSelect(this.WEIGHTED_RATING_FORMULA, 'weightedRating') // (selection: 계산식 문자열, alias: 별칭)
-      .where('content.dtype = :dtype', { dtype: ContentType.TVSERIES })
-      .andWhere('content.voteCount >= :minVoteCount', {
+      .where('content.voteCount >= :minVoteCount', {
         minVoteCount: this.MIN_VOTES_REQUIRED,
       })
       .orderBy('weightedRating', 'DESC')
@@ -94,18 +89,18 @@ export class TvSeriesRepository {
     genreIds: number[],
     page: number,
     limit: number,
-  ): Promise<[Content[], number]> {
+  ): Promise<[TvSeries[], number]> {
     const queryBuilder = this.tvSeriesRepository
       .createQueryBuilder('content')
       .innerJoin('content.contentGenres', 'contentGenre')
       .innerJoin('contentGenre.genre', 'genre')
-      .where('content.dtype = :dtype', { dtype: ContentType.TVSERIES })
-      .andWhere('genre.id IN (:...genreIds)', { genreIds })
+      .where('genre.id IN (:...genreIds)', { genreIds })
       .orderBy('content.voteAverage', 'DESC')
       .skip((page - 1) * limit)
       .take(limit)
       .distinctOn(['content.id']);
     const [results, totalCount] = await queryBuilder.getManyAndCount();
+    console.log(results, totalCount);
     return [results, totalCount];
   }
 
@@ -114,8 +109,8 @@ export class TvSeriesRepository {
     tvId: number,
     page: number,
     limit: number,
-  ): Promise<[Content[], number]> {
-    const tvSeriesWithGenres = await this.findTvSeriesById(tvId);
+  ): Promise<[TvSeries[], number]> {
+    const tvSeriesWithGenres = await this.getTvSeriesDetailById(tvId);
     const genres = tvSeriesWithGenres.contentGenres;
     if (!genres || genres.length === 0) return [[], 0];
     const genreIds = genres.map((cg) => cg.genre.id);
@@ -123,8 +118,7 @@ export class TvSeriesRepository {
       .createQueryBuilder('content')
       .innerJoin('content.contentGenres', 'contentGenre')
       .innerJoin('contentGenre.genre', 'genre')
-      .where('content.dtype = :dtype', { dtype: ContentType.TVSERIES })
-      .andWhere('content.id != :tvId', { tvId })
+      .where('content.id != :tvId', { tvId })
       .andWhere('genre.id IN (:...genreIds)', { genreIds })
       .orderBy('content.popularity', 'DESC')
       .skip((page - 1) * limit)
