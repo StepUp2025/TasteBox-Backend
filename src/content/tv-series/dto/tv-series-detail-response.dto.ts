@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import { IsArray, IsOptional } from 'class-validator';
+import { ContentType } from 'src/common/enums/content-type.enum';
 import { TvSeriesStatus } from 'src/content/enum/tv-series-status.enum';
 import { GenreInContentResponseDto } from 'src/genre/dto/genre-in-content-response.dto';
 import { TvSeries } from '../entities/tv-series.entity';
@@ -13,6 +14,9 @@ export class TvSeriesDetailResponseDto {
     example: 1399,
   })
   id: number;
+
+  @Expose()
+  contentType: ContentType;
 
   @Expose()
   @ApiProperty({
@@ -149,6 +153,7 @@ export class TvSeriesDetailResponseDto {
 
   constructor(tv: TvSeries) {
     this.id = tv.id;
+    this.contentType = tv.type;
     this.title = tv.title;
     this.overview = tv.overview;
     this.posterPath = tv.posterPath;
@@ -164,6 +169,6 @@ export class TvSeriesDetailResponseDto {
     this.numberOfEpisodes = tv.numberOfEpisodes;
     this.adult = tv.adult;
     this.genres = GenreInContentResponseDto.fromContentGenres(tv.contentGenres);
-    this.seasons = TvSeasonResponseDto.fromEntities(tv.tvSeasons);
+    this.seasons = TvSeasonResponseDto.fromTvSeason(tv.tvSeasons);
   }
 }
