@@ -58,7 +58,7 @@ export class TvSeasonResponseDto {
     this.voteAverage = season.voteAverage;
   }
 
-  static fromEntities(tvSeasons: TvSeason[]): TvSeasonResponseDto[] {
+  static fromTvSeason(tvSeasons: TvSeason[]): TvSeasonResponseDto[] {
     if (!tvSeasons || !Array.isArray(tvSeasons)) {
       return [];
     }
