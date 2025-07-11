@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ContentGenre } from 'src/content/entities/content-genre.entity';
-import { Genre } from 'src/genre/entity/genre.entity';
+import { Genre } from 'src/genre/entities/genre.entity';
 import { Content } from './entities/content.entity';
 import { SyncStatus } from './entities/sync-status.entity';
 import { Movie } from './movie/entities/movie.entity';

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { ContentGenre } from 'src/content/entities/content-genre.entity';
-import { Genre } from 'src/genre/entity/genre.entity';
+import { Genre } from 'src/genre/entities/genre.entity';
 
 export class GenreInContentResponseDto {
   @Expose()

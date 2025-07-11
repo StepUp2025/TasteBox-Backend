@@ -1,6 +1,6 @@
+import { Genre } from 'src/genre/entities/genre.entity';
+import { User } from 'src/user/user.entity';
 import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Genre } from '../genre/entity/genre.entity';
-import { User } from '../user/user.entity';
 
 @Entity()
 export class Preference {

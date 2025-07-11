@@ -1,4 +1,4 @@
-import { Genre } from 'src/genre/entity/genre.entity';
+import { Genre } from 'src/genre/entities/genre.entity';
 import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Content } from './content.entity';
 

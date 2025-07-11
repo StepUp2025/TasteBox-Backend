@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Genre } from 'src/genre/entity/genre.entity';
+import { Genre } from 'src/genre/entities/genre.entity';
 import { User } from 'src/user/user.entity';
 import { UserModule } from 'src/user/user.module';
 import { GenreModule } from './../genre/genre.module';
+import { Preference } from './entities/preference.entity';
 import { PreferenceController } from './preference.controller';
-import { Preference } from './preference.entity';
 import { PreferenceService } from './preference.service';
 
 @Module({
