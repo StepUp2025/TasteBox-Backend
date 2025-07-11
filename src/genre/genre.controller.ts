@@ -29,10 +29,11 @@ export class GenreController {
   })
   @ApiOkResponse({
     description: '영화 장르 조회 성공',
+    type: GenreListResponseDto,
   })
   @CustomApiException(() => [ExternalApiException, ContentNotFoundException])
   async getMovieGenres(): Promise<GenreListResponseDto> {
-    return this.genreService.getGenres(ContentType.MOVIE);
+    return this.genreService.getGenresByType(ContentType.MOVIE);
   }
 
   @Get('tvs')
@@ -42,9 +43,10 @@ export class GenreController {
   })
   @ApiOkResponse({
     description: 'TV 시리즈 장르 조회 성공',
+    type: GenreListResponseDto,
   })
   @CustomApiException(() => [ExternalApiException, ContentNotFoundException])
   async getTVGenres(): Promise<GenreListResponseDto> {
-    return this.genreService.getGenres(ContentType.TVSERIES);
+    return this.genreService.getGenresByType(ContentType.TVSERIES);
   }
 }
