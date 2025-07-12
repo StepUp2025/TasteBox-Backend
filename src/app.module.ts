@@ -5,7 +5,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { CollectionModule } from './collection/collection.module';
-import { CollectionContentsModule } from './collection-contents/collection-contents.module';
 import { DatabaseModule } from './common/database/database.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ContentModule } from './content/content.module';
@@ -25,7 +24,6 @@ import { UserModule } from './user/user.module';
     GenreModule,
     ContentModule,
     CollectionModule,
-    CollectionContentsModule,
     GenreModule,
     PreferenceModule,
   ],

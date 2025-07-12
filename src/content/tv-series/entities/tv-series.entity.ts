@@ -1,3 +1,4 @@
+import { ContentSummaryDto } from 'src/collection/dto/response/content-summary.dto';
 import { Content } from 'src/content/entities/content.entity';
 import { TvSeriesStatus } from 'src/content/enum/tv-series-status.enum';
 import { ChildEntity, Column, OneToMany } from 'typeorm';
@@ -65,5 +66,14 @@ export class TvSeries extends Content {
       return this.title;
     }
     return this.englishTitle || this.originalTitle || this.title;
+  }
+
+  toSummaryDto(): ContentSummaryDto {
+    return new ContentSummaryDto({
+      id: this.id,
+      posterPath: this.posterPath,
+      title: this.title,
+      contentType: this.type,
+    });
   }
 }

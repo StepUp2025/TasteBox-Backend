@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcrypt';
+import { Collection } from 'src/collection/entities/collection.entity';
 import { BaseEntity } from 'src/common/entities/base.entity';
-import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
 import { AuthProvider } from './enums/auth-provider.enum';
 
 @Entity()
@@ -27,6 +28,12 @@ export class User extends BaseEntity {
     default: AuthProvider.LOCAL,
   })
   provider: AuthProvider; // 'local', 'google' 등
+
+  @OneToMany(
+    () => Collection,
+    (collection) => collection.user,
+  )
+  collections: Collection[];
 
   @BeforeInsert()
   @BeforeUpdate()
