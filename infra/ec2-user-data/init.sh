@@ -56,3 +56,9 @@ apt-get install -y certbot python3-certbot-nginx
 
 # 9. Add ubuntu user to docker group
 usermod -aG docker ubuntu
+
+# 10. Start SSM Agent
+if ! snap services amazon-ssm-agent | grep -q "enabled"; then
+    sudo snap enable amazon-ssm-agent
+fi
+sudo snap start amazon-ssm-agent

@@ -39,13 +39,12 @@ jobs:
           echo "MYSQL_PORT=${{ secrets.MYSQL_PORT }}" >> .env
           echo "MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}" >> .env
           echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
-          echo "SYNCHRONIZE=${{ secrets.SYNCHRONIZE }}" >> .env
-          echo "DROP_SCHEMA=${{ secrets.DROP_SCHEMA }}" >> .env
-          echo "LOGGING=${{ secrets.LOGGING }}" >> .env
+          echo "SYNCHRONIZE=${{ vars.SYNCHRONIZE }}" >> .env
+          echo "DROP_SCHEMA=${{ vars.DROP_SCHEMA }}" >> .env
+          echo "LOGGING=${{ vars.LOGGING }}" >> .env
           echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
           echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env
           echo "REDIS_REFRESH_EXPIRE_SECONDS=${{ secrets.REDIS_REFRESH_EXPIRE_SECONDS }}" >> .env
-          echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
           echo "JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}" >> .env
           echo "REFRESH_JWT_SECRET=${{ secrets.REFRESH_JWT_SECRET }}" >> .env
@@ -55,9 +54,12 @@ jobs:
           echo "GOOGLE_CALLBACK_URL=${{ secrets.GOOGLE_CALLBACK_URL }}" >> .env
           echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
           echo "KAKAO_CALLBACK_URL=${{ secrets.KAKAO_CALLBACK_URL }}" >> .env
-          echo "FRONTEND_ORIGIN=${{ secrets.FRONTEND_ORIGIN }}" >> .env
-          echo "S3_BUCKET=${{ secrets.S3_BUCKET }}" >> .env
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
           echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+          echo "S3_BUCKET=${{ secrets.AWS_S3_BUCKET_NAME }}" >> .env
+          echo "DEFAULT_THUMBNAIL_URLS=${{ secrets.DEFAULT_THUMBNAIL_URLS }}" >> .env
+          echo "FRONTEND_ORIGIN=${{ vars.FRONTEND_ORIGIN }}" >> .env
 
       - name: Create application artifact
         run: |
