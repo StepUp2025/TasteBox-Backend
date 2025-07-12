@@ -1,10 +1,11 @@
 import { Body, Controller, Get, Put, Req, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CustomApiException } from 'src/common/decorators/custom-api-exception.decorator';
+import { GenreNotFoundException } from 'src/genre/exceptions/genre-not-found.exception';
 import { JwtAuthGuard } from './../auth/guards/jwt-auth/jwt-auth.guard';
 import { RequestWithUser } from './../auth/types/request-with-user.interface';
 import { UpdatePreferenceRequestDto } from './dto/request/update-preference-request.dto';
-import { GenreNotFoundException } from './exceptions/genre-not-found.exception';
+import { GetPreferenceResponseDto } from './dto/response/get-preferences-response.dto';
 import { PreferenceService } from './preference.service';
 
 @ApiTags('Preferences')
@@ -23,30 +24,6 @@ export class PreferenceController {
   })
   @ApiBody({
     type: UpdatePreferenceRequestDto,
-    examples: {
-      movieAndTvGenres: {
-        summary: '영화와 TV 장르 모두 설정',
-        value: {
-          movie: {
-            genreIds: [1, 2],
-          },
-          tv: {
-            genreIds: [20, 21],
-          },
-        },
-      },
-      onlyMovieGenres: {
-        summary: '영화 장르만 설정',
-        value: {
-          movie: {
-            genreIds: [1, 2],
-          },
-          tv: {
-            genreIds: [],
-          },
-        },
-      },
-    },
   })
   @CustomApiException(() => [GenreNotFoundException])
   async updateUserPreferences(
@@ -64,21 +41,7 @@ export class PreferenceController {
   })
   @ApiOkResponse({
     description: '회원 선호 장르 전체 조회 성공',
-    schema: {
-      example: {
-        movies: {
-          genres: [
-            { id: 1, name: '액션', emoji: '🔥' },
-            { id: 2, name: '모험', emoji: '🗺️' },
-          ],
-          count: 2,
-        },
-        tvs: {
-          genres: [{ id: 20, name: '드라마', emoji: '🎭' }],
-          count: 1,
-        },
-      },
-    },
+    type: GetPreferenceResponseDto,
   })
   async getUserPreferences(@Req() req: RequestWithUser) {
     return this.preferenceService.getUserPreferences(req.user.id);

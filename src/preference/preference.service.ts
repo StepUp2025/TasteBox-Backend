@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ContentType } from 'src/common/enums/content-type.enum';
-import { GenreDto } from 'src/genre/dto/genre.dto';
-import { Genre } from 'src/genre/entity/genre.entity';
+import { Genre } from 'src/genre/entities/genre.entity';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { DataSource, Repository } from 'typeorm';
@@ -10,7 +9,7 @@ import { GenreService } from './../genre/genre.service';
 import { UpdatePreferenceRequestDto } from './dto/request/update-preference-request.dto';
 import { GetPreferenceResponseDto } from './dto/response/get-preferences-response.dto';
 import { PreferenceDetailDto } from './dto/response/preference-detail.dto';
-import { Preference } from './preference.entity';
+import { Preference } from './entities/preference.entity';
 
 @Injectable()
 export class PreferenceService {
@@ -30,13 +29,13 @@ export class PreferenceService {
   ): Promise<void> {
     await this.dataSource.transaction(async (manager) => {
       const user = await this.userService.getOrThrowById(userId);
-      const genreIds = this.extractGenreIds(dto).map(String);
+      const genreIds = this.extractGenreIds(dto);
 
       await manager.getRepository(Preference).delete({ user: { id: userId } });
 
       if (genreIds.length === 0) return;
 
-      const genres = await this.genreService.getGenresOrThrow(genreIds);
+      const genres = await this.genreService.getGenresByIds(genreIds);
       const preferences = this.createPreferences(user, genres);
       await manager.getRepository(Preference).save(preferences);
     });
@@ -92,13 +91,6 @@ export class PreferenceService {
     preferences: Preference[],
     contentType: ContentType,
   ): PreferenceDetailDto {
-    const genres = preferences
-      .filter((p) => p.genre.type === contentType)
-      .map((p) => GenreDto.of(p.genre));
-
-    return {
-      genres,
-      count: genres.length,
-    };
+    return PreferenceDetailDto.of(preferences, contentType);
   }
 }

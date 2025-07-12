@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import { ContentType } from 'src/common/enums/content-type.enum';
 import { MovieStatus } from 'src/content/enum/movie-status.enum';
+import { GenreDto } from 'src/genre/dto/genre.dto';
 import { GenreInContentResponseDto } from 'src/genre/dto/genre-in-content-response.dto';
 import { Movie } from './../entities/movie.entity';
 
@@ -59,8 +60,8 @@ export class MovieDetailResponseDto {
       { id: 9648, name: '미스터리' },
     ],
   })
-  @Type(() => GenreInContentResponseDto)
-  genres: GenreInContentResponseDto[];
+  @Type(() => GenreDto)
+  genres: GenreDto[];
 
   @Expose()
   @ApiProperty({
@@ -108,8 +109,8 @@ export class MovieDetailResponseDto {
     this.status = movie.status;
     this.originalLanguage = movie.originalLanguage;
     this.adult = movie.adult;
-    this.genres = GenreInContentResponseDto.fromContentGenres(
-      movie.contentGenres,
-    );
+    this.genres = movie.contentGenres
+      .filter((cg) => cg.genre)
+      .map((cg) => GenreDto.of(cg.genre));
   }
 }

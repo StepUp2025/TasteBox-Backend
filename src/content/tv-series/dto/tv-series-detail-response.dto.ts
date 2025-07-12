@@ -3,7 +3,7 @@ import { Expose, Type } from 'class-transformer';
 import { IsArray, IsOptional } from 'class-validator';
 import { ContentType } from 'src/common/enums/content-type.enum';
 import { TvSeriesStatus } from 'src/content/enum/tv-series-status.enum';
-import { GenreInContentResponseDto } from 'src/genre/dto/genre-in-content-response.dto';
+import { GenreDto } from 'src/genre/dto/genre.dto';
 import { TvSeries } from '../entities/tv-series.entity';
 import { TvSeasonResponseDto } from './tv-season-response.dto';
 
@@ -83,7 +83,8 @@ export class TvSeriesDetailResponseDto {
 
   @Expose()
   @ApiProperty({ description: 'TV 시리즈에 할당된 장르 목록', type: [Object] })
-  genres: GenreInContentResponseDto[];
+  @Type(() => GenreDto)
+  genres: GenreDto[];
 
   @Expose()
   @ApiProperty({
@@ -168,7 +169,9 @@ export class TvSeriesDetailResponseDto {
     this.numberOfSeasons = tv.numberOfSeasons;
     this.numberOfEpisodes = tv.numberOfEpisodes;
     this.adult = tv.adult;
-    this.genres = GenreInContentResponseDto.fromContentGenres(tv.contentGenres);
+    this.genres = tv.contentGenres
+      .filter((cg) => cg.genre)
+      .map((cg) => GenreDto.of(cg.genre));
     this.seasons = TvSeasonResponseDto.fromTvSeason(tv.tvSeasons);
   }
 }

@@ -1,24 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { ContentType } from './../common/enums/content-type.enum';
-import { GenreNotFoundException } from './../preference/exceptions/genre-not-found.exception';
 import { GenreListResponseDto } from './dto/genre-list-response.dto';
-import { Genre } from './entity/genre.entity';
+import { Genre } from './entities/genre.entity';
+import { GenreNotFoundException } from './exceptions/genre-not-found.exception';
 import { GenreRepository } from './repository/genre.repository';
 
 @Injectable()
 export class GenreService {
   constructor(private readonly genreRepository: GenreRepository) {}
 
-  async getGenres(contentType: ContentType): Promise<GenreListResponseDto> {
-    const [genres, count] = await this.genreRepository.getGenres(contentType);
-    return GenreListResponseDto.of(genres, count);
+  async getGenresByType(
+    contentType: ContentType,
+  ): Promise<GenreListResponseDto> {
+    const [genres, count] =
+      await this.genreRepository.getGenresByType(contentType);
+    if (!genres || count === 0) throw new GenreNotFoundException();
+    return GenreListResponseDto.of(genres, count, contentType);
   }
 
-  async getGenresOrThrow(ids: string[]): Promise<Genre[]> {
-    const genres = await this.genreRepository.findByIds(ids);
-    if (genres.length !== ids.length) {
-      throw new GenreNotFoundException();
+  async getGenresByIds(genreIds: number[]): Promise<Genre[]> {
+    if (genreIds.length === 0) {
+      return [];
     }
+    const genres = await this.genreRepository.getGenresByIds(genreIds);
     return genres;
   }
 }
