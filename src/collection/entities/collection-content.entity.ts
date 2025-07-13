@@ -1,13 +1,11 @@
 import { Collection } from 'src/collection/entities/collection.entity';
+import { BaseEntity } from 'src/common/entities/base.entity';
 
 import { Content } from 'src/content/entities/content.entity';
-import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity()
-export class CollectionContent {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class CollectionContent extends BaseEntity {
   @ManyToOne(
     () => Collection,
     (collection) => collection.collectionContents,
