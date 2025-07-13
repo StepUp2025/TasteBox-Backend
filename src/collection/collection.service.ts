@@ -8,13 +8,13 @@ import { Content } from 'src/content/entities/content.entity';
 import { UserNotFoundException } from 'src/user/exceptions/user-not-found.exception';
 import { UserRepository } from 'src/user/user.repository';
 import { In, Repository } from 'typeorm';
+import { ContentSummaryDto } from '../content/dto/content-summary.dto';
 import { CollectionRepository } from './collection.repository';
 import { CreateCollectionRequestDto } from './dto/request/create-collection-request.dto';
 import { UpdateCollectionRequestDto } from './dto/request/update-collection-request.dto';
 import { CollectionDetailResponseDto } from './dto/response/collection-detail-response.dto';
 import { CollectionListResponseDto } from './dto/response/collection-list-response.dto';
 import { CollectionSummaryDto } from './dto/response/collection-summary.dto';
-import { ContentSummaryDto } from './dto/response/content-summary.dto';
 import { CollectionDeleteFailException } from './exception/collection-delete-fail.exception';
 import { CollectionNotFoundException } from './exception/collection-not-found.exception';
 
@@ -97,12 +97,8 @@ export class CollectionService {
     collectionId: number,
     userId: number,
   ): Promise<CollectionDetailResponseDto> {
-    const collection = await this.collectionRepository.findOneByCollectionId(
-      collectionId,
-      {
-        relations: ['user', 'collectionContents', 'collectionContents.content'],
-      },
-    );
+    const collection =
+      await this.collectionRepository.findOneWithOrderedContents(collectionId);
     if (!collection) throw new CollectionNotFoundException();
 
     if (collection.user.id !== userId) {

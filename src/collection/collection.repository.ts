@@ -41,6 +41,19 @@ export class CollectionRepository {
     });
   }
 
+  async findOneWithOrderedContents(
+    collectionId: number,
+  ): Promise<Collection | null> {
+    return await this.collectionRepository
+      .createQueryBuilder('collection')
+      .leftJoinAndSelect('collection.user', 'user')
+      .leftJoinAndSelect('collection.collectionContents', 'collectionContent')
+      .leftJoinAndSelect('collectionContent.content', 'content')
+      .where('collection.id = :collectionId', { collectionId })
+      .orderBy('collectionContent.createdAt', 'DESC')
+      .getOne();
+  }
+
   async findAllByUserId(
     userId: number,
     options?: { isPublic?: boolean; relations?: string[] },
