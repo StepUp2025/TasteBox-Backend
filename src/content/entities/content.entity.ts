@@ -1,3 +1,4 @@
+import { ContentSummaryDto } from 'src/collection/dto/response/content-summary.dto';
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { ContentType } from 'src/common/enums/content-type.enum';
 import { SourceType } from 'src/common/enums/source-type.enum';
@@ -30,4 +31,6 @@ export abstract class Content extends BaseEntity {
     { cascade: true },
   )
   contentGenres: ContentGenre[];
+
+  abstract toSummaryDto(): ContentSummaryDto;
 }
