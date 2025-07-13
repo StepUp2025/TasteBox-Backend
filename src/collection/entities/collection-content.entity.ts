@@ -16,6 +16,7 @@ export class CollectionContent {
   @JoinColumn({ name: 'collectionId' })
   collection: Collection;
 
-  @ManyToOne(() => Content)
+  @ManyToOne(() => Content, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'contentId' })
   content: Content;
 }
