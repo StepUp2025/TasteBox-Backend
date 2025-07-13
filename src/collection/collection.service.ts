@@ -132,6 +132,7 @@ export class CollectionService {
       collectionId,
       { relations: ['user'] },
     );
+
     if (!collection) throw new CollectionNotFoundException();
     if (collection.user.id !== userId) throw new ForbiddenException();
 
@@ -161,10 +162,12 @@ export class CollectionService {
       newThumbnailUrl,
     );
 
-    if (result.affected && oldThumbnailUrl !== newThumbnailUrl) {
-      await this.deleteThumbnailIfCustom(oldThumbnailUrl);
-    } else {
+    if (result.affected === 0) {
       throw new CollectionNotFoundException();
+    }
+
+    if (oldThumbnailUrl !== newThumbnailUrl) {
+      await this.deleteThumbnailIfCustom(oldThumbnailUrl);
     }
   }
 
