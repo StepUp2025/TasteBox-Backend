@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
-// login.dto.ts
 export class LoginRequestDto {
   @ApiProperty({ description: '이메일', example: 'stepup@mail.com' })
   @IsNotEmpty({ message: '이메일을 입력해주세요.' })
