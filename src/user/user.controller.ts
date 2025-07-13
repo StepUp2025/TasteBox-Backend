@@ -1,8 +1,21 @@
-import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  FileTypeValidator,
+  Get,
+  ParseFilePipe,
+  Patch,
+  Req,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiConsumes,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -35,19 +48,36 @@ export class UserController {
     return await this.userService.findUserById(req.user.id);
   }
 
-  @Patch('profile')
   @ApiBearerAuth()
-  @ApiOperation({ summary: '회원 프로필 수정' })
-  @ApiBody({ type: UpdateUserProfileRequestDto })
+  @ApiOperation({
+    summary: '회원 프로필 수정',
+    description: '회원 프로필을 수정합니다.',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: '회원 프로필 수정 시 필요 정보',
+    type: UpdateUserProfileRequestDto,
+  })
   @ApiOkResponse({
     description: '회원 프로필 수정 성공',
   })
   @ApiBadRequestResponse({ schema: updateUserProfileValidationErrorSchema })
   @CustomApiException(() => [DuplicateNicknameException])
+  @Patch('profile')
+  @UseInterceptors(FileInterceptor('image'))
   async updateUserProfile(
     @Req() req: RequestWithUser,
     @Body() dto: UpdateUserProfileRequestDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ }),
+        ],
+        fileIsRequired: false,
+      }),
+    )
+    image?: Express.Multer.File,
   ) {
-    await this.userService.updateUserProfile(req.user.id, dto);
+    await this.userService.updateUserProfile(req.user.id, dto, image);
   }
 }
