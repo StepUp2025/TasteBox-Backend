@@ -71,6 +71,7 @@ export class CollectionController {
         validators: [
           new FileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ }),
         ],
+        fileIsRequired: false,
       }),
     )
     thumbnail?: Express.Multer.File,
@@ -178,6 +179,7 @@ export class CollectionController {
         validators: [
           new FileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ }),
         ],
+        fileIsRequired: false,
       }),
     )
     thumbnail?: Express.Multer.File,
