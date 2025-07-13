@@ -159,6 +159,7 @@ export class AuthController {
     summary: '비밀번호 변경',
     description: '로그인한 사용자의 비밀번호를 변경합니다. (Local 회원만 가능)',
   })
+  @ApiConsumes('application/x-www-form-urlencoded')
   @ApiBody({ type: UpdatePasswordRequestDto })
   @ApiOkResponse({
     description: '비밀번호가 성공적으로 변경되었습니다.',
