@@ -15,6 +15,8 @@ import { UpdateCollectionRequestDto } from './dto/request/update-collection-requ
 import { CollectionDetailResponseDto } from './dto/response/collection-detail-response.dto';
 import { CollectionListResponseDto } from './dto/response/collection-list-response.dto';
 import { CollectionSummaryDto } from './dto/response/collection-summary.dto';
+import { CreateCollectionResponseDto } from './dto/response/create-collection.response.dto';
+import { CollectionCreateFailException } from './exception/collection-create-fail.exception';
 import { CollectionDeleteFailException } from './exception/collection-delete-fail.exception';
 import { CollectionNotFoundException } from './exception/collection-not-found.exception';
 
@@ -56,7 +58,17 @@ export class CollectionService {
         })
       : this.getRandomDefaultThumbnailUrl();
 
-    return this.collectionRepository.create(userId, dto, thumbnailUrl);
+    const newCollection = await this.collectionRepository.create(
+      userId,
+      dto,
+      thumbnailUrl,
+    );
+
+    if (!newCollection) {
+      throw new CollectionCreateFailException();
+    }
+
+    return new CreateCollectionResponseDto(newCollection.id);
   }
 
   async getCollections(
