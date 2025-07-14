@@ -1,16 +1,14 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ContentType } from 'src/common/enums/content-type.enum';
 import { PreferenceDetailDto } from './preference-detail.dto';
 
 export class GetPreferenceResponseDto {
-  @ApiProperty({
-    description: '영화 선호 장르 정보',
-    type: PreferenceDetailDto,
-  })
-  movie: PreferenceDetailDto;
+  [key: string]: PreferenceDetailDto;
 
-  @ApiProperty({
-    description: 'TV 선호 장르 정보',
-    type: PreferenceDetailDto,
-  })
-  tv: PreferenceDetailDto;
+  constructor(data: { [key in ContentType]?: PreferenceDetailDto }) {
+    for (const key in ContentType) {
+      const enumValue = ContentType[key as keyof typeof ContentType];
+      this[enumValue as ContentType] = (data[enumValue] ||
+        new PreferenceDetailDto([], 0)) as PreferenceDetailDto;
+    }
+  }
 }
