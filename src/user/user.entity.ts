@@ -2,6 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { Collection } from 'src/collection/entities/collection.entity';
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
+import { Preference } from './../preference/entities/preference.entity';
 import { AuthProvider } from './enums/auth-provider.enum';
 
 @Entity()
@@ -34,6 +35,12 @@ export class User extends BaseEntity {
     (collection) => collection.user,
   )
   collections: Collection[];
+
+  @OneToMany(
+    () => Preference,
+    (preference) => preference.user,
+  )
+  preference: Preference;
 
   @BeforeInsert()
   @BeforeUpdate()

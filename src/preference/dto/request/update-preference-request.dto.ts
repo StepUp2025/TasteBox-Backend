@@ -1,23 +1,29 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+// src/preference/dto/request/update-preference-request.dto.ts
+import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsOptional, ValidateNested } from 'class-validator';
+import { IsObject, ValidateNested } from 'class-validator';
 import { GenreIdsDto } from './genre-ids.dto';
 
+@ApiExtraModels(GenreIdsDto)
 export class UpdatePreferenceRequestDto {
-  @ApiPropertyOptional({
-    description: '영화 장르 ID 목록',
-    type: () => GenreIdsDto,
+  @ApiProperty({
+    description: '영화 선호 장르 정보',
+    type: GenreIdsDto,
+    nullable: false,
+    required: true,
   })
-  @IsOptional()
+  @IsObject()
   @ValidateNested()
   @Type(() => GenreIdsDto)
   movie: GenreIdsDto;
 
-  @ApiPropertyOptional({
-    description: 'TV 시리즈 장르 ID 목록',
-    type: () => GenreIdsDto,
+  @ApiProperty({
+    description: 'TV 시리즈 선호 장르 정보',
+    type: GenreIdsDto,
+    nullable: false,
+    required: true,
   })
-  @IsOptional()
+  @IsObject()
   @ValidateNested()
   @Type(() => GenreIdsDto)
   tv: GenreIdsDto;
