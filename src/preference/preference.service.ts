@@ -31,26 +31,19 @@ export class PreferenceService {
     const preferencePromises: Promise<PreferenceDetailDto>[] = [];
     const preferenceData: { [key: string]: PreferenceDetailDto } = {};
     for (const key in ContentType) {
-      if (Object.hasOwn(ContentType, key)) {
-        const enumValue = ContentType[key as keyof typeof ContentType]; // "MOVIE", "TVSERIES"
-        preferencePromises.push(
-          this.preferenceRepository.getPreferencesByContentType(
-            user,
-            enumValue,
-          ),
-        );
-      }
+      const enumValue = ContentType[key as keyof typeof ContentType]; // "MOVIE", "TVSERIES"
+      preferencePromises.push(
+        this.preferenceRepository.getPreferencesByContentType(user, enumValue),
+      );
     }
 
     // 비동기 조회 작업 동시 실행
     const results = await Promise.all(preferencePromises);
     let index = 0;
     for (const key in ContentType) {
-      if (Object.hasOwn(ContentType, key)) {
-        const enumValue = ContentType[key as keyof typeof ContentType];
-        preferenceData[enumValue] = results[index];
-        index++;
-      }
+      const enumValue = ContentType[key as keyof typeof ContentType];
+      preferenceData[enumValue] = results[index];
+      index++;
     }
     return new GetPreferenceResponseDto(
       preferenceData as { [key in ContentType]?: PreferenceDetailDto },

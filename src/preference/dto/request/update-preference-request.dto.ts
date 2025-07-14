@@ -1,10 +1,9 @@
 // src/preference/dto/request/update-preference-request.dto.ts
-import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsObject, ValidateNested } from 'class-validator';
 import { GenreIdsDto } from './genre-ids.dto';
 
-@ApiExtraModels(GenreIdsDto)
 export class UpdatePreferenceRequestDto {
   @ApiProperty({
     description: '영화 선호 장르 정보',
