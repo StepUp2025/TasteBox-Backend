@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ContentSummaryDto } from './content-summary.dto';
+import { ContentSummaryDto } from '../../../content/dto/content-summary.dto';
 
 export class CollectionDetailResponseDto {
   @ApiProperty({
