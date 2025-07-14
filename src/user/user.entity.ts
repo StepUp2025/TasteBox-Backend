@@ -51,26 +51,28 @@ export class User extends BaseEntity {
     nickname: string,
     provider?: AuthProvider,
     contact?: string,
-    image?: string,
+    imageUrl?: string,
   ) {
     const user = new User();
     user.email = email;
     user.password = password;
     user.nickname = nickname;
     user.provider = provider ?? AuthProvider.LOCAL;
-    user.contact = contact ?? null;
-    user.image = image ?? null;
+    user.contact = contact ?? '';
+    user.image = imageUrl ?? '';
     return user;
   }
 
   updateProfile(
-    nickname?: string,
+    nickname: string,
     contact?: string | null,
-    image?: string | null,
+    imageUrl?: string | null,
   ) {
-    if (nickname !== undefined) this.nickname = nickname;
-    if (contact !== undefined) this.contact = contact;
-    if (image !== undefined) this.image = image;
+    this.nickname = nickname;
+    this.contact = contact ?? '';
+    if (imageUrl) {
+      this.image = imageUrl;
+    }
   }
 
   updatePassword(newPassword: string) {

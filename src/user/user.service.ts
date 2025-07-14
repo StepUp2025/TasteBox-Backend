@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { AlreadyRegisteredAccountException } from 'src/auth/exceptions/already-registered-account.exception';
+import { S3Service } from 'src/common/aws/s3.service';
+import { FileDomain } from 'src/common/enums/s3.enum';
 import { generateRandomNickname } from 'src/common/utils/nickname.util';
 import { UserNotFoundException } from 'src/user/exceptions/user-not-found.exception';
 import { User } from 'src/user/user.entity';
@@ -14,7 +16,10 @@ import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly s3Service: S3Service,
+  ) {}
 
   async findUserById(id: number): Promise<UserResponseDto> {
     const user = await this.getOrThrowById(id);
@@ -30,7 +35,10 @@ export class UserService {
     });
   }
 
-  async createLocalUser(dto: CreateUserRequestDto) {
+  async createLocalUser(
+    dto: CreateUserRequestDto,
+    image?: Express.Multer.File,
+  ) {
     const { email, nickname } = dto;
 
     // 이메일 중복 검증
@@ -46,19 +54,57 @@ export class UserService {
       throw new DuplicateNicknameException();
     }
 
-    // 회원 생성
-    return await this.userRepository.createUser(dto);
+    const newUser = await this.userRepository.createUser(dto);
+
+    if (image) {
+      const imageUrl = await this.s3Service.uploadFile({
+        file: {
+          ...image,
+          /*
+            Multer 라이브러리가 latin1 인코딩을 사용하기 때문에 파일명이 한글인 경우 인코딩에 문제가 생깁니다.
+            Buffer.from(originalname, 'latin1').toString('utf8')로 깨진 파일명을 원래의 UTF-8 파일명으로 복원해주는 과정을 거쳤습니다.
+          **/
+          originalname: Buffer.from(image.originalname, 'latin1').toString(
+            'utf8',
+          ),
+        },
+        domain: FileDomain.USERS,
+        userId: newUser.id,
+      });
+      await this.userRepository.updateUserImage(newUser.id, imageUrl);
+    }
   }
 
-  async updateUserProfile(userId: number, dto: UpdateUserProfileRequestDto) {
+  async updateUserProfile(
+    userId: number,
+    dto: UpdateUserProfileRequestDto,
+    image?: Express.Multer.File,
+  ) {
     const { nickname } = dto;
 
     // 닉네임 중복 검증
-    if (nickname && (await this.isNicknameDuplicate(nickname))) {
+    if (nickname && (await this.isNicknameDuplicate(nickname, userId))) {
       throw new DuplicateNicknameException();
     }
 
-    await this.userRepository.updateUserProfile(userId, dto);
+    const imageUrl = image
+      ? await this.s3Service.uploadFile({
+          file: {
+            ...image,
+            /*
+              Multer 라이브러리가 latin1 인코딩을 사용하기 때문에 파일명이 한글인 경우 인코딩에 문제가 생깁니다.
+              Buffer.from(originalname, 'latin1').toString('utf8')로 깨진 파일명을 원래의 UTF-8 파일명으로 복원해주는 과정을 거쳤습니다.
+            **/
+            originalname: Buffer.from(image.originalname, 'latin1').toString(
+              'utf8',
+            ),
+          },
+          domain: FileDomain.USERS,
+          userId,
+        })
+      : null;
+
+    await this.userRepository.updateUserProfile(userId, dto, imageUrl);
   }
 
   async generateUniqueNickname(base?: string): Promise<string> {
@@ -76,9 +122,17 @@ export class UserService {
     return nickname;
   }
 
-  async isNicknameDuplicate(nickname: string): Promise<boolean> {
+  async isNicknameDuplicate(
+    nickname: string,
+    userId?: number,
+  ): Promise<boolean> {
     const findUser = await this.userRepository.findOneByNickname(nickname);
-    return !!findUser;
+    if (!findUser) return false;
+
+    // userId가 주어졌을 때, 본인 닉네임과 비교하게 된 경우는 무시하도록 false
+    if (userId && findUser.id === userId) return false;
+
+    return true;
   }
 
   async isEmailDuplicate(email: string): Promise<EmailDuplicateResult> {

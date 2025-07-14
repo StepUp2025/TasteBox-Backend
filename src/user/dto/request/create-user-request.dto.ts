@@ -1,13 +1,35 @@
-import { ApiProperty } from '@nestjs/swagger';
+import {
+  ApiHideProperty,
+  ApiProperty,
+  ApiPropertyOptional,
+} from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Length,
   Matches,
+  Validate,
+  ValidationArguments,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
 } from 'class-validator';
 import { AuthProvider } from 'src/user/enums/auth-provider.enum';
+
+@ValidatorConstraint({ name: 'MatchPassword', async: false })
+export class MatchPasswordConstraint implements ValidatorConstraintInterface {
+  validate(passwordConfirm: string, args: ValidationArguments) {
+    const dto = args.object as CreateUserRequestDto;
+    return dto.password === passwordConfirm;
+  }
+
+  defaultMessage() {
+    return '비밀번호와 비밀번호 확인이 일치하지 않습니다.';
+  }
+}
 
 export class CreateUserRequestDto {
   @ApiProperty({ description: '이메일', example: 'stepup@mail.com' })
@@ -24,33 +46,41 @@ export class CreateUserRequestDto {
   })
   password: string;
 
+  @ApiProperty({
+    description: '비밀번호 확인',
+    example: '1234qwer',
+    required: true,
+  })
+  @IsNotEmpty({ message: '비밀번호 확인을 입력해주세요.' })
+  @IsString()
+  @Validate(MatchPasswordConstraint)
+  passwordConfirm?: string;
+
   @ApiProperty({ description: '닉네임', example: '쌈뽕한닉네임' })
   @IsNotEmpty({ message: '닉네임을 입력해주세요.' })
   @IsString()
   @Length(2, 10, { message: '닉네임은 2~10자 사이로 입력해주세요.' })
   nickname: string;
 
-  @ApiProperty({ description: '연락처', example: '010-1234-5678' })
-  @IsNotEmpty({ message: '휴대폰 번호를 입력해주세요.' })
+  @ApiPropertyOptional({ description: '연락처', example: '01012345678' })
+  @IsOptional()
   @IsString()
   @Matches(/^01[016789]\d{7,8}$/, {
     message: '휴대폰 번호는 숫자만 9~11자리로 입력해주세요.',
   })
+  @Transform(({ value }) => (value === '' ? undefined : value))
   contact?: string;
 
   @ApiProperty({
-    description: '사진',
-    example: 'https://example.com/image.jpg',
-    required: false,
+    type: 'string',
+    format: 'binary',
+    description: '프로필 이미지 파일',
   })
-  @IsString()
-  image?: string;
+  @IsOptional()
+  image?: any;
 
-  @ApiProperty({
-    description: '가입 경로',
-    enum: AuthProvider,
-    example: AuthProvider.LOCAL,
-  })
+  @ApiHideProperty()
+  @IsOptional()
   @IsEnum(AuthProvider, { message: '가입 경로가 올바르지 않습니다.' })
   provider?: AuthProvider;
 }

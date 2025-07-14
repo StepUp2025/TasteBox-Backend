@@ -26,30 +26,31 @@ export class UserRepository {
   }
 
   async createUser(dto: CreateUserRequestDto) {
-    const { email, password, nickname, contact, image, provider } = dto;
+    const { email, password, nickname, contact, provider } = dto;
 
-    const newUser = User.create(
-      email,
-      password,
-      nickname,
-      provider,
-      contact,
-      image,
-    );
+    const newUser = User.create(email, password, nickname, provider, contact);
 
     return await this.repository.save(newUser);
   }
 
-  async updateUserProfile(userId: number, dto: UpdateUserProfileRequestDto) {
+  async updateUserProfile(
+    userId: number,
+    dto: UpdateUserProfileRequestDto,
+    imageUrl?: string | null,
+  ) {
     const user = await this.findOneById(userId);
 
     if (!user) {
       throw new UserNotFoundException();
     }
 
-    user.updateProfile(dto.nickname, dto.contact, dto.image);
+    user.updateProfile(dto.nickname, dto.contact, imageUrl);
 
     await this.repository.save(user);
+  }
+
+  async updateUserImage(userId: number, imageUrl: string): Promise<void> {
+    await this.repository.update(userId, { image: imageUrl });
   }
 
   async save(user: User) {
