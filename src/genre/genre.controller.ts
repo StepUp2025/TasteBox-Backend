@@ -1,24 +1,14 @@
-// genre.controller.ts
-
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Controller, Get } from '@nestjs/common';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CustomApiException } from 'src/common/decorators/custom-api-exception.decorator';
+import { ContentType } from 'src/common/enums/content-type.enum';
 import { ContentNotFoundException } from 'src/common/exceptions/content-not-found.exception';
 import { ExternalApiException } from 'src/common/exceptions/external-api-exception';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
-import { ContentType } from '../common/enums/content-type.enum';
 import { GenreListResponseDto } from './dto/genre-list-response.dto';
 import { GenreService } from './genre.service';
 
 @ApiTags('Genres')
-@ApiBearerAuth()
 @Controller('genres')
-@UseGuards(JwtAuthGuard)
 export class GenreController {
   constructor(private readonly genreService: GenreService) {}
 
