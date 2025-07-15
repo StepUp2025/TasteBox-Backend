@@ -26,7 +26,7 @@ export class Collection extends BaseEntity {
   collectionContents: CollectionContent[];
 
   @Column({ type: 'varchar' })
-  thumbnail: string; // URL
+  thumbnail: string; // 키
 
   @Column({ type: 'boolean', default: true })
   isPublic: boolean;

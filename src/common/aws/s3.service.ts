@@ -1,8 +1,10 @@
 import {
   DeleteObjectCommand,
+  GetObjectCommand,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FileDomain } from '../enums/s3.enum';
@@ -54,7 +56,7 @@ export class S3Service {
 
     try {
       await this.s3Client.send(command);
-      return `https://s3.${this.region}.amazonaws.com/${this.bucketName}/${key}`;
+      return key;
     } catch (error) {
       this.logger.error('S3 Upload Error', error);
       throw new S3UploadFailException();
@@ -73,5 +75,13 @@ export class S3Service {
       this.logger.error('S3 Delete Error', error);
       throw new S3DeleteFailException();
     }
+  }
+
+  async getPresignedUrl(key: string, expiresIn = 3600): Promise<string> {
+    const command = new GetObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+    });
+    return await getSignedUrl(this.s3Client, command, { expiresIn });
   }
 }
