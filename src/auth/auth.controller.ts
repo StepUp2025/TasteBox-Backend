@@ -172,8 +172,8 @@ export class AuthController {
     InvalidCurrentPasswordException,
     PasswordMismatchException,
   ])
-  @UseGuards(JwtAuthGuard)
   @UseGuards(LocalUserOnlyGuard)
+  @UseGuards(JwtAuthGuard)
   @Put('password')
   async updatePassword(
     @Req() req: RequestWithUser,
