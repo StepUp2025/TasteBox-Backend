@@ -7,6 +7,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CustomApiException } from 'src/common/decorators/custom-api-exception.decorator';
+import { InvalidGenreIdException } from 'src/common/exceptions/invalid-genre-id.exception';
 import { InvalidPageException } from 'src/common/exceptions/invalid-page.exception';
 import { GenrePaginationQueryDto } from '../dto/genre-pagination-query.dto';
 import { PaginationQueryDto } from '../dto/pagination-query.dto';
@@ -20,13 +21,14 @@ import { TvSeriesService } from './tv-series.service';
 export class TvSeriesController {
   constructor(private readonly tvService: TvSeriesService) {}
 
+  // 방영 중인 TV 시리즈 목록 조회
   @Get('on-the-air')
   @ApiOperation({
-    summary: '상영 중인 TV 시리즈 리스트를 조회',
-    description: '현재 상영 중인 TV 시리즈 리스트를 조회합니다.',
+    summary: '상영 중인 TV 시리즈 목록 조회',
+    description: '현재 상영 중인 TV 시리즈 목록을 조회합니다.',
   })
   @ApiOkResponse({
-    description: '상영 중인 TV 시리즈 리스트 조회 성공',
+    description: '상영 중인 TV 시리즈 목록 조회 성공',
     type: TvSeriesListResponseDto,
   })
   @ApiQuery({
@@ -49,13 +51,14 @@ export class TvSeriesController {
     return this.tvService.getOnTheAirTvSeries(page, limit);
   }
 
+  // 평점 높은 TV 시리즈 목록 조회
   @Get('top-rated')
   @ApiOperation({
-    summary: '평점 높은 TV 시리즈 리스트 조회',
-    description: '평점이 높은 TV 시리즈 리스트를 조회합니다.',
+    summary: '평점 높은 TV 시리즈 목록 조회',
+    description: '평점이 높은 TV 시리즈 목록을 조회합니다.',
   })
   @ApiOkResponse({
-    description: '평점 높은 TV 시리즈 리스트 조회 성공',
+    description: '평점 높은 TV 시리즈 목록 조회 성공',
     type: TvSeriesListResponseDto,
   })
   @ApiQuery({
@@ -78,13 +81,14 @@ export class TvSeriesController {
     return this.tvService.getTopRatedTvSeries(page, limit);
   }
 
+  // 인기 있는 TV 시리즈 목록 조회
   @Get('popular')
   @ApiOperation({
-    summary: '인기 있는 TV 시리즈 리스트 조회',
-    description: '인기 있는 TV 시리즈 리스트를 조회합니다.',
+    summary: '인기 있는 TV 시리즈 목록 조회',
+    description: '인기 있는 TV 시리즈 목록을 조회합니다.',
   })
   @ApiOkResponse({
-    description: '인기 있는 TV 시리즈 리스트 조회 성공',
+    description: '인기 있는 TV 시리즈 목록 조회 성공',
     type: TvSeriesListResponseDto,
   })
   @ApiQuery({
@@ -107,20 +111,21 @@ export class TvSeriesController {
     return this.tvService.getPopularTvSeries(page, limit);
   }
 
+  // 장르별 TV 시리즈 목록 조회
   @Get('')
   @ApiOperation({
-    summary: '장르별 TV 시리즈 리스트 조회',
-    description: '장르 ID를 통해 해당 장르의 TV 시리즈 리스트를 조회합니다.',
+    summary: '장르별 TV 시리즈 목록 조회',
+    description: '장르 ID를 통해 해당 장르의 TV 시리즈 목록을 조회합니다.',
   })
   @ApiOkResponse({
-    description: '장르별 TV 시리즈 리스트 조회 성공',
+    description: '장르별 TV 시리즈 목록 조회 성공',
     type: TvSeriesListResponseDto,
   })
   @ApiQuery({
     name: 'genreId',
     required: true,
-    description: '장르 ID (DB 내부 ID)',
-    type: [Number],
+    type: Number,
+    description: '장르 ID (여러 개 선택 가능)',
   })
   @ApiQuery({
     name: 'page',
@@ -134,44 +139,23 @@ export class TvSeriesController {
     description: '페이지당 반환 개수 (기본값: 20)',
     type: Number,
   })
-  @CustomApiException(() => [InvalidPageException])
+  @CustomApiException(() => [InvalidGenreIdException, InvalidPageException])
   async getTvsByGenre(
     @Query() query: GenrePaginationQueryDto,
   ): Promise<TvSeriesListResponseDto> {
-    const { genreIds, page, limit } = query;
-    return this.tvService.getTvSeriesByGenreIds(genreIds, page, limit);
+    const { genreId, page, limit } = query;
+    return this.tvService.getTvSeriesByGenreIds(genreId, page, limit);
   }
 
-  @Get(':tvId')
-  @ApiOperation({
-    summary: 'TV 시리즈 상세 정보 조회',
-    description: 'TV 시리즈 ID를 통해 TV 시리즈의 상세 정보를 조회합니다.',
-  })
-  @ApiOkResponse({
-    description: 'TV 시리즈 상세 정보 조회 성공',
-    type: TvSeriesDetailResponseDto,
-  })
-  @ApiParam({
-    name: 'tvId',
-    type: Number,
-    required: true,
-    description: 'TV 시리즈 ID',
-  })
-  @CustomApiException(() => [ContentNotFoundException])
-  async getTvById(
-    @Param('tvId') tvId: number,
-  ): Promise<TvSeriesDetailResponseDto> {
-    return this.tvService.findTvSeriesById(tvId);
-  }
-
+  // 추천 TV 시리즈 목록 조회
   @Get(':tvId/recommends')
   @ApiOperation({
-    summary: '추천 TV 시리즈 리스트 조회',
-    description: 'TV 시리즈 ID를 통해 추천 TV 시리즈 리스트를 조회합니다.',
+    summary: '추천 TV 시리즈 목록 조회',
+    description: 'TV 시리즈 ID를 통해 추천 TV 시리즈 목록을 조회합니다.',
   })
   @ApiOkResponse({
-    description: '추천 TV 시리즈 리스트 조회 성공',
-    type: TvSeriesDetailResponseDto,
+    description: '추천 TV 시리즈 목록 조회 성공',
+    type: TvSeriesListResponseDto,
   })
   @ApiParam({
     name: 'tvId',
@@ -198,5 +182,28 @@ export class TvSeriesController {
   ): Promise<TvSeriesListResponseDto> {
     const { page, limit } = query;
     return this.tvService.getRecommendedTvSeriesById(tvId, page, limit);
+  }
+
+  // TV 시리즈 상세 조회
+  @Get(':tvId')
+  @ApiOperation({
+    summary: 'TV 시리즈 상세 정보 조회',
+    description: 'TV 시리즈 ID를 통해 TV 시리즈의 상세 정보를 조회합니다.',
+  })
+  @ApiOkResponse({
+    description: 'TV 시리즈 상세 정보 조회 성공',
+    type: TvSeriesDetailResponseDto,
+  })
+  @ApiParam({
+    name: 'tvId',
+    type: Number,
+    required: true,
+    description: 'TV 시리즈 ID',
+  })
+  @CustomApiException(() => [ContentNotFoundException])
+  async getTvById(
+    @Param('tvId') tvId: number,
+  ): Promise<TvSeriesDetailResponseDto> {
+    return this.tvService.findTvSeriesById(tvId);
   }
 }
