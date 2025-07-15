@@ -127,7 +127,7 @@ export class UserService {
       throw new UserNotFoundException();
     }
 
-    if (oldImageKey !== newImageKey) {
+    if (oldImageKey && oldImageKey !== newImageKey) {
       await this.s3Service.deleteFile(oldImageKey);
     }
   }
