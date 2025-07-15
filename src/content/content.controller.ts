@@ -12,7 +12,7 @@ import { ContentService } from './content.service';
 import { LatestContentsResponseDto } from './dto/latest-content-response.dto';
 
 @ApiTags('Content')
-@Controller('content')
+@Controller('contents')
 export class ContentController {
   constructor(private readonly contentService: ContentService) {}
 
