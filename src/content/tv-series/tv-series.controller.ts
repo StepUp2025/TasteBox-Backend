@@ -138,8 +138,8 @@ export class TvSeriesController {
   async getTvsByGenre(
     @Query() query: GenrePaginationQueryDto,
   ): Promise<TvSeriesListResponseDto> {
-    const { genreIds, page, limit } = query;
-    return this.tvService.getTvSeriesByGenreIds(genreIds, page, limit);
+    const { genreId, page, limit } = query;
+    return this.tvService.getTvSeriesByGenreIds(genreId, page, limit);
   }
 
   @Get(':tvId')
