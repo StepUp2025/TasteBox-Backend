@@ -23,5 +23,5 @@ export class GenrePaginationQueryDto extends PaginationQueryDto {
     }
     return value;
   })
-  genreIds: number[];
+  genreId: number[];
 }

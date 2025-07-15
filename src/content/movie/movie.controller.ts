@@ -143,8 +143,8 @@ export class MovieController {
   async getMoviesByGenreIds(
     @Query() query: GenrePaginationQueryDto,
   ): Promise<MovieListResponseDto> {
-    const { genreIds, page, limit } = query;
-    return this.movieService.getMoviesByGenreIds(genreIds, page, limit);
+    const { genreId, page, limit } = query;
+    return this.movieService.getMoviesByGenreIds(genreId, page, limit);
   }
 
   @Get(':movieId')
