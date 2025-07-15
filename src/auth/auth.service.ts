@@ -48,10 +48,13 @@ export class AuthService {
       hashedRefreshToken,
     );
 
+    const isPreferenceSet = await this.userRepository.hasPreference(userId);
+
     return {
       id: userId,
       accessToken,
       refreshToken,
+      isPreferenceSet,
     };
   }
 
