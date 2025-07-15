@@ -41,6 +41,7 @@ import { UserNotFoundException } from '../user/exceptions/user-not-found.excepti
 import { AuthService } from './auth.service';
 import { LoginRequestDto } from './dto/request/login-request.dto';
 import { UpdatePasswordRequestDto } from './dto/request/update-password-request.dto';
+import { LoginResponseDto } from './dto/response/login-response.dto';
 import { AlreadyRegisteredAccountException } from './exceptions/already-registered-account.exception';
 import { InvalidCredentialsException } from './exceptions/invalid-credentials.exception';
 import { InvalidCurrentPasswordException } from './exceptions/invalid-current-password.exception';
@@ -104,6 +105,7 @@ export class AuthController {
   @ApiOkResponse({
     description:
       '로그인 성공 시 accessToken은 Body에, refreshToken은 쿠키에 저장되어 반환됩니다.',
+    type: LoginResponseDto,
   })
   @ApiBadRequestResponse({ schema: loginValidationErrorSchema })
   @CustomApiException(() => [
@@ -115,11 +117,10 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Req() req: RequestWithUser, @Res() res: Response) {
-    const { accessToken, refreshToken } = await this.authService.login(
-      req.user.id,
-    );
+    const { accessToken, refreshToken, isPreferenceSet } =
+      await this.authService.login(req.user.id);
     this.setRefreshTokenToCookie(res, refreshToken);
-    return res.status(HttpStatus.OK).json({ accessToken });
+    return res.status(HttpStatus.OK).json({ accessToken, isPreferenceSet });
   }
 
   @ApiBearerAuth()
@@ -210,13 +211,12 @@ export class AuthController {
   @Get('google/callback')
   @HttpCode(HttpStatus.FOUND)
   async googleCallback(@Req() req: RequestWithUser, @Res() res: Response) {
-    const { accessToken, refreshToken } = await this.authService.login(
-      req.user.id,
-    );
+    const { accessToken, refreshToken, isPreferenceSet } =
+      await this.authService.login(req.user.id);
     this.setRefreshTokenToCookie(res, refreshToken);
 
     res.setHeader('Content-Type', 'text/html');
-    this.sendAccessTokenToPopup(res, accessToken);
+    this.sendAccessTokenToPopup(res, accessToken, isPreferenceSet);
     return;
   }
 
@@ -249,22 +249,25 @@ export class AuthController {
   @Get('kakao/callback')
   @HttpCode(HttpStatus.FOUND)
   async kakaoCallback(@Req() req: RequestWithUser, @Res() res: Response) {
-    const { accessToken, refreshToken } = await this.authService.login(
-      req.user.id,
-    );
+    const { accessToken, refreshToken, isPreferenceSet } =
+      await this.authService.login(req.user.id);
     this.setRefreshTokenToCookie(res, refreshToken);
 
     res.setHeader('Content-Type', 'text/html');
-    this.sendAccessTokenToPopup(res, accessToken);
+    this.sendAccessTokenToPopup(res, accessToken, isPreferenceSet);
     return;
   }
 
-  private sendAccessTokenToPopup(res: Response, accessToken: string) {
+  private sendAccessTokenToPopup(
+    res: Response,
+    accessToken: string,
+    isPreferenceSet: boolean,
+  ) {
     res.setHeader('Content-Type', 'text/html');
     res.send(`
     <script>
       window.opener.postMessage(
-        ${JSON.stringify({ accessToken })},
+        ${JSON.stringify({ accessToken, isPreferenceSet })},
         "${process.env.FRONTEND_ORIGIN}"
       );
       window.close();
