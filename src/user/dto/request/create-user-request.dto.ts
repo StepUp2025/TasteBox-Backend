@@ -71,7 +71,7 @@ export class CreateUserRequestDto {
   @Transform(({ value }) => (value === '' ? undefined : value))
   contact?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: 'string',
     format: 'binary',
     description: '프로필 이미지 파일',
