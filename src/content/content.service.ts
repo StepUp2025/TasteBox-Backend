@@ -10,9 +10,13 @@ export class ContentService {
 
   async getRecentContentsAddedByUser(
     userId: number,
+    limit: number,
   ): Promise<LatestContentsResponseDto> {
     const collectionContents =
-      await this.collectionContentRepository.findRecentContentsByUserId(userId);
+      await this.collectionContentRepository.findRecentContentsByUserId(
+        userId,
+        limit,
+      );
     const contents = collectionContents.map((cc) => cc.content.toSummaryDto());
     return new LatestContentsResponseDto(contents);
   }

@@ -12,6 +12,7 @@ export class CollectionContentRepository {
 
   async findRecentContentsByUserId(
     userId: number,
+    limit: number,
   ): Promise<CollectionContent[]> {
     return this.collectionContentRepository
       .createQueryBuilder('collectionContent')
@@ -19,6 +20,7 @@ export class CollectionContentRepository {
       .leftJoinAndSelect('collectionContent.content', 'content')
       .where('collection.userId = :userId', { userId })
       .orderBy('collectionContent.createdAt', 'DESC')
+      .limit(limit)
       .getMany();
   }
 }
