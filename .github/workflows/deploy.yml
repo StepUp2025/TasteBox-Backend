@@ -86,6 +86,6 @@ jobs:
               "aws s3 cp s3://s3-tastebox/backend/.env ./TasteBox/TasteBox-Backend/.env",
               "rm app.tar.gz",
               "cd /home/ubuntu/TasteBox",
-              "sudo docker compose up -d --build backend",
+              "sudo docker compose up -d --build --force-recreate backend",
               "sudo docker system prune -f"
             ]'
