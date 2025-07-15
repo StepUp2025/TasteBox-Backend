@@ -23,9 +23,17 @@ export class UserService {
 
   async findUserById(id: number): Promise<UserResponseDto> {
     const user = await this.getOrThrowById(id);
-    return plainToInstance(UserResponseDto, user, {
-      excludeExtraneousValues: true,
-    });
+    const imageUrl = user.image
+      ? await this.s3Service.getPresignedUrl(user.image)
+      : '';
+
+    return plainToInstance(
+      UserResponseDto,
+      { ...user, image: imageUrl },
+      {
+        excludeExtraneousValues: true,
+      },
+    );
   }
 
   async findUserByEmail(email: string): Promise<UserResponseDto> {
@@ -57,7 +65,7 @@ export class UserService {
     const newUser = await this.userRepository.createUser(dto);
 
     if (image) {
-      const imageUrl = await this.s3Service.uploadFile({
+      const imageKey = await this.s3Service.uploadFile({
         file: {
           ...image,
           /*
@@ -71,7 +79,7 @@ export class UserService {
         domain: FileDomain.USERS,
         userId: newUser.id,
       });
-      await this.userRepository.updateUserImage(newUser.id, imageUrl);
+      await this.userRepository.updateUserImage(newUser.id, imageKey);
     }
   }
 
@@ -87,7 +95,12 @@ export class UserService {
       throw new DuplicateNicknameException();
     }
 
-    const imageUrl = image
+    const user = await this.userRepository.findOneById(userId);
+    if (!user) throw new UserNotFoundException();
+
+    const oldImageKey = user.image;
+
+    const newImageKey = image
       ? await this.s3Service.uploadFile({
           file: {
             ...image,
@@ -102,9 +115,21 @@ export class UserService {
           domain: FileDomain.USERS,
           userId,
         })
-      : null;
+      : user.image;
 
-    await this.userRepository.updateUserProfile(userId, dto, imageUrl);
+    const result = await this.userRepository.updateUserProfile(
+      userId,
+      dto,
+      newImageKey,
+    );
+
+    if (result.affected === 0) {
+      throw new UserNotFoundException();
+    }
+
+    if (oldImageKey !== newImageKey) {
+      await this.s3Service.deleteFile(oldImageKey);
+    }
   }
 
   async generateUniqueNickname(base?: string): Promise<string> {

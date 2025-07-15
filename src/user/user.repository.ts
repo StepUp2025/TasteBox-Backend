@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserNotFoundException } from 'src/user/exceptions/user-not-found.exception';
 import { Repository } from 'typeorm';
 import { CreateUserRequestDto } from './dto/request/create-user-request.dto';
 import { UpdateUserProfileRequestDto } from './dto/request/update-user-request.dto';
@@ -36,17 +35,12 @@ export class UserRepository {
   async updateUserProfile(
     userId: number,
     dto: UpdateUserProfileRequestDto,
-    imageUrl?: string | null,
+    imageKey?: string | null,
   ) {
-    const user = await this.findOneById(userId);
+    const updateData =
+      imageKey !== undefined ? { ...dto, image: imageKey } : { ...dto };
 
-    if (!user) {
-      throw new UserNotFoundException();
-    }
-
-    user.updateProfile(dto.nickname, dto.contact, imageUrl);
-
-    await this.repository.save(user);
+    return await this.repository.update(userId, updateData);
   }
 
   async updateUserImage(userId: number, imageUrl: string): Promise<void> {

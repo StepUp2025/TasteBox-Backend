@@ -20,7 +20,7 @@ export class User extends BaseEntity {
   contact: string | null;
 
   @Column({ type: 'varchar', nullable: true })
-  image: string | null;
+  image: string;
 
   @Column({
     type: 'enum',

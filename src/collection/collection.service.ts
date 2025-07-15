@@ -40,7 +40,7 @@ export class CollectionService {
     const user = await this.userRepository.findOneById(userId);
     if (!user) throw new UserNotFoundException();
 
-    const thumbnailUrl = thumbnail
+    const thumbnailKey = thumbnail
       ? await this.s3Service.uploadFile({
           file: {
             ...thumbnail,
@@ -56,12 +56,12 @@ export class CollectionService {
           domain: FileDomain.COLLECTIONS,
           userId,
         })
-      : this.getRandomDefaultThumbnailUrl();
+      : this.getRandomDefaultThumbnailKey();
 
     const newCollection = await this.collectionRepository.create(
       userId,
       dto,
-      thumbnailUrl,
+      thumbnailKey,
     );
 
     if (!newCollection) {
@@ -86,18 +86,20 @@ export class CollectionService {
       },
     );
 
-    const collectionSummaryDtos = collections.map((collection) => {
-      const contentIds = collection.collectionContents.map(
-        (cc) => cc.content.id,
-      );
-      return new CollectionSummaryDto({
-        id: collection.id,
-        title: collection.title,
-        thumbnail: collection.thumbnail,
-        description: collection.description,
-        contents: contentIds,
-      });
-    });
+    const collectionSummaryDtos = await Promise.all(
+      collections.map(async (collection) => {
+        const contentIds = collection.collectionContents.map(
+          (cc) => cc.content.id,
+        );
+        return new CollectionSummaryDto({
+          id: collection.id,
+          title: collection.title,
+          thumbnail: await this.s3Service.getPresignedUrl(collection.thumbnail),
+          description: collection.description,
+          contents: contentIds,
+        });
+      }),
+    );
 
     return new CollectionListResponseDto({
       collections: collectionSummaryDtos,
@@ -124,7 +126,7 @@ export class CollectionService {
     return new CollectionDetailResponseDto({
       id: collection.id,
       title: collection.title,
-      thumbnail: collection.thumbnail,
+      thumbnail: await this.s3Service.getPresignedUrl(collection.thumbnail),
       description: collection.description ? collection.description : '',
       contents: contentSummaryDtos,
     });
@@ -144,9 +146,9 @@ export class CollectionService {
     if (!collection) throw new CollectionNotFoundException();
     if (collection.user.id !== userId) throw new ForbiddenException();
 
-    const oldThumbnailUrl = collection.thumbnail;
+    const oldThumbnailKey = collection.thumbnail;
 
-    const newThumbnailUrl = thumbnail
+    const newThumbnailKey = thumbnail
       ? await this.s3Service.uploadFile({
           file: {
             ...thumbnail,
@@ -167,15 +169,15 @@ export class CollectionService {
     const result = await this.collectionRepository.updateByCollectionId(
       collectionId,
       dto,
-      newThumbnailUrl,
+      newThumbnailKey,
     );
 
     if (result.affected === 0) {
       throw new CollectionNotFoundException();
     }
 
-    if (oldThumbnailUrl !== newThumbnailUrl) {
-      await this.deleteThumbnailIfCustom(oldThumbnailUrl);
+    if (oldThumbnailKey !== newThumbnailKey) {
+      await this.deleteThumbnailIfCustom(oldThumbnailKey);
     }
   }
 
@@ -256,27 +258,24 @@ export class CollectionService {
     );
   }
 
-  private getRandomDefaultThumbnailUrl(): string {
+  private getRandomDefaultThumbnailKey(): string {
     const defaultUrls = this.configService
-      .getOrThrow<string>('DEFAULT_THUMBNAIL_URLS')
+      .getOrThrow<string>('DEFAULT_THUMBNAIL_KEYS')
       .split(',');
 
     const randomIndex = Math.floor(Math.random() * defaultUrls.length);
     return defaultUrls[randomIndex];
   }
 
-  private async deleteThumbnailIfCustom(url: string) {
+  private async deleteThumbnailIfCustom(thumbnailKey: string) {
     // 1. 기본 썸네일 목록 불러오기
     const defaultUrls = this.configService
-      .getOrThrow<string>('DEFAULT_THUMBNAIL_URLS')
+      .getOrThrow<string>('DEFAULT_THUMBNAIL_KEYS')
       .split(',');
 
     // 2. 만약 기본 썸네일이 아니면 S3에서 삭제
-    if (url && !defaultUrls.includes(url)) {
-      const key = decodeURIComponent(
-        new URL(url).pathname.split('/').slice(2).join('/'),
-      );
-      await this.s3Service.deleteFile(key);
+    if (thumbnailKey && !defaultUrls.includes(thumbnailKey)) {
+      await this.s3Service.deleteFile(thumbnailKey);
       this.logger.log('썸네일 삭제 완료');
     }
   }
