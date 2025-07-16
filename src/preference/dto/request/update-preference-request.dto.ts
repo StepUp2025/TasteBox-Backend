@@ -1,7 +1,7 @@
 // src/preference/dto/request/update-preference-request.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsObject, ValidateNested } from 'class-validator';
+import { ValidateNested } from 'class-validator';
 import { GenreIdsDto } from './genre-ids.dto';
 
 export class UpdatePreferenceRequestDto {
@@ -11,7 +11,6 @@ export class UpdatePreferenceRequestDto {
     nullable: false,
     required: true,
   })
-  @IsObject()
   @ValidateNested()
   @Type(() => GenreIdsDto)
   movie: GenreIdsDto;
@@ -22,7 +21,6 @@ export class UpdatePreferenceRequestDto {
     nullable: false,
     required: true,
   })
-  @IsObject()
   @ValidateNested()
   @Type(() => GenreIdsDto)
   tv: GenreIdsDto;
