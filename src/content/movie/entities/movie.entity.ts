@@ -1,4 +1,4 @@
-import { ContentSummaryDto } from 'src/collection/dto/response/content-summary.dto';
+import { ContentSummaryDto } from 'src/content/dto/content-summary.dto';
 import { Content } from 'src/content/entities/content.entity';
 import { MovieStatus } from 'src/content/enum/movie-status.enum';
 import { ChildEntity, Column } from 'typeorm';
@@ -54,7 +54,7 @@ export class Movie extends Content {
   toSummaryDto(): ContentSummaryDto {
     return new ContentSummaryDto({
       id: this.id,
-      posterPath: this.posterPath,
+      posterPath: this.posterPath ?? '',
       title: this.title,
       contentType: this.type,
     });

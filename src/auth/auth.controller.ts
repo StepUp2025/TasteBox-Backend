@@ -1,19 +1,25 @@
 import {
   Body,
   Controller,
+  FileTypeValidator,
   Get,
   HttpCode,
   HttpStatus,
+  ParseFilePipe,
   Post,
   Put,
   Req,
   Res,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiFoundResponse,
   ApiOkResponse,
@@ -21,7 +27,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Response } from 'express';
-
 import * as ms from 'ms';
 import { CustomApiException } from 'src/common/decorators/custom-api-exception.decorator';
 import { loginValidationErrorSchema } from 'src/common/swagger/login-validation-error-schema';
@@ -36,6 +41,7 @@ import { UserNotFoundException } from '../user/exceptions/user-not-found.excepti
 import { AuthService } from './auth.service';
 import { LoginRequestDto } from './dto/request/login-request.dto';
 import { UpdatePasswordRequestDto } from './dto/request/update-password-request.dto';
+import { LoginResponseDto } from './dto/response/login-response.dto';
 import { AlreadyRegisteredAccountException } from './exceptions/already-registered-account.exception';
 import { InvalidCredentialsException } from './exceptions/invalid-credentials.exception';
 import { InvalidCurrentPasswordException } from './exceptions/invalid-current-password.exception';
@@ -59,8 +65,12 @@ export class AuthController {
     private readonly authService: AuthService,
   ) {}
 
-  @Post('signup')
   @ApiOperation({ summary: 'Local 회원가입' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: '회원가입 시 필요 정보',
+    type: CreateUserRequestDto,
+  })
   @ApiCreatedResponse({
     description: '회원가입 성공',
   })
@@ -69,18 +79,33 @@ export class AuthController {
     DuplicateNicknameException,
     AlreadyRegisteredAccountException,
   ])
-  async signup(@Body() dto: CreateUserRequestDto) {
-    await this.userService.createLocalUser(dto);
+  @Post('signup')
+  @UseInterceptors(FileInterceptor('image'))
+  async signup(
+    @Body() dto: CreateUserRequestDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ }),
+        ],
+        fileIsRequired: false,
+      }),
+    )
+    image?: Express.Multer.File,
+  ) {
+    await this.userService.createLocalUser(dto, image);
   }
 
-  @UseGuards(LocalAuthGuard)
-  @Post('login')
-  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Local 회원 로그인' })
-  @ApiBody({ type: LoginRequestDto })
+  @ApiConsumes('application/x-www-form-urlencoded')
+  @ApiBody({
+    description: '로그인 시 필요한 이메일과 비밀번호',
+    type: LoginRequestDto,
+  })
   @ApiOkResponse({
     description:
-      '로그인 성공 시 accessToken과 refreshToken이 쿠키에 저장되어 반환됩니다.',
+      '로그인 성공 시 accessToken은 Body에, refreshToken은 쿠키에 저장되어 반환됩니다.',
+    type: LoginResponseDto,
   })
   @ApiBadRequestResponse({ schema: loginValidationErrorSchema })
   @CustomApiException(() => [
@@ -88,38 +113,40 @@ export class AuthController {
     OAuthAccountLoginException,
     UserNotFoundException,
   ])
+  @UseGuards(LocalAuthGuard)
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
   async login(@Req() req: RequestWithUser, @Res() res: Response) {
-    const { accessToken, refreshToken } = await this.authService.login(
-      req.user.id,
-    );
+    const { accessToken, refreshToken, isPreferenceSet } =
+      await this.authService.login(req.user.id);
     this.setRefreshTokenToCookie(res, refreshToken);
-    return res.status(HttpStatus.OK).json({ accessToken });
+    return res.status(HttpStatus.OK).json({ accessToken, isPreferenceSet });
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('logout')
-  @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({ summary: '로그아웃' })
   @ApiOkResponse({
     description: '로그아웃 성공 시 쿠키가 삭제됩니다',
   })
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
   async logout(@Req() req: RequestWithUser, @Res() res: Response) {
     await this.authService.logout(req.user.id);
     res.clearCookie('refreshToken');
     return res.sendStatus(HttpStatus.OK);
   }
 
-  @UseGuards(RefreshAuthGuard)
-  @Post('refresh')
-  @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({ summary: '토큰 갱신' })
   @ApiOkResponse({
     description:
-      '토큰 갱신 성공 시 accessToken과 refreshToken이 쿠키에 저장되어 반환됩니다.',
+      '토큰 갱신 성공 시 accessToken은 Body에, refreshToken은 쿠키에 저장되어 반환됩니다.Swagger는 쿠키를 저장하지 않기 때문에 Swagger에서 테스트는 불가능합니다.',
   })
   @CustomApiException(() => [InvalidRefreshTokenException])
+  @UseGuards(RefreshAuthGuard)
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
   async refreshToken(@Req() req: RequestWithUser, @Res() res: Response) {
     const { accessToken, refreshToken } = await this.authService.refreshToken(
       req.user.id,
@@ -128,14 +155,12 @@ export class AuthController {
     return res.status(HttpStatus.OK).json({ accessToken });
   }
 
-  @UseGuards(JwtAuthGuard)
-  @UseGuards(LocalUserOnlyGuard)
-  @Put('password')
   @ApiBearerAuth()
   @ApiOperation({
     summary: '비밀번호 변경',
     description: '로그인한 사용자의 비밀번호를 변경합니다. (Local 회원만 가능)',
   })
+  @ApiConsumes('application/x-www-form-urlencoded')
   @ApiBody({ type: UpdatePasswordRequestDto })
   @ApiOkResponse({
     description: '비밀번호가 성공적으로 변경되었습니다.',
@@ -147,6 +172,9 @@ export class AuthController {
     InvalidCurrentPasswordException,
     PasswordMismatchException,
   ])
+  @UseGuards(LocalUserOnlyGuard)
+  @UseGuards(JwtAuthGuard)
+  @Put('password')
   async updatePassword(
     @Req() req: RequestWithUser,
     @Body() dto: UpdatePasswordRequestDto,
@@ -154,9 +182,6 @@ export class AuthController {
     await this.authService.updatePassword(req.user.id, dto);
   }
 
-  @UseGuards(GoogleAuthGuard)
-  @Get('google/login')
-  @HttpCode(HttpStatus.FOUND)
   @ApiOperation({
     summary: 'Google 로그인 시작',
     description:
@@ -169,33 +194,32 @@ export class AuthController {
     AlreadyRegisteredAccountException,
     UniqueNicknameGenerationException,
   ])
+  @UseGuards(GoogleAuthGuard)
+  @Get('google/login')
+  @HttpCode(HttpStatus.FOUND)
   googleLogin() {}
 
-  @UseGuards(GoogleAuthGuard)
-  @Get('google/callback')
-  @HttpCode(HttpStatus.FOUND)
   @ApiOperation({
     summary: 'Google 로그인 콜백',
     description: 'Google OAuth 로그인 후 콜백을 처리합니다.',
   })
   @ApiFoundResponse({
     description:
-      'Google 로그인 성공 시 accessToken과 refreshToken이 쿠키에 저장되고, 프론트엔드로 리다이렉트됩니다.',
+      'Google 로그인 성공 시, 팝업을 통해 accessToken을 Body에, refreshToken을 쿠키에 저장합니다.',
   })
+  @UseGuards(GoogleAuthGuard)
+  @Get('google/callback')
+  @HttpCode(HttpStatus.FOUND)
   async googleCallback(@Req() req: RequestWithUser, @Res() res: Response) {
-    const { accessToken, refreshToken } = await this.authService.login(
-      req.user.id,
-    );
+    const { accessToken, refreshToken, isPreferenceSet } =
+      await this.authService.login(req.user.id);
     this.setRefreshTokenToCookie(res, refreshToken);
 
     res.setHeader('Content-Type', 'text/html');
-    this.sendAccessTokenToPopup(res, accessToken);
+    this.sendAccessTokenToPopup(res, accessToken, isPreferenceSet);
     return;
   }
 
-  @UseGuards(KakaoAuthGuard)
-  @Get('kakao/login')
-  @HttpCode(HttpStatus.FOUND)
   @ApiOperation({
     summary: '카카오 로그인 시작',
     description:
@@ -208,36 +232,42 @@ export class AuthController {
     AlreadyRegisteredAccountException,
     UniqueNicknameGenerationException,
   ])
+  @UseGuards(KakaoAuthGuard)
+  @Get('kakao/login')
+  @HttpCode(HttpStatus.FOUND)
   kakaoLogin() {}
 
-  @UseGuards(KakaoAuthGuard)
-  @Get('kakao/callback')
-  @HttpCode(HttpStatus.FOUND)
   @ApiOperation({
     summary: '카카오 로그인 콜백',
     description: '카카오 OAuth 로그인 후 콜백을 처리합니다.',
   })
   @ApiFoundResponse({
     description:
-      '카카오 로그인 성공 시 accessToken과 refreshToken이 쿠키에 저장되고, 프론트엔드로 리다이렉트됩니다.',
+      '카카오 로그인 성공 시, 팝업을 통해 accessToken을 Body에, refreshToken을 쿠키에 저장합니다.',
   })
+  @UseGuards(KakaoAuthGuard)
+  @Get('kakao/callback')
+  @HttpCode(HttpStatus.FOUND)
   async kakaoCallback(@Req() req: RequestWithUser, @Res() res: Response) {
-    const { accessToken, refreshToken } = await this.authService.login(
-      req.user.id,
-    );
+    const { accessToken, refreshToken, isPreferenceSet } =
+      await this.authService.login(req.user.id);
     this.setRefreshTokenToCookie(res, refreshToken);
 
     res.setHeader('Content-Type', 'text/html');
-    this.sendAccessTokenToPopup(res, accessToken);
+    this.sendAccessTokenToPopup(res, accessToken, isPreferenceSet);
     return;
   }
 
-  private sendAccessTokenToPopup(res: Response, accessToken: string) {
+  private sendAccessTokenToPopup(
+    res: Response,
+    accessToken: string,
+    isPreferenceSet: boolean,
+  ) {
     res.setHeader('Content-Type', 'text/html');
     res.send(`
     <script>
       window.opener.postMessage(
-        ${JSON.stringify({ accessToken })},
+        ${JSON.stringify({ accessToken, isPreferenceSet })},
         "${process.env.FRONTEND_ORIGIN}"
       );
       window.close();

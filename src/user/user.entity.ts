@@ -2,6 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { Collection } from 'src/collection/entities/collection.entity';
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
+import { Preference } from './../preference/entities/preference.entity';
 import { AuthProvider } from './enums/auth-provider.enum';
 
 @Entity()
@@ -19,7 +20,7 @@ export class User extends BaseEntity {
   contact: string | null;
 
   @Column({ type: 'varchar', nullable: true })
-  image: string | null;
+  image: string;
 
   @Column({
     type: 'enum',
@@ -34,6 +35,12 @@ export class User extends BaseEntity {
     (collection) => collection.user,
   )
   collections: Collection[];
+
+  @OneToMany(
+    () => Preference,
+    (preference) => preference.user,
+  )
+  preference: Preference;
 
   @BeforeInsert()
   @BeforeUpdate()
@@ -51,26 +58,28 @@ export class User extends BaseEntity {
     nickname: string,
     provider?: AuthProvider,
     contact?: string,
-    image?: string,
+    imageUrl?: string,
   ) {
     const user = new User();
     user.email = email;
     user.password = password;
     user.nickname = nickname;
     user.provider = provider ?? AuthProvider.LOCAL;
-    user.contact = contact ?? null;
-    user.image = image ?? null;
+    user.contact = contact ?? '';
+    user.image = imageUrl ?? '';
     return user;
   }
 
   updateProfile(
-    nickname?: string,
+    nickname: string,
     contact?: string | null,
-    image?: string | null,
+    imageUrl?: string | null,
   ) {
-    if (nickname !== undefined) this.nickname = nickname;
-    if (contact !== undefined) this.contact = contact;
-    if (image !== undefined) this.image = image;
+    this.nickname = nickname;
+    this.contact = contact ?? '';
+    if (imageUrl) {
+      this.image = imageUrl;
+    }
   }
 
   updatePassword(newPassword: string) {

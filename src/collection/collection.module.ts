@@ -6,6 +6,7 @@ import { UserModule } from 'src/user/user.module';
 import { CollectionController } from './collection.controller';
 import { CollectionRepository } from './collection.repository';
 import { CollectionService } from './collection.service';
+import { CollectionContentRepository } from './collection-content.repository';
 import { Collection } from './entities/collection.entity';
 import { CollectionContent } from './entities/collection-content.entity';
 
@@ -16,6 +17,11 @@ import { CollectionContent } from './entities/collection-content.entity';
     S3Module,
   ],
   controllers: [CollectionController],
-  providers: [CollectionService, CollectionRepository],
+  providers: [
+    CollectionService,
+    CollectionRepository,
+    CollectionContentRepository,
+  ],
+  exports: [CollectionContentRepository],
 })
 export class CollectionModule {}

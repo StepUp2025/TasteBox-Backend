@@ -40,6 +40,8 @@ import { CreateCollectionRequestDto } from './dto/request/create-collection-requ
 import { UpdateCollectionRequestDto } from './dto/request/update-collection-request.dto';
 import { CollectionDetailResponseDto } from './dto/response/collection-detail-response.dto';
 import { CollectionListResponseDto } from './dto/response/collection-list-response.dto';
+import { CreateCollectionResponseDto } from './dto/response/create-collection.response.dto';
+import { CollectionCreateFailException } from './exception/collection-create-fail.exception';
 import { CollectionDeleteFailException } from './exception/collection-delete-fail.exception';
 import { CollectionNotFoundException } from './exception/collection-not-found.exception';
 
@@ -58,8 +60,15 @@ export class CollectionController {
     description: '생성할 컬렉션 정보 및 썸네일 파일',
     type: CreateCollectionRequestDto,
   })
-  @ApiCreatedResponse({ description: '컬렉션 생성 성공' })
-  @CustomApiException(() => [UserNotFoundException, S3UploadFailException])
+  @ApiCreatedResponse({
+    description: '컬렉션 생성 성공',
+    type: CreateCollectionResponseDto,
+  })
+  @CustomApiException(() => [
+    UserNotFoundException,
+    S3UploadFailException,
+    CollectionCreateFailException,
+  ])
   @UseGuards(JwtAuthGuard)
   @Post()
   @UseInterceptors(FileInterceptor('thumbnail'))
@@ -77,7 +86,11 @@ export class CollectionController {
     thumbnail?: Express.Multer.File,
   ) {
     const userId = req.user.id;
-    await this.collectionService.createCollection(userId, dto, thumbnail);
+    return await this.collectionService.createCollection(
+      userId,
+      dto,
+      thumbnail,
+    );
   }
 
   @ApiBearerAuth()

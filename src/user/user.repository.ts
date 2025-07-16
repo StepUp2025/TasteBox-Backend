@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserNotFoundException } from 'src/user/exceptions/user-not-found.exception';
+
+import { Preference } from 'src/preference/entities/preference.entity';
+
 import { Repository } from 'typeorm';
 import { CreateUserRequestDto } from './dto/request/create-user-request.dto';
 import { UpdateUserProfileRequestDto } from './dto/request/update-user-request.dto';
@@ -10,49 +12,54 @@ import { User } from './user.entity';
 export class UserRepository {
   constructor(
     @InjectRepository(User)
-    private readonly repository: Repository<User>,
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(Preference)
+    private readonly preferenceRepository: Repository<Preference>,
   ) {}
 
   async findOneById(id: number): Promise<User | null> {
-    return await this.repository.findOneBy({ id });
+    return await this.userRepository.findOneBy({ id });
   }
 
   async findOneByEmail(email: string): Promise<User | null> {
-    return await this.repository.findOneBy({ email });
+    return await this.userRepository.findOneBy({ email });
   }
 
   async findOneByNickname(nickname: string): Promise<User | null> {
-    return await this.repository.findOneBy({ nickname });
+    return await this.userRepository.findOneBy({ nickname });
   }
 
   async createUser(dto: CreateUserRequestDto) {
-    const { email, password, nickname, contact, image, provider } = dto;
+    const { email, password, nickname, contact, provider } = dto;
 
-    const newUser = User.create(
-      email,
-      password,
-      nickname,
-      provider,
-      contact,
-      image,
-    );
+    const newUser = User.create(email, password, nickname, provider, contact);
 
-    return await this.repository.save(newUser);
+    return await this.userRepository.save(newUser);
   }
 
-  async updateUserProfile(userId: number, dto: UpdateUserProfileRequestDto) {
-    const user = await this.findOneById(userId);
+  async hasPreference(userId: number): Promise<boolean> {
+    const count = await this.preferenceRepository.count({
+      where: { user: { id: userId } },
+    });
+    return count > 0;
+  }
 
-    if (!user) {
-      throw new UserNotFoundException();
-    }
+  async updateUserProfile(
+    userId: number,
+    dto: UpdateUserProfileRequestDto,
+    imageKey?: string | null,
+  ) {
+    const updateData =
+      imageKey !== undefined ? { ...dto, image: imageKey } : { ...dto };
 
-    user.updateProfile(dto.nickname, dto.contact, dto.image);
+    return await this.userRepository.update(userId, updateData);
+  }
 
-    await this.repository.save(user);
+  async updateUserImage(userId: number, imageUrl: string): Promise<void> {
+    await this.userRepository.update(userId, { image: imageUrl });
   }
 
   async save(user: User) {
-    await this.repository.save(user);
+    await this.userRepository.save(user);
   }
 }
