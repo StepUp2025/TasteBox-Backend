@@ -145,6 +145,7 @@ export class TvSeriesController {
   ): Promise<TvSeriesListResponseDto> {
     const { genreId, page, limit } = query;
     return this.tvService.getTvSeriesByGenreIds(genreId, page, limit);
+  } // <--- This closing brace was missing!
 
   // 추천 TV 시리즈 목록 조회
   @Get(':tvId/recommends')
