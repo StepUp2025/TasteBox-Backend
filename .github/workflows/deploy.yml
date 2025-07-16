@@ -60,6 +60,10 @@ jobs:
           echo "AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }}" >> .env
           echo "DEFAULT_THUMBNAIL_KEYS=${{ vars.DEFAULT_THUMBNAIL_KEYS }}" >> .env
           echo "FRONTEND_ORIGIN=${{ vars.FRONTEND_ORIGIN }}" >> .env
+          echo "MOVIE_GLOBAL_AVERAGE_RATING=${{ vars.MOVIE_GLOBAL_AVERAGE_RATING }}" >> .env
+          echo "MOVIE_MIN_VOTES_REQUIRED=${{ vars.MOVIE_MIN_VOTES_REQUIRED }}" >> .env
+          echo "TV_SERIES_GLOBAL_AVERAGE_RATING=${{ vars.TV_SERIES_GLOBAL_AVERAGE_RATING }}" >> .env
+          echo "TV_SERIES_MIN_VOTES_REQUIRED=${{ vars.TV_SERIES_MIN_VOTES_REQUIRED }}" >> .env
 
       - name: Create application artifact
         run: |
