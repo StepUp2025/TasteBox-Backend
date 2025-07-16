@@ -26,7 +26,7 @@ export class MovieListResponseDto {
     description: '조회된 영화 목록',
     type: [MovieListItemDto],
   })
-  movies: MovieListItemDto[];
+  contents: MovieListItemDto[];
 
   @Expose()
   @ApiPropertyOptional({ description: '페이지 번호', example: 1 })
@@ -40,7 +40,7 @@ export class MovieListResponseDto {
     this.contentType = ContentType.MOVIE;
     this.page = params.page;
     this.totalPages = params.totalPages;
-    this.movies = plainToInstance(MovieListItemDto, params.results, {
+    this.contents = plainToInstance(MovieListItemDto, params.results, {
       excludeExtraneousValues: true,
     });
   }
