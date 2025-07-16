@@ -56,9 +56,13 @@ apt-get install -y certbot python3-certbot-nginx
 
 # 9. Add ubuntu user to docker group
 usermod -aG docker ubuntu
+systemctl restart docker
 
 # 10. Start SSM Agent
 if ! snap services amazon-ssm-agent | grep -q "enabled"; then
-    sudo snap enable amazon-ssm-agent
+    snap enable amazon-ssm-agent
 fi
-sudo snap start amazon-ssm-agent
+snap start amazon-ssm-agent
+
+# 위 사용자 데이터 작업이 다 진행된 이후에 적용이 잘 되지 않은 것이 있다면 수동으로 reboot해도 좋습니다.
+# 로그로 사용자 데이터 작업내용이 모두 수행됐는지 확인하는 것이 선행되어야 합니다.
