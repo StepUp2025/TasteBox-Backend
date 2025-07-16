@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CollectionModule } from 'src/collection/collection.module';
 import { ContentGenre } from 'src/content/entities/content-genre.entity';
 import { Genre } from 'src/genre/entities/genre.entity';
+import { GenreRepository } from './../genre/repository/genre.repository';
 import { ContentController } from './content.controller';
 import { ContentService } from './content.service';
 import { Content } from './entities/content.entity';
@@ -36,6 +37,7 @@ import { TvSeriesService } from './tv-series/tv-series.service';
     MovieRepository,
     TvSeriesService,
     TvSeriesRepository,
+    GenreRepository,
     ContentService,
   ],
   exports: [TypeOrmModule],

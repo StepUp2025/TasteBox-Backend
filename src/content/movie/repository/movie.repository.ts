@@ -1,25 +1,24 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ContentBaseRepository } from 'src/content/repository/content-base.repository';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { ContentNotFoundException } from './../../exception/content-not-found.exception';
 import { Movie } from './../entities/movie.entity';
 
 @Injectable()
-export class MovieRepository {
-  // 전체 평균 평점 (C)
-  private readonly GLOBAL_AVERAGE_RATING = 6.5;
-  // 최소한의 투표 수 (m)
-  private readonly MIN_VOTES_REQUIRED = 500;
-
-  // 가중 평균 평점 계산 공식 문자열 상수화
-  private readonly WEIGHTED_RATING_FORMULA =
-    `(content.voteCount / (content.voteCount + ${this.MIN_VOTES_REQUIRED})) * content.voteAverage + ` +
-    `(${this.MIN_VOTES_REQUIRED} / (content.voteCount + ${this.MIN_VOTES_REQUIRED})) * ${this.GLOBAL_AVERAGE_RATING}`;
-
+export class MovieRepository extends ContentBaseRepository<Movie> {
   constructor(
     @InjectRepository(Movie)
     private readonly movieRepository: Repository<Movie>,
-  ) {}
+    configService: ConfigService,
+  ) {
+    super(configService);
+  }
+
+  protected getRepository(): SelectQueryBuilder<Movie> {
+    return this.movieRepository.createQueryBuilder('content');
+  }
 
   // 영화 상세 조회
   async getMovieDetailById(id: number): Promise<Movie> {
@@ -46,53 +45,57 @@ export class MovieRepository {
       .createQueryBuilder('content')
       .where('content.releaseDate >= :sixWeeksAgo', {
         sixWeeksAgo: sixWeeksAgo.toISOString().split('T')[0],
-      }) // YYYY-MM-DD 형식으로 변환
+      })
       .andWhere('content.releaseDate <= :threeDaysLater', {
         threeDaysLater: threeDaysLater.toISOString().split('T')[0],
-      }) // YYYY-MM-DD 형식으로 변환
+      })
       .orderBy('content.releaseDate', 'DESC')
-      .addOrderBy('content.popularity', 'DESC')
-      .skip((page - 1) * limit)
-      .take(limit);
+      .addOrderBy('content.popularity', 'DESC');
 
-    const [results, totalCount] = await queryBuilder.getManyAndCount();
-    return [results, totalCount];
+    return this.applyPaginationAndGetManyAndCount(queryBuilder, page, limit);
   }
 
-  // 인기 있는 영화 목록 조회
-  async findPopularMovies(
+  // 인기 있는 영화 목록 조회 (findPopular 메서드 구현)
+  public async findPopular(
     page: number,
     limit: number,
   ): Promise<[Movie[], number]> {
-    const queryBuilder = this.movieRepository
-      .createQueryBuilder('content')
-      .orderBy('content.popularity', 'DESC')
-      .skip((page - 1) * limit)
-      .take(limit);
-
-    const [results, totalCount] = await queryBuilder.getManyAndCount();
-    return [results, totalCount];
+    const queryBuilder = this.getRepository().orderBy(
+      'content.popularity',
+      'DESC',
+    );
+    return this.applyPaginationAndGetManyAndCount(queryBuilder, page, limit);
   }
 
-  // 평점 높은 영화 목록 조회 (가중 평점 기반)
-  async findTopRatedMovies(
+  // 평점 높은 영화 목록 조회 (findTopRated 메서드 구현)
+  public async findTopRated(
     page: number,
     limit: number,
   ): Promise<[Movie[], number]> {
-    const queryBuilder = this.movieRepository
-      .createQueryBuilder('content')
-      .addSelect(this.WEIGHTED_RATING_FORMULA, 'weightedRating') // (selection: 계산식 문자열, alias: 별칭)
+    const globalAverageRating = this.configService.get<number>(
+      'MOVIE_GLOBAL_AVERAGE_RATING',
+      6.5,
+    );
+    const minVotesRequired = this.configService.get<number>(
+      'MOVIE_MIN_VOTES_REQUIRED',
+      500,
+    );
+
+    const weightedRatingFormula = this.getWeightedRatingFormula(
+      globalAverageRating,
+      minVotesRequired,
+    );
+
+    const queryBuilder = this.getRepository()
+      .addSelect(weightedRatingFormula, 'weightedRating')
       .where('content.voteCount >= :minVoteCount', {
-        minVoteCount: this.MIN_VOTES_REQUIRED,
+        minVoteCount: minVotesRequired,
       })
       .orderBy('weightedRating', 'DESC')
       .addOrderBy('content.voteCount', 'DESC')
-      .addOrderBy('content.voteAverage', 'DESC')
-      .skip((page - 1) * limit)
-      .take(limit);
+      .addOrderBy('content.voteAverage', 'DESC');
 
-    const [results, totalCount] = await queryBuilder.getManyAndCount();
-    return [results, totalCount];
+    return this.applyPaginationAndGetManyAndCount(queryBuilder, page, limit);
   }
 
   // 장르별 영화 목록 조회
@@ -101,18 +104,7 @@ export class MovieRepository {
     page: number,
     limit: number,
   ): Promise<[Movie[], number]> {
-    const queryBuilder = this.movieRepository
-      .createQueryBuilder('content')
-      .innerJoin('content.contentGenres', 'contentGenre')
-      .innerJoin('contentGenre.genre', 'genre')
-      .where('genre.id IN (:...genreIds)', { genreIds })
-      .orderBy('content.voteAverage', 'DESC')
-      .skip((page - 1) * limit)
-      .take(limit)
-      .distinctOn(['content.id']);
-
-    const [results, totalCount] = await queryBuilder.getManyAndCount();
-    return [results, totalCount];
+    return this.findByGenreIds(genreIds, page, limit);
   }
 
   // 추천 영화 목록 조회
@@ -121,21 +113,11 @@ export class MovieRepository {
     page: number,
     limit: number,
   ): Promise<[Movie[], number]> {
-    const movieWithGenres = await this.getMovieDetailById(movieId);
-    const genres = movieWithGenres.contentGenres;
-    if (!genres || genres.length === 0) return [[], 0];
-    const genreIds = genres.map((cg) => cg.genre.id);
-    const queryBuilder = this.movieRepository
-      .createQueryBuilder('content')
-      .innerJoin('content.contentGenres', 'contentGenre')
-      .innerJoin('contentGenre.genre', 'genre')
-      .where('content.id != :movieId', { movieId })
-      .andWhere('genre.id IN (:...genreIds)', { genreIds })
-      .orderBy('content.popularity', 'DESC')
-      .skip((page - 1) * limit)
-      .take(limit)
-      .distinctOn(['content.id']);
-    const [results, totalCount] = await queryBuilder.getManyAndCount();
-    return [results, totalCount];
+    return this.findRecommendById(
+      movieId,
+      page,
+      limit,
+      this.getMovieDetailById.bind(this),
+    );
   }
 }

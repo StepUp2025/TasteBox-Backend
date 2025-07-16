@@ -9,7 +9,7 @@ interface TvSeriesListResponseDtoParams {
   results: TvSeries[];
   page: number;
   limit: number;
-  totalCount: number;
+  totalPages: number;
 }
 
 export class TvSeriesListResponseDto {
@@ -48,7 +48,7 @@ export class TvSeriesListResponseDto {
   constructor(params: TvSeriesListResponseDtoParams) {
     this.contentType = ContentType.TVSERIES;
     this.page = params.page;
-    this.totalPages = Math.ceil(params.totalCount / params.limit);
+    this.totalPages = params.totalPages;
     this.tvs = plainToInstance(TvSeriesListItemDto, params.results, {
       excludeExtraneousValues: true,
     });

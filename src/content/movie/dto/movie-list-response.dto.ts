@@ -8,7 +8,7 @@ interface MovieListResponseDtoParams {
   results: Movie[];
   page: number;
   limit: number;
-  totalCount: number;
+  totalPages: number;
 }
 
 export class MovieListResponseDto {
@@ -39,7 +39,7 @@ export class MovieListResponseDto {
   constructor(params: MovieListResponseDtoParams) {
     this.contentType = ContentType.MOVIE;
     this.page = params.page;
-    this.totalPages = Math.ceil(params.totalCount / params.limit);
+    this.totalPages = params.totalPages;
     this.movies = plainToInstance(MovieListItemDto, params.results, {
       excludeExtraneousValues: true,
     });
