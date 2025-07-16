@@ -6,7 +6,7 @@ import { PaginationQueryDto } from 'src/content/dto/pagination-query.dto';
 export class GenrePaginationQueryDto extends PaginationQueryDto {
   @ApiProperty({
     description: '장르 ID (단일 또는 다중)',
-    type: [Number],
+    type: Number,
     isArray: true,
     example: [28, 12],
   })
