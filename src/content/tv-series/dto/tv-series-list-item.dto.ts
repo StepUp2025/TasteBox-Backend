@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
+import { TvSeries } from '../entities/tv-series.entity';
 
 export class TvSeriesListItemDto {
   @Expose()
@@ -8,6 +9,9 @@ export class TvSeriesListItemDto {
 
   @Expose()
   @ApiProperty({ description: 'TV 시리즈 제목', example: 'Game of Thrones' })
+  @Transform(({ obj }: { obj: TvSeries }) => obj.displayTitle, {
+    toClassOnly: true,
+  })
   title: string;
 
   @Expose()

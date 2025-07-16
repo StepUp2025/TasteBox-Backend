@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
+import { Movie } from '../entities/movie.entity';
 
 export class MovieListItemDto {
   @Expose()
@@ -10,6 +11,9 @@ export class MovieListItemDto {
   id: number;
 
   @Expose()
+  @Transform(({ obj }: { obj: Movie }) => obj.displayTitle, {
+    toClassOnly: true,
+  })
   @ApiProperty({ description: '영화 제목', example: 'Interstellar' })
   title: string;
 
