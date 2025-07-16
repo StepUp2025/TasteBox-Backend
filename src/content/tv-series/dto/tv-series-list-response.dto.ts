@@ -33,7 +33,7 @@ export class TvSeriesListResponseDto {
     description: '조회된 TV 시리즈 목록',
     type: [TvSeriesListItemDto],
   })
-  tvs: TvSeriesListItemDto[];
+  contents: TvSeriesListItemDto[];
 
   @Expose()
   @ApiProperty({ description: '페이지 번호', example: 1 })
@@ -49,7 +49,7 @@ export class TvSeriesListResponseDto {
     this.contentType = ContentType.TVSERIES;
     this.page = params.page;
     this.totalPages = params.totalPages;
-    this.tvs = plainToInstance(TvSeriesListItemDto, params.results, {
+    this.contents = plainToInstance(TvSeriesListItemDto, params.results, {
       excludeExtraneousValues: true,
     });
   }
