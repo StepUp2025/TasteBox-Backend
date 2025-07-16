@@ -72,7 +72,7 @@ export class TvSeries extends Content {
     return new ContentSummaryDto({
       id: this.id,
       posterPath: this.posterPath ?? '',
-      title: this.title,
+      title: this.displayTitle,
       contentType: this.type,
     });
   }

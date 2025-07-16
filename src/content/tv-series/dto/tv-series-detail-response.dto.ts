@@ -155,7 +155,7 @@ export class TvSeriesDetailResponseDto {
   constructor(tv: TvSeries) {
     this.id = tv.id;
     this.contentType = tv.type;
-    this.title = tv.title;
+    this.title = tv.displayTitle;
     this.overview = tv.overview;
     this.posterPath = tv.posterPath;
     this.backdropPath = tv.backdropPath;
