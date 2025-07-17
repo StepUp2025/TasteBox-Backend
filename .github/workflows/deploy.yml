@@ -65,7 +65,7 @@ jobs:
           echo "TV_SERIES_GLOBAL_AVERAGE_RATING=${{ vars.TV_SERIES_GLOBAL_AVERAGE_RATING }}" >> .env
           echo "TV_SERIES_MIN_VOTES_REQUIRED=${{ vars.TV_SERIES_MIN_VOTES_REQUIRED }}" >> .env
           echo "GF_SERVER_DOMAIN=${{ vars.GF_SERVER_DOMAIN }}" >> .env
-          echo "GF_SERVER_ROOT_URL=${{ vars.GF_SERVER_ROOT_URL }}/grafana/" >> .env
+          echo "GF_SERVER_ROOT_URL=${{ vars.GF_SERVER_ROOT_URL }}" >> .env
           echo "GF_SERVER_SERVE_FROM_SUB_PATH=true" >> .env
           echo "GF_SECURITY_ADMIN_PASSWORD=${{ secrets.GF_SECURITY_ADMIN_PASSWORD }}" >> .env
 
