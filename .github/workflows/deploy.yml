@@ -64,6 +64,10 @@ jobs:
           echo "MOVIE_MIN_VOTES_REQUIRED=${{ vars.MOVIE_MIN_VOTES_REQUIRED }}" >> .env
           echo "TV_SERIES_GLOBAL_AVERAGE_RATING=${{ vars.TV_SERIES_GLOBAL_AVERAGE_RATING }}" >> .env
           echo "TV_SERIES_MIN_VOTES_REQUIRED=${{ vars.TV_SERIES_MIN_VOTES_REQUIRED }}" >> .env
+          echo "GF_SERVER_DOMAIN=${{ vars.GF_SERVER_DOMAIN }}" >> .env
+          echo "GF_SERVER_ROOT_URL=${{ vars.GF_SERVER_ROOT_URL }}" >> .env
+          echo "GF_SERVER_SERVE_FROM_SUB_PATH=true" >> .env
+          echo "GF_SECURITY_ADMIN_PASSWORD=${{ secrets.GF_SECURITY_ADMIN_PASSWORD }}" >> .env
 
       - name: Create application artifact
         run: |
@@ -87,6 +91,8 @@ jobs:
               "aws s3 cp s3://s3-tastebox/backend/app.tar.gz .",
               "tar -xzf app.tar.gz -C ./TasteBox/TasteBox-Backend",
               "mv ./TasteBox/TasteBox-Backend/docker-compose.yml ./TasteBox/docker-compose.yml",
+              "mkdir -p ./TasteBox/prometheus",
+              "mv ./TasteBox/TasteBox-Backend/prometheus/prometheus.yml ./TasteBox/prometheus/prometheus.yml",
               "aws s3 cp s3://s3-tastebox/backend/.env ./TasteBox/TasteBox-Backend/.env",
               "rm app.tar.gz",
               "cd /home/ubuntu/TasteBox",

@@ -49,16 +49,43 @@ EOF
 
 ln -sf /etc/nginx/sites-available/tastebox /etc/nginx/sites-enabled/tastebox
 
+cat <<EOF > /etc/nginx/sites-available/grafana
+server {
+    listen 80;
+    server_name grafana.taste-box.xyz;
+
+    location / {
+        proxy_pass http://localhost:3001/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+    }
+}
+EOF
+
+ln -sf /etc/nginx/sites-available/grafana /etc/nginx/sites-enabled/grafana
+
+awk '/http {/ {print; print "    map \$http_upgrade \$connection_upgrade { default upgrade; \"\" close; }"; next}1' /etc/nginx/nginx.conf > /etc/nginx/nginx.conf.tmp && mv /etc/nginx/nginx.conf.tmp /etc/nginx/nginx.conf
+
 nginx -t && systemctl restart nginx
 
 # 8. Install Certbot and issue SSL certificate (APT version, more stable for cloud-init)
 apt-get install -y certbot python3-certbot-nginx
 
-# 9. Add ubuntu user to docker group
-usermod -aG docker ubuntu
+# 9. Add ubuntu user to docker group (write down your username)
+usermod -aG docker username
 systemctl restart docker
 
-# 10. Start SSM Agent
+# 10.
+mkdir -p /home/username/TasteBox/grafana/data
+chown -R 472:472 /home/username/TasteBox/grafana/data
+chmod -R 755 /home/username/TasteBox/grafana/data
+
+# 11. Start SSM Agent
 if ! snap services amazon-ssm-agent | grep -q "enabled"; then
     snap enable amazon-ssm-agent
 fi
